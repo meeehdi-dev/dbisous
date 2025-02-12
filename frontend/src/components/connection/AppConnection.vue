@@ -34,13 +34,11 @@ function copyToClipboard(text: string) {
   <UCard
     :ui="{
       root:
-        activeConnections.length > 0
-          ? connection.id === databaseId
-            ? 'opacity-100'
-            : connected
-              ? 'opacity-80'
-              : 'opacity-60'
-          : 'opacity-100',
+        connection.id === databaseId
+          ? 'border-r-2 border-r-primary-400 transition-colors'
+          : connected
+            ? 'border-r-2 border-r-primary-400/50 transition-colors'
+            : 'border-r-2 border-r-transparent transition-colors',
     }"
   >
     <div class="flex gap-4 items-center">

@@ -19,5 +19,7 @@ watch(container, (c) => {
 </script>
 
 <template>
-  <div ref="container" class="w-full h-[200px]" />
+  <div class="bg-neutral-950 pl-2 py-2 rounded">
+    <div ref="container" class="w-full h-[200px]" />
+  </div>
 </template>

@@ -1,9 +1,12 @@
 import { editor, languages } from "monaco-editor";
 import { Ref } from "vue";
 import { useUrlParams } from "../../composables/useUrlParams";
+import { getSQLiteKeywords } from "./keywords";
 
 export const useMonaco = (value: Ref<string>, _columns: Array<unknown>) => {
   const { tableId } = useUrlParams();
+
+  const keywords = getSQLiteKeywords();
 
   languages.registerCompletionItemProvider("sql", {
     provideCompletionItems: function (model, position) {
@@ -29,18 +32,12 @@ export const useMonaco = (value: Ref<string>, _columns: Array<unknown>) => {
             insertText: tableId.value,
             range,
           },
-          {
+          ...keywords.map((keyword) => ({
             kind: languages.CompletionItemKind.Keyword,
-            label: "SELECT",
-            insertText: "SELECT",
+            label: keyword,
+            insertText: keyword,
             range,
-          },
-          {
-            kind: languages.CompletionItemKind.Keyword,
-            label: "FROM",
-            insertText: "FROM",
-            range,
-          },
+          })),
         ],
       };
     },
@@ -52,8 +49,12 @@ export const useMonaco = (value: Ref<string>, _columns: Array<unknown>) => {
       minimap: { enabled: false },
       lineNumbers: "off",
       lineDecorationsWidth: 0,
+      folding: false,
       contextmenu: false,
       value: `SELECT * FROM ${tableId.value};`,
+      theme: "vs-dark",
+      scrollBeyondLastLine: false,
+      wordWrap: "on",
     });
     e.onEndUpdate(() => {
       value.value = e.getValue();

@@ -27,6 +27,19 @@
   --color-secondary-800: var(--ui-color-secondary-800);
   --color-secondary-900: var(--ui-color-secondary-900);
   --color-secondary-950: var(--ui-color-secondary-950);
+
+  --color-neutral: var(--ui-neutral);
+  --color-neutral-50: var(--ui-color-neutral-50);
+  --color-neutral-100: var(--ui-color-neutral-100);
+  --color-neutral-200: var(--ui-color-neutral-200);
+  --color-neutral-300: var(--ui-color-neutral-300);
+  --color-neutral-400: var(--ui-color-neutral-400);
+  --color-neutral-500: var(--ui-color-neutral-500);
+  --color-neutral-600: var(--ui-color-neutral-600);
+  --color-neutral-700: var(--ui-color-neutral-700);
+  --color-neutral-800: var(--ui-color-neutral-800);
+  --color-neutral-900: var(--ui-color-neutral-900);
+  --color-neutral-950: var(--ui-color-neutral-950);
 }
 
 button:not([disabled]) {
@@ -41,4 +54,12 @@ button:not([disabled]) {
 .fade-enter-from,
 .fade-leave-to {
   @apply opacity-0;
+}
+
+.monaco-editor {
+  --vscode-editor-background: var(--ui-color-neutral-950) !important;
+
+  .view-overlays .current-line-exact {
+    border: 0 !important;
+  }
 }
