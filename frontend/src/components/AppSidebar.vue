@@ -1,0 +1,69 @@
+<script setup lang="ts">
+import { ref, useTemplateRef, watch } from "vue";
+import { useElementSize } from "@vueuse/core";
+import { useDatabase } from "../composables/useDatabase";
+
+const { databases, fetchDatabases } = useDatabase();
+
+const list = useTemplateRef("list");
+
+const { height } = useElementSize(list);
+
+const slideoverOpen = ref(false);
+const secondaryAddButton = ref(false);
+
+watch(height, () => {
+  secondaryAddButton.value = height.value > window.outerHeight;
+});
+
+function onConnectionAdded() {
+  slideoverOpen.value = false;
+  fetchDatabases();
+}
+
+const packageVersion = import.meta.env.PACKAGE_VERSION;
+</script>
+
+<template>
+  <div class="w-72 bg-slate-800 flex flex-col justify-between">
+    <div class="flex flex-col px-2 py-4 gap-4 items-center">
+      <UButton
+        v-if="secondaryAddButton"
+        icon="lucide:plus"
+        @click="slideoverOpen = true"
+        label="Add connection"
+      />
+
+      <div ref="list" class="w-full flex flex-col gap-2">
+        <AppConnection
+          v-for="connection in databases"
+          v-bind:key="connection.id"
+          :connection="connection"
+          @connection-removed="fetchDatabases"
+        />
+      </div>
+
+      <UButton
+        icon="lucide:plus"
+        @click="slideoverOpen = true"
+        label="Add connection"
+      />
+
+      <USlideover
+        v-model:open="slideoverOpen"
+        side="left"
+        title="Add connection"
+        description="Fill connection type and details to test and save"
+      >
+        <template #body>
+          <AppConnectionForm @connection-added="onConnectionAdded" />
+        </template>
+      </USlideover>
+    </div>
+    <div>
+      <div class="p-4 flex flex-1 justify-center items-center">
+        v{{ packageVersion }}
+      </div>
+    </div>
+  </div>
+</template>

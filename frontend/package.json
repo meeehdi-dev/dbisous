@@ -1,0 +1,38 @@
+{
+  "name": "frontend",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@babel/types": "^7.26.7",
+    "@eslint/js": "^9.19.0",
+    "@nuxt/ui": "3.0.0-alpha.11",
+    "@tailwindcss/postcss": "^4.0.1",
+    "@tailwindcss/vite": "^4.0.1",
+    "@unhead/vue": "^1.11.18",
+    "@vitejs/plugin-vue": "^5.2.1",
+    "@vueuse/core": "^12.5.0",
+    "autoprefixer": "^10.4.20",
+    "effect": "^3.12.7",
+    "eslint": "^9.19.0",
+    "eslint-config-prettier": "^10.0.1",
+    "eslint-plugin-prettier": "^5.2.3",
+    "eslint-plugin-vue": "^9.32.0",
+    "globals": "^15.14.0",
+    "monaco-editor": "^0.52.2",
+    "prettier": "^3.4.2",
+    "tailwindcss": "^4.0.1",
+    "typescript": "^5.7.3",
+    "typescript-eslint": "^8.22.0",
+    "valibot": "^1.0.0-beta.14",
+    "vite": "^6.0.11",
+    "vue": "^3.5.13",
+    "vue-router": "^4.5.0",
+    "vue-tsc": "^2.2.0"
+  }
+}
