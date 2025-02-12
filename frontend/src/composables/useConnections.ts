@@ -55,7 +55,9 @@ export const useConnections = createSharedComposable(() => {
   };
 
   const select = async (id: string) => {
-    router.push(`/database/${id}`);
+    if (activeConnections.value.some((c) => c === id)) {
+      router.push(`/database/${id}`);
+    }
   };
 
   const connect = async (id: string) => {
@@ -108,7 +110,7 @@ export const useConnections = createSharedComposable(() => {
     connect,
     disconnect,
     select,
-    getConnectionName: getConnectionName,
+    getConnectionName,
     isConnected,
   };
 });

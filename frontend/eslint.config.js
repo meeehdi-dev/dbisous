@@ -16,4 +16,7 @@ export default [
     files: ["**/*.vue"],
     languageOptions: { parserOptions: { parser: tseslint.parser } },
   },
+  {
+    ignores: ["dist/", "node_modules/", "src/assets/", "wailsjs/", "**/*.d.ts"],
+  },
 ];

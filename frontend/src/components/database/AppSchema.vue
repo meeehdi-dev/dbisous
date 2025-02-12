@@ -44,7 +44,6 @@ const tables = ref<
 });
 await Effect.runPromise(
   wails(() => GetTables(databaseId.value, schemaId.value)).pipe(
-    Effect.tap(Effect.log),
     Effect.andThen((data) => ({
       ...data,
       columns: data.columns
@@ -96,6 +95,8 @@ const columnPinning = ref({ right: ["action"] });
       </UTable>
     </template>
     <template #info> </template>
-    <template #script> </template>
+    <template #script>
+      <AppScript />
+    </template>
   </UTabs>
 </template>

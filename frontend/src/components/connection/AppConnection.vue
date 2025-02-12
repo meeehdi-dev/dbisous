@@ -6,8 +6,7 @@ import { useUrlParams } from "../../composables/useUrlParams";
 
 const { connection } = defineProps<{ connection: database.Connection }>();
 
-const { isConnected, connect, disconnect, select, activeConnections } =
-  useConnections();
+const { isConnected, connect, disconnect, select } = useConnections();
 const { databaseId } = useUrlParams();
 const toast = useToast();
 
@@ -37,15 +36,13 @@ function copyToClipboard(text: string) {
         connection.id === databaseId
           ? 'border-r-2 border-r-primary-400 transition-colors'
           : connected
-            ? 'border-r-2 border-r-primary-400/50 transition-colors'
+            ? 'cursor-pointer border-r-2 border-r-primary-400/50 hover:border-r-primary-400 transition-colors'
             : 'border-r-2 border-r-transparent transition-colors',
     }"
+    @click="select(connection.id)"
   >
     <div class="flex gap-4 items-center">
-      <UIcon
-        :name="`simple-icons:${connection.type}`"
-        class="size-8 text-primary-400"
-      />
+      <UIcon :name="`simple-icons:${connection.type}`" class="size-8" />
       <div class="w-full flex flex-col">
         <div class="flex flex-1 flex-row gap-2 items-center justify-between">
           <span>
@@ -106,41 +103,22 @@ function copyToClipboard(text: string) {
           :text="connected ? 'Disconnect' : 'Connect'"
           :content="{ side: 'right' }"
         >
-          <UChip
-            :show="connected"
-            color="primary"
-            :ui="{ base: 'animate-ping' }"
-          >
-            <UButton
-              :icon="connected ? 'lucide:unplug' : 'lucide:plug'"
-              :color="connected ? 'warning' : 'primary'"
-              variant="soft"
-              @click="
-                () => {
-                  connected
-                    ? disconnect(connection.id)
-                    : connect(connection.id);
-                }
-              "
-            />
-          </UChip>
+          <UButton
+            :icon="connected ? 'lucide:unplug' : 'lucide:plug'"
+            :color="connected ? 'warning' : 'primary'"
+            variant="soft"
+            @click="
+              () => {
+                connected ? disconnect(connection.id) : connect(connection.id);
+              }
+            "
+          />
         </UTooltip>
 
         <div class="flex gap-2 justify-end">
           <AppConnectionRemoveButton :connection="connection" />
           <UTooltip text="Edit" :content="{ side: 'top' }">
             <UButton icon="lucide:edit" color="neutral" variant="soft" />
-          </UTooltip>
-          <UTooltip text="Select" :content="{ side: 'right' }">
-            <UButton
-              icon="lucide:play"
-              @click="select(connection.id)"
-              :color="connected ? 'primary' : 'neutral'"
-              :variant="
-                !connected || connection.id === databaseId ? 'soft' : 'solid'
-              "
-              :disabled="!connected || connection.id === databaseId"
-            />
           </UTooltip>
         </div>
       </div>

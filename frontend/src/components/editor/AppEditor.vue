@@ -1,20 +1,18 @@
 <script setup lang="ts">
-import { useTemplateRef, watch } from "vue";
+import { onMounted, onUnmounted, useTemplateRef } from "vue";
 import { useMonaco } from "./monaco";
+import { editor } from "monaco-editor";
 
-const { columns } = defineProps<{
-  columns: Array<unknown>;
-}>();
 const value = defineModel<string>({ required: true });
 const container = useTemplateRef("container");
-const monaco = useMonaco(value, columns);
+const { create } = useMonaco();
 
-watch(container, (c) => {
-  if (!c) {
-    return;
-  }
-
-  monaco.init(c);
+let e: editor.IStandaloneCodeEditor;
+onMounted(() => {
+  e = create(container.value!, value);
+});
+onUnmounted(() => {
+  e.dispose();
 });
 </script>
 
