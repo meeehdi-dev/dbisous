@@ -24,7 +24,9 @@ const getDatabaseName = (database: database.Database) => {
 <template>
   <UCard
     class="w-full"
-    :ui="{ root: connection.id === databaseId ? 'ring-primary-400/50' : '' }"
+    :ui="{
+      root: connection.id === databaseId ? 'ring-primary-400/50' : 'opacity-80',
+    }"
   >
     <div class="flex gap-4 items-center">
       <UIcon :name="`simple-icons:${connection.type}`" class="size-8" />
@@ -47,8 +49,9 @@ const getDatabaseName = (database: database.Database) => {
           :content="{ side: 'right' }"
         >
           <UChip
-            :color="connected ? 'success' : 'neutral'"
-            :ui="{ base: connected ? 'animate-ping' : undefined }"
+            :show="connected"
+            color="success"
+            :ui="{ base: 'animate-ping' }"
           >
             <UButton
               :icon="connected ? 'lucide:unplug' : 'lucide:plug'"
