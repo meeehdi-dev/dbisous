@@ -34,28 +34,28 @@ func (a *App) SelectFile() (string, error) {
 	return file, nil
 }
 
-func (a *App) GetDatabases() ([]database.Database, error) {
-	return database.GetDatabases()
+func (a *App) GetConnections() ([]database.Connection, error) {
+	return database.GetConnections()
 }
 
-func (a *App) CreateDatabase(dbInfo database.Database) error {
-	return database.CreateDatabase(dbInfo)
+func (a *App) CreateConnection(connection database.Connection) error {
+	return database.CreateConnection(connection)
 }
 
-func (a *App) UpdateDatabase(dbInfo database.Database) error {
-	return database.UpdateDatabase(dbInfo)
+func (a *App) UpdateConnection(connection database.Connection) error {
+	return database.UpdateConnection(connection)
 }
 
-func (a *App) DeleteDatabase(id string) error {
-	return database.DeleteDatabase(id)
+func (a *App) DeleteConnection(id string) error {
+	return database.DeleteConnection(id)
 }
 
-func (a *App) ConnectToDatabase(id string) error {
-	return database.ConnectToDatabase(id)
+func (a *App) Connect(id string) error {
+	return database.Connect(id)
 }
 
-func (a *App) DisconnectFromDatabase(id string) error {
-	return database.DisconnectFromDatabase(id)
+func (a *App) Disconnect(id string) error {
+	return database.Disconnect(id)
 }
 
 func (a *App) GetSchemas(id string) (client.QueryResult, error) {

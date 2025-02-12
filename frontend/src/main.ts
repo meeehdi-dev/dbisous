@@ -17,7 +17,6 @@ const router = createRouter({
       path: "/database/:databaseId",
       children: [
         { path: "", name: "database", component: AppDatabase },
-        { path: "schema", name: "database", component: AppDatabase },
         {
           path: "schema/:schemaId",
           children: [

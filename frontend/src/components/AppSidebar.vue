@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { ref, useTemplateRef, watch } from "vue";
 import { useElementSize } from "@vueuse/core";
-import { useDatabase } from "../composables/useDatabase";
+import { useConnections } from "../composables/useConnections";
 
-const { databases, fetchDatabases } = useDatabase();
+const { connections, fetchConnections } = useConnections();
 
 const list = useTemplateRef("list");
 
@@ -18,7 +18,7 @@ watch(height, () => {
 
 function onConnectionAdded() {
   slideoverOpen.value = false;
-  fetchDatabases();
+  fetchConnections();
 }
 
 const packageVersion = import.meta.env.PACKAGE_VERSION;
@@ -36,10 +36,10 @@ const packageVersion = import.meta.env.PACKAGE_VERSION;
 
       <div ref="list" class="w-full flex flex-col gap-2">
         <AppConnection
-          v-for="connection in databases"
+          v-for="connection in connections"
           v-bind:key="connection.id"
           :connection="connection"
-          @connection-removed="fetchDatabases"
+          @connection-removed="fetchConnections"
         />
       </div>
 

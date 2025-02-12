@@ -1,45 +1,104 @@
 <script setup lang="ts">
 import { database } from "../../../wailsjs/go/models";
 import { computed } from "vue";
-import { useDatabase } from "../../composables/useDatabase";
+import { useConnections } from "../../composables/useConnections";
 import { useUrlParams } from "../../composables/useUrlParams";
 
-const { connection } = defineProps<{ connection: database.Database }>();
+const { connection } = defineProps<{ connection: database.Connection }>();
 
-const { isConnected, connectDatabase, disconnectDatabase, selectDatabase } =
-  useDatabase();
+const { isConnected, connect, disconnect, select, activeConnections } =
+  useConnections();
 const { databaseId } = useUrlParams();
+const toast = useToast();
 
 const connected = computed(() => isConnected(connection.id));
 
-const getDatabaseName = (database: database.Database) => {
-  if (database.name) {
-    return database.name;
+function getConnectionName(connection: database.Connection) {
+  if (connection.name) {
+    return connection.name;
   }
-  const parts = database.connection_string.split("/");
+  const parts = connection.connection_string.split("/");
   return parts[parts.length - 1];
-};
+}
+
+function copyToClipboard(text: string, target: string) {
+  navigator.clipboard.writeText(text);
+  toast.add({
+    title: "Success!",
+    description: `${target} copied to clipboard!`,
+  });
+}
 </script>
 
 <template>
   <UCard
-    class="w-full"
     :ui="{
-      root: connection.id === databaseId ? 'ring-primary-400/50' : 'opacity-80',
+      root:
+        activeConnections.length > 0
+          ? connection.id === databaseId
+            ? 'opacity-100'
+            : connected
+              ? 'opacity-80'
+              : 'opacity-60'
+          : 'opacity-100',
     }"
   >
     <div class="flex gap-4 items-center">
-      <UIcon :name="`simple-icons:${connection.type}`" class="size-8" />
-      <UTooltip
-        :text="connection.connection_string"
-        :content="{
-          side: 'right',
-        }"
-      >
-        <span>
-          {{ getDatabaseName(connection) }}
-        </span>
-      </UTooltip>
+      <UIcon
+        :name="`simple-icons:${connection.type}`"
+        class="size-8 text-primary-400"
+      />
+      <div class="flex flex-col">
+        <div class="flex flex-row gap-2 items-center">
+          <span>
+            {{ getConnectionName(connection) }}
+          </span>
+          <UPopover mode="hover" :content="{ side: 'right' }">
+            <UIcon name="lucide:info" />
+
+            <template #content>
+              <div class="p-2 flex flex-col gap-2 text-gray-400">
+                <UTooltip text="Connection string" :content="{ side: 'left' }">
+                  <div class="flex flex-row gap-2 items-center">
+                    <UIcon name="lucide:link" />
+                    <UButton
+                      color="neutral"
+                      variant="ghost"
+                      trailing-icon="lucide:copy"
+                      :label="connection.connection_string"
+                      @click="
+                        copyToClipboard(
+                          connection.connection_string,
+                          'Connection string',
+                        )
+                      "
+                    />
+                  </div>
+                </UTooltip>
+                <UTooltip text="Creation date" :content="{ side: 'left' }">
+                  <div class="flex flex-row gap-2 items-center">
+                    <UIcon name="lucide:calendar" />
+                    <span class="text-sm">
+                      {{ new Date(connection.created_at).toLocaleString() }}
+                    </span>
+                  </div>
+                </UTooltip>
+                <UTooltip text="Update date" :content="{ side: 'left' }">
+                  <div
+                    v-if="connection.created_at !== connection.updated_at"
+                    class="flex flex-row gap-2 items-center"
+                  >
+                    <UIcon name="lucide:calendar-sync" />
+                    <span class="text-sm">
+                      {{ new Date(connection.created_at).toLocaleString() }}
+                    </span>
+                  </div>
+                </UTooltip>
+              </div>
+            </template>
+          </UPopover>
+        </div>
+      </div>
     </div>
 
     <template #footer>
@@ -60,8 +119,8 @@ const getDatabaseName = (database: database.Database) => {
               @click="
                 () => {
                   connected
-                    ? disconnectDatabase(connection.id)
-                    : connectDatabase(connection.id);
+                    ? disconnect(connection.id)
+                    : connect(connection.id);
                 }
               "
             />
@@ -70,13 +129,18 @@ const getDatabaseName = (database: database.Database) => {
 
         <div class="flex gap-2 justify-end">
           <AppConnectionRemoveButton :connection="connection" />
+          <UTooltip text="Edit" :content="{ side: 'top' }">
+            <UButton icon="lucide:edit" color="neutral" variant="soft" />
+          </UTooltip>
           <UTooltip text="Select" :content="{ side: 'right' }">
             <UButton
               icon="lucide:play"
-              @click="selectDatabase(connection.id)"
+              @click="select(connection.id)"
               :color="connected ? 'success' : 'neutral'"
-              variant="soft"
-              :disabled="!connected"
+              :variant="
+                !connected || connection.id === databaseId ? 'soft' : 'solid'
+              "
+              :disabled="!connected || connection.id === databaseId"
             />
           </UTooltip>
         </div>

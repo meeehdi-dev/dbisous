@@ -3,7 +3,7 @@ import { Effect } from "effect";
 import * as v from "valibot";
 import { reactive, ref } from "vue";
 import { useWails } from "../../wails";
-import { CreateDatabase, SelectFile } from "../../../wailsjs/go/app/App";
+import { CreateConnection, SelectFile } from "../../../wailsjs/go/app/App";
 import { FormSubmitEvent } from "@nuxt/ui/dist/module";
 
 const emit = defineEmits<{ (e: "connectionAdded"): void }>();
@@ -30,7 +30,7 @@ const types = ref([{ label: "Sqlite", value: "sqlite" }]);
 
 function addConnection(event: FormSubmitEvent<Schema>) {
   Effect.runPromise(
-    wails(() => CreateDatabase(event.data)).pipe(
+    wails(() => CreateConnection(event.data)).pipe(
       Effect.tap(() => {
         emit("connectionAdded");
       }),

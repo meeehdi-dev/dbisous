@@ -215,6 +215,7 @@ const columnPinning = ref({ right: ["action"] });
         :actions="[
           {
             label: 'Apply',
+            icon: 'lucide:check',
             color: 'warning',
             size: 'md',
             onClick() {
@@ -223,6 +224,7 @@ const columnPinning = ref({ right: ["action"] });
           },
           {
             label: 'Cancel',
+            icon: 'lucide:x',
             color: 'neutral',
             size: 'md',
           },
@@ -237,8 +239,13 @@ const columnPinning = ref({ right: ["action"] });
           <div class="flex flex-col gap-8">
             <AppEditor v-model="query" :columns="tableColumns.rows" />
             <div class="flex justify-end gap-2">
-              <UButton label="Apply" />
-              <UButton color="neutral" label="Cancel" @click="open = false" />
+              <UButton icon="lucide:check" label="Apply" />
+              <UButton
+                icon="lucide:x"
+                color="neutral"
+                label="Cancel"
+                @click="open = false"
+              />
             </div>
           </div>
         </template>

@@ -3,17 +3,17 @@
 import {database} from '../models';
 import {client} from '../models';
 
-export function ConnectToDatabase(arg1:string):Promise<void>;
+export function Connect(arg1:string):Promise<void>;
 
-export function CreateDatabase(arg1:database.Database):Promise<void>;
+export function CreateConnection(arg1:database.Connection):Promise<void>;
 
-export function DeleteDatabase(arg1:string):Promise<void>;
+export function DeleteConnection(arg1:string):Promise<void>;
 
-export function DisconnectFromDatabase(arg1:string):Promise<void>;
+export function Disconnect(arg1:string):Promise<void>;
 
 export function ExecuteQuery(arg1:string,arg2:string):Promise<client.QueryResult>;
 
-export function GetDatabases():Promise<Array<database.Database>>;
+export function GetConnections():Promise<Array<database.Connection>>;
 
 export function GetSchemas(arg1:string):Promise<client.QueryResult>;
 
@@ -23,4 +23,4 @@ export function GetTables(arg1:string,arg2:string):Promise<client.QueryResult>;
 
 export function SelectFile():Promise<string>;
 
-export function UpdateDatabase(arg1:database.Database):Promise<void>;
+export function UpdateConnection(arg1:database.Connection):Promise<void>;

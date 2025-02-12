@@ -26,8 +26,10 @@ func CloseMetadataDB() {
 
 func createMetadataTable() {
     query := `
-        CREATE TABLE IF NOT EXISTS databases (
+        CREATE TABLE IF NOT EXISTS connection (
             id TEXT PRIMARY KEY,
+            created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
             name TEXT NOT NULL,
             type TEXT NOT NULL,
             connection_string TEXT NOT NULL

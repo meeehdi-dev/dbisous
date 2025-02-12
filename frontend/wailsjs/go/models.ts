@@ -57,19 +57,23 @@ export namespace client {
 
 export namespace database {
 	
-	export class Database {
+	export class Connection {
 	    id: string;
+	    created_at: string;
+	    updated_at: string;
 	    name: string;
 	    type: string;
 	    connection_string: string;
 	
 	    static createFrom(source: any = {}) {
-	        return new Database(source);
+	        return new Connection(source);
 	    }
 	
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.id = source["id"];
+	        this.created_at = source["created_at"];
+	        this.updated_at = source["updated_at"];
 	        this.name = source["name"];
 	        this.type = source["type"];
 	        this.connection_string = source["connection_string"];

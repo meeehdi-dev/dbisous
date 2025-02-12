@@ -14,61 +14,61 @@ import (
 var activeConnections = make(map[string]*sql.DB)
 var dbClients = make(map[string]client.DatabaseClient)
 
-func CreateDatabase(dbInfo Database) error {
-	if dbInfo.ID == "" {
+func CreateConnection(connection Connection) error {
+	if connection.ID == "" {
 		id, err := uuid.NewRandom()
 		if err != nil {
 			return err
 		}
-		dbInfo.ID = id.String()
+		connection.ID = id.String()
 	}
 
 	query := `
-        INSERT INTO databases (id, name, type, connection_string)
+        INSERT INTO connection (id, name, type, connection_string)
         VALUES (?, ?, ?, ?)
     `
-	_, err := metadataDB.Exec(query, dbInfo.ID, dbInfo.Name, dbInfo.Type, dbInfo.ConnectionString)
+	_, err := metadataDB.Exec(query, connection.ID, connection.Name, connection.Type, connection.ConnectionString)
 	return err
 }
 
-func GetDatabases() ([]Database, error) {
-	query := `SELECT id, name, type, connection_string FROM databases`
+func GetConnections() ([]Connection, error) {
+	query := `SELECT id, created_at, updated_at, name, type, connection_string FROM connection`
 	rows, err := metadataDB.Query(query)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	var databases []Database
+	var connections []Connection
 	for rows.Next() {
-		var dbInfo Database
-		err := rows.Scan(&dbInfo.ID, &dbInfo.Name, &dbInfo.Type, &dbInfo.ConnectionString)
+		var connection Connection
+		err := rows.Scan(&connection.ID, &connection.CreatedAt, &connection.UpdatedAt, &connection.Name, &connection.Type, &connection.ConnectionString)
 		if err != nil {
 			return nil, err
 		}
-		databases = append(databases, dbInfo)
+		connections = append(connections, connection)
 	}
-	return databases, nil
+	return connections, nil
 }
 
-func UpdateDatabase(dbInfo Database) error {
+func UpdateConnection(connection Connection) error {
 	query := `
-        UPDATE databases
-        SET name = ?, type = ?, connection_string = ?
+        UPDATE connection
+        SET name = ?, type = ?, connection_string = ?, updated_at = CURRENT_TIMESTAMP
         WHERE id = ?
     `
-	_, err := metadataDB.Exec(query, dbInfo.Name, dbInfo.Type, dbInfo.ConnectionString, dbInfo.ID)
+	_, err := metadataDB.Exec(query, connection.Name, connection.Type, connection.ConnectionString, connection.ID)
 	return err
 }
 
-func DeleteDatabase(id string) error {
-	query := `DELETE FROM databases WHERE id = ?`
+func DeleteConnection(id string) error {
+	query := `DELETE FROM connection WHERE id = ?`
 	_, err := metadataDB.Exec(query, id)
 	return err
 }
 
-func ConnectToDatabase(id string) error {
-	query := `SELECT type, connection_string FROM databases WHERE id = ?`
+func Connect(id string) error {
+	query := `SELECT type, connection_string FROM connection WHERE id = ?`
 	var dbType, connectionString string
 	err := metadataDB.QueryRow(query, id).Scan(&dbType, &connectionString)
 	if err != nil {
@@ -97,7 +97,7 @@ func ConnectToDatabase(id string) error {
 	return nil
 }
 
-func DisconnectFromDatabase(id string) error {
+func Disconnect(id string) error {
 	if conn, exists := activeConnections[id]; exists {
 		delete(dbClients, id)
 		return conn.Close()
@@ -161,8 +161,10 @@ func ExecuteQuery(id string, query string) (client.QueryResult, error) {
 	return dbClient.ExecuteQuery(conn, query)
 }
 
-type Database struct {
+type Connection struct {
 	ID               string `json:"id"`
+	CreatedAt        string `json:"created_at"`
+	UpdatedAt        string `json:"updated_at"`
 	Name             string `json:"name"`
 	Type             string `json:"type"`
 	ConnectionString string `json:"connection_string"`

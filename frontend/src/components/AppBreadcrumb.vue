@@ -1,33 +1,36 @@
 <script setup lang="ts">
-import { ref, watch } from "vue";
-import { useRouter } from "vue-router";
+import { ref, watchEffect } from "vue";
+import { useUrlParams } from "../composables/useUrlParams";
+import { useConnections } from "../composables/useConnections";
 
-const router = useRouter();
+const { databaseId, schemaId, tableId } = useUrlParams();
+const { connections } = useConnections();
 
 const items = ref<BreadcrumbItem[]>([]);
 
-watch(router.currentRoute, () => {
-  const { params } = router.currentRoute.value;
+watchEffect(() => {
   const i: BreadcrumbItem[] = [];
-  if (params.database) {
+  if (databaseId.value) {
     i.push({
-      label: "Database",
+      label:
+        connections.value.find((c) => c.id === databaseId.value)?.name ||
+        "Database",
       icon: "lucide:database",
-      to: `/database/${params.database}`,
+      to: `/database/${databaseId.value}`,
     });
   }
-  if (params.schema) {
+  if (schemaId.value) {
     i.push({
-      label: params.schema,
+      label: schemaId.value,
       icon: "lucide:table-of-contents",
-      to: `/database/${params.database}/schema/${params.schema}`,
+      to: `/database/${databaseId.value}/schema/${schemaId.value}`,
     });
   }
-  if (params.table) {
+  if (tableId.value) {
     i.push({
-      label: params.table,
+      label: tableId.value,
       icon: "lucide:table",
-      to: `/database/${params.database}/schema/${params.schema}/table/${params.table}`,
+      to: `/database/${databaseId.value}/schema/${schemaId.value}/table/${tableId.value}`,
     });
   }
   items.value = i;

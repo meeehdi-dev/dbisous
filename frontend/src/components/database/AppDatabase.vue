@@ -13,6 +13,24 @@ const wails = useWails();
 const router = useRouter();
 const { databaseId } = useUrlParams();
 
+const tabs = [
+  {
+    label: "Data",
+    slot: "data",
+    icon: "lucide:list-ordered",
+  },
+  {
+    label: "Info",
+    slot: "info",
+    icon: "lucide:info",
+  },
+  {
+    label: "Script",
+    slot: "script",
+    icon: "lucide:square-terminal",
+  },
+];
+
 const schemasKey = ref(0);
 const schemas = ref<
   Omit<client.QueryResult, "convertValues" | "columns"> & {
@@ -58,18 +76,24 @@ const columnPinning = ref({ right: ["action"] });
 </script>
 
 <template>
-  <UTable
-    :data="schemas.rows"
-    :columns="schemas.columns"
-    v-model:column-pinning="columnPinning"
-    :key="schemasKey"
-  >
-    <template #action-cell="{ row }">
-      <UButton
-        icon="lucide:eye"
-        variant="ghost"
-        @click="navigateToSchema(row.original.name)"
-      />
+  <UTabs :items="tabs" variant="link" :ui="{ content: 'flex flex-col gap-2' }">
+    <template #data>
+      <UTable
+        :data="schemas.rows"
+        :columns="schemas.columns"
+        v-model:column-pinning="columnPinning"
+        :key="schemasKey"
+      >
+        <template #action-cell="{ row }">
+          <UButton
+            icon="lucide:eye"
+            variant="ghost"
+            @click="navigateToSchema(row.original.name)"
+          />
+        </template>
+      </UTable>
     </template>
-  </UTable>
+    <template #info> </template>
+    <template #script> </template>
+  </UTabs>
 </template>
