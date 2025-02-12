@@ -21,11 +21,11 @@ function getConnectionName(connection: database.Connection) {
   return parts[parts.length - 1];
 }
 
-function copyToClipboard(text: string, target: string) {
+function copyToClipboard(text: string) {
   navigator.clipboard.writeText(text);
   toast.add({
-    title: "Success!",
-    description: `${target} copied to clipboard!`,
+    title: "Successfully copied to clipboard!",
+    description: text,
   });
 }
 </script>
@@ -48,47 +48,48 @@ function copyToClipboard(text: string, target: string) {
         :name="`simple-icons:${connection.type}`"
         class="size-8 text-primary-400"
       />
-      <div class="flex flex-col">
-        <div class="flex flex-row gap-2 items-center">
+      <div class="w-full flex flex-col">
+        <div class="flex flex-1 flex-row gap-2 items-center justify-between">
           <span>
             {{ getConnectionName(connection) }}
           </span>
           <UPopover mode="hover" :content="{ side: 'right' }">
-            <UIcon name="lucide:info" />
-
+            <UIcon
+              name="lucide:info"
+              class="size-6 text-secondary-400/50 hover:text-secondary-400 transition-colors"
+            />
             <template #content>
               <div class="p-2 flex flex-col gap-2 text-gray-400">
                 <UTooltip text="Connection string" :content="{ side: 'left' }">
                   <div class="flex flex-row gap-2 items-center">
-                    <UIcon name="lucide:link" />
+                    <UIcon name="lucide:link" class="text-secondary-400" />
                     <UButton
                       color="neutral"
                       variant="ghost"
                       trailing-icon="lucide:copy"
+                      :ui="{ base: 'px-1' }"
                       :label="connection.connection_string"
-                      @click="
-                        copyToClipboard(
-                          connection.connection_string,
-                          'Connection string',
-                        )
-                      "
+                      @click="copyToClipboard(connection.connection_string)"
                     />
                   </div>
                 </UTooltip>
                 <UTooltip text="Creation date" :content="{ side: 'left' }">
                   <div class="flex flex-row gap-2 items-center">
-                    <UIcon name="lucide:calendar" />
+                    <UIcon name="lucide:calendar" class="text-primary-400/50" />
                     <span class="text-sm">
                       {{ new Date(connection.created_at).toLocaleString() }}
                     </span>
                   </div>
                 </UTooltip>
-                <UTooltip text="Update date" :content="{ side: 'left' }">
+                <UTooltip text="Last update" :content="{ side: 'left' }">
                   <div
                     v-if="connection.created_at !== connection.updated_at"
                     class="flex flex-row gap-2 items-center"
                   >
-                    <UIcon name="lucide:calendar-sync" />
+                    <UIcon
+                      name="lucide:calendar-sync"
+                      class="text-secondary-400"
+                    />
                     <span class="text-sm">
                       {{ new Date(connection.created_at).toLocaleString() }}
                     </span>
@@ -109,12 +110,12 @@ function copyToClipboard(text: string, target: string) {
         >
           <UChip
             :show="connected"
-            color="success"
+            color="primary"
             :ui="{ base: 'animate-ping' }"
           >
             <UButton
               :icon="connected ? 'lucide:unplug' : 'lucide:plug'"
-              :color="connected ? 'warning' : 'success'"
+              :color="connected ? 'warning' : 'primary'"
               variant="soft"
               @click="
                 () => {
@@ -136,7 +137,7 @@ function copyToClipboard(text: string, target: string) {
             <UButton
               icon="lucide:play"
               @click="select(connection.id)"
-              :color="connected ? 'success' : 'neutral'"
+              :color="connected ? 'primary' : 'neutral'"
               :variant="
                 !connected || connection.id === databaseId ? 'soft' : 'solid'
               "
