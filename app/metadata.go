@@ -2,9 +2,8 @@ package app
 
 import (
 	"database/sql"
-	"os"
-	"path"
 
+	"github.com/adrg/xdg"
 	_ "github.com/mattn/go-sqlite3"
 )
 
@@ -13,15 +12,9 @@ var metadataDB *sql.DB
 func InitMetadataDB(filepath string) error {
 	var err error
 
-	exeDir, err := os.Executable()
-	if err != nil {
-		return err
-	}
-	appDir := path.Dir(exeDir)
+	dataFilePath, err := xdg.DataFile("dbisous/metadata.db")
 
-	dbFilePath := path.Join(appDir, "metadata.db")
-
-	metadataDB, err = sql.Open("sqlite3", dbFilePath)
+	metadataDB, err = sql.Open("sqlite3", dataFilePath)
 	if err != nil {
 		return err
 	}
