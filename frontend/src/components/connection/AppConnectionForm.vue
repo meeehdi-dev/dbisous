@@ -3,7 +3,11 @@ import { Effect } from "effect";
 import * as v from "valibot";
 import { reactive, ref } from "vue";
 import { useWails } from "../../wails";
-import { CreateConnection, SelectFile, UpdateConnection } from "../../../wailsjs/go/app/App";
+import {
+  CreateConnection,
+  SelectFile,
+  UpdateConnection,
+} from "../../../wailsjs/go/app/App";
 import { FormSubmitEvent } from "@nuxt/ui/dist/module";
 
 import { useConnections } from "../../composables/useConnections";
@@ -103,22 +107,20 @@ function selectType(type: string) {
               label="PostgreSQL"
               size="xl"
               :ui="{ label: 'w-full text-center' }"
-              @click="selectType('mysql')"
+              @click="selectType('postgresql')"
               :trailing-icon="
-                state.type === 'mysql' ? 'lucide:check' : undefined
+                state.type === 'postgresql' ? 'lucide:check' : undefined
               "
-              disabled
             />
             <UButton
               icon="simple-icons:mysql"
               label="MySQL / MariaDB"
               size="xl"
               :ui="{ label: 'w-full text-center' }"
-              @click="selectType('postgresql')"
+              @click="selectType('mysql')"
               :trailing-icon="
-                state.type === 'postgresql' ? 'lucide:check' : undefined
+                state.type === 'mysql' ? 'lucide:check' : undefined
               "
-              disabled
             />
           </div>
         </div>
@@ -132,6 +134,7 @@ function selectType(type: string) {
             variant="outline"
             icon="lucide:arrow-left"
             @click="active = 0"
+            v-if="state.id === ''"
           />
         </div>
 

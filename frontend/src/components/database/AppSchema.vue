@@ -5,7 +5,7 @@ import { ref } from "vue";
 import { client } from "../../../wailsjs/go/models";
 import { useUrlParams } from "../../composables/useUrlParams";
 import { useWails } from "../../wails";
-import { GetTables } from "../../../wailsjs/go/app/App";
+import { GetSchemaInfo, GetTables } from "../../../wailsjs/go/app/App";
 import { Effect } from "effect";
 import { cell } from "./cell";
 
@@ -15,7 +15,7 @@ const { databaseId, schemaId } = useUrlParams();
 
 const tabs = [
   {
-    label: "Data",
+    label: "Tables",
     slot: "data",
     icon: "lucide:list-ordered",
   },
@@ -31,8 +31,8 @@ const tabs = [
   },
 ];
 
-const tablesKey = ref(0);
-const tables = ref<
+const dataKey = ref(0);
+const data = ref<
   Omit<client.QueryResult, "convertValues" | "columns"> & {
     columns: Array<TableColumn<TableData>>;
   }
@@ -44,9 +44,9 @@ const tables = ref<
 });
 await Effect.runPromise(
   wails(() => GetTables(databaseId.value, schemaId.value)).pipe(
-    Effect.andThen((data) => ({
-      ...data,
-      columns: data.columns
+    Effect.andThen((result) => ({
+      ...result,
+      columns: result.columns
         .map((column) => ({
           accessorKey: column.name,
           header: column.name,
@@ -60,9 +60,37 @@ await Effect.runPromise(
           },
         ]),
     })),
-    Effect.tap((data) => {
-      tables.value = data;
-      tablesKey.value++;
+    Effect.tap((result) => {
+      data.value = result;
+      dataKey.value++;
+    }),
+  ),
+);
+
+const infoKey = ref(0);
+const info = ref<
+  Omit<client.QueryResult, "convertValues" | "columns"> & {
+    columns: Array<TableColumn<TableData>>;
+  }
+>({
+  columns: [],
+  rows: [],
+  sql_duration: "",
+  total_duration: "",
+});
+await Effect.runPromise(
+  wails(() => GetSchemaInfo(databaseId.value, schemaId.value)).pipe(
+    Effect.andThen((result) => ({
+      ...result,
+      columns: result.columns.map((column) => ({
+        accessorKey: column.name,
+        header: column.name,
+        cell: cell(""),
+      })),
+    })),
+    Effect.tap((result) => {
+      info.value = result;
+      infoKey.value++;
     }),
   ),
 );
@@ -81,20 +109,33 @@ const columnPinning = ref({ right: ["action"] });
   <UTabs :items="tabs" variant="link" :ui="{ content: 'flex flex-col gap-2' }">
     <template #data>
       <UTable
-        :data="tables.rows"
-        :columns="tables.columns"
+        :data="data.rows"
+        :columns="data.columns"
         v-model:column-pinning="columnPinning"
+        :key="dataKey"
       >
         <template #action-cell="{ row }">
           <UButton
             icon="lucide:eye"
             variant="ghost"
-            @click="redirectToTable(row.original.schema, row.original.name)"
+            @click="
+              redirectToTable(
+                row.original.table_schema || row.original.schema,
+                row.original.table_name || row.original.name,
+              )
+            "
           />
         </template>
       </UTable>
     </template>
-    <template #info> </template>
+    <template #info>
+      <UTable
+        :data="info.rows"
+        :columns="info.columns"
+        v-model:column-pinning="columnPinning"
+        :key="infoKey"
+      />
+    </template>
     <template #script>
       <AppScript />
     </template>

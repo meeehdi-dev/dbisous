@@ -6,19 +6,17 @@ import { client } from "../../../wailsjs/go/models";
 import { Effect } from "effect";
 import { cell } from "./cell";
 import { useWails } from "../../wails";
-import { GetTableRows } from "../../../wailsjs/go/app/App";
+import { GetTableInfo, GetTableRows } from "../../../wailsjs/go/app/App";
 
 const wails = useWails();
 const { databaseId, schemaId, tableId } = useUrlParams();
 
 const transactionQuery = ref(`SELECT * FROM ${tableId.value}`);
-const columnsKey = ref(0);
-const dataKey = ref(0);
 const open = ref(false);
 
 const tabs = [
   {
-    label: "Data",
+    label: "Rows",
     slot: "data",
     icon: "lucide:list-ordered",
   },
@@ -34,32 +32,8 @@ const tabs = [
   },
 ];
 
-const tableColumns = ref<{
-  columns: Array<TableColumn<TableData>>;
-  rows: Array<TableColumn<TableData>>;
-  duration: string;
-}>({ columns: [], rows: [], duration: "" });
-// await Effect.runPromise(
-//   wails(() =>
-//     GetColumns(currentDatabase.value, currentSchema.value, currentTable.value),
-//   ).pipe(
-//     Effect.andThen((data) => ({
-//       ...data,
-//       columns: data.columns.map((column) => ({
-//         accessorKey: column.name,
-//         header: column.name,
-//         cell: cell(mapColumnType(column.name)),
-//       })),
-//     })),
-//     Effect.tap((data) => {
-//       tableColumns.value = data;
-//       columnsKey.value++;
-//     }),
-//   ),
-// );
-
-const rowsKey = ref(0);
-const rows = ref<
+const dataKey = ref(0);
+const data = ref<
   Omit<client.QueryResult, "convertValues" | "columns"> & {
     columns: Array<TableColumn<TableData>>;
   }
@@ -73,9 +47,9 @@ await Effect.runPromise(
   wails(() =>
     GetTableRows(databaseId.value, schemaId.value, tableId.value),
   ).pipe(
-    Effect.andThen((data) => ({
-      ...data,
-      columns: data.columns
+    Effect.andThen((result) => ({
+      ...result,
+      columns: result.columns
         .map((column) => ({
           accessorKey: column.name,
           header: column.name,
@@ -89,9 +63,39 @@ await Effect.runPromise(
           },
         ]),
     })),
-    Effect.tap((data) => {
-      rows.value = data;
-      rowsKey.value++;
+    Effect.tap((result) => {
+      data.value = result;
+      dataKey.value++;
+    }),
+  ),
+);
+
+const infoKey = ref(0);
+const info = ref<
+  Omit<client.QueryResult, "convertValues" | "columns"> & {
+    columns: Array<TableColumn<TableData>>;
+  }
+>({
+  columns: [],
+  rows: [],
+  sql_duration: "",
+  total_duration: "",
+});
+await Effect.runPromise(
+  wails(() =>
+    GetTableInfo(databaseId.value, schemaId.value, tableId.value),
+  ).pipe(
+    Effect.andThen((result) => ({
+      ...result,
+      columns: result.columns.map((column) => ({
+        accessorKey: column.name,
+        header: column.name,
+        cell: cell(""),
+      })),
+    })),
+    Effect.tap((result) => {
+      info.value = result;
+      infoKey.value++;
     }),
   ),
 );
@@ -108,8 +112,8 @@ const columnPinning = ref({ right: ["action"] });
     >
       <template #data>
         <UTable
-          :data="rows.rows"
-          :columns="rows.columns"
+          :data="data.rows"
+          :columns="data.columns"
           :key="dataKey"
           v-model:column-pinning="columnPinning"
         >
@@ -124,10 +128,10 @@ const columnPinning = ref({ right: ["action"] });
       </template>
       <template #info>
         <UTable
-          :data="tableColumns.rows"
-          :columns="tableColumns.columns"
-          :key="columnsKey"
+          :data="info.rows"
+          :columns="info.columns"
           v-model:column-pinning="columnPinning"
+          :key="infoKey"
         />
       </template>
       <template #script>
@@ -165,10 +169,7 @@ const columnPinning = ref({ right: ["action"] });
       >
         <template #body>
           <div class="flex flex-col gap-8">
-            <AppEditor
-              v-model="transactionQuery"
-              :columns="tableColumns.rows"
-            />
+            <AppEditor v-model="transactionQuery" />
             <div class="flex justify-end gap-2">
               <UButton icon="lucide:check" label="Apply" />
               <UButton

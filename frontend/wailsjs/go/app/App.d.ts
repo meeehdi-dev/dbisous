@@ -15,7 +15,13 @@ export function ExecuteQuery(arg1:string,arg2:string):Promise<client.QueryResult
 
 export function GetConnections():Promise<Array<app.Connection>>;
 
+export function GetDatabaseInfo(arg1:string):Promise<client.QueryResult>;
+
+export function GetSchemaInfo(arg1:string,arg2:string):Promise<client.QueryResult>;
+
 export function GetSchemas(arg1:string):Promise<client.QueryResult>;
+
+export function GetTableInfo(arg1:string,arg2:string,arg3:string):Promise<client.QueryResult>;
 
 export function GetTableRows(arg1:string,arg2:string,arg3:string):Promise<client.QueryResult>;
 

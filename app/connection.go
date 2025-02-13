@@ -84,7 +84,7 @@ func Connect(id string) error {
 	case "mysql":
 		db, err = sql.Open("mysql", connectionString)
 		dbClients[id] = &client.MysqlClient{Db: db}
-	case "postgres":
+	case "postgresql":
 		db, err = sql.Open("postgres", connectionString)
 		dbClients[id] = &client.PostgresClient{Db: db}
 	default:
@@ -118,13 +118,32 @@ func GetSchemas(id string) (client.QueryResult, error) {
 	return dbClient.GetSchemas()
 }
 
-func GetTables(id string, schema string) (client.QueryResult, error) {
+func GetDatabaseInfo(id string) (client.QueryResult, error) {
 	dbClient, exists := dbClients[id]
 	if !exists {
 		return client.QueryResult{}, fmt.Errorf("no database client for database ID: %s", id)
 	}
 
+	return dbClient.GetDatabaseInfo()
+}
+
+func GetTables(id string, schema string) (client.QueryResult, error) {
+	dbClient, exists := dbClients[id]
+
+	if !exists {
+		return client.QueryResult{}, fmt.Errorf("no database client for database ID: %s", id)
+	}
+
 	return dbClient.GetTables(schema)
+}
+
+func GetSchemaInfo(id string, schema string) (client.QueryResult, error) {
+	dbClient, exists := dbClients[id]
+	if !exists {
+		return client.QueryResult{}, fmt.Errorf("no database client for database ID: %s", id)
+	}
+
+	return dbClient.GetSchemaInfo(schema)
 }
 
 func GetTableRows(id string, schema string, table string) (client.QueryResult, error) {
@@ -134,6 +153,15 @@ func GetTableRows(id string, schema string, table string) (client.QueryResult, e
 	}
 
 	return dbClient.GetTableRows(schema, table)
+}
+
+func GetTableInfo(id string, schema string, table string) (client.QueryResult, error) {
+	dbClient, exists := dbClients[id]
+	if !exists {
+		return client.QueryResult{}, fmt.Errorf("no database client for database ID: %s", id)
+	}
+
+	return dbClient.GetTableInfo(schema, table)
 }
 
 func ExecuteQuery(id string, query string) (client.QueryResult, error) {

@@ -40,7 +40,14 @@ func fetchRows(rows *sql.Rows) (QueryResult, error) {
 
 		row := make(map[string]interface{})
 		for i, col := range columns {
-			row[col] = values[i]
+			value := values[i]
+			switch v := value.(type) {
+			case []byte:
+				value = string(v)
+			default:
+				value = v
+			}
+			row[col] = value
 		}
 		results = append(results, row)
 	}

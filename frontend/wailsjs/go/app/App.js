@@ -26,8 +26,20 @@ export function GetConnections() {
   return window['go']['app']['App']['GetConnections']();
 }
 
+export function GetDatabaseInfo(arg1) {
+  return window['go']['app']['App']['GetDatabaseInfo'](arg1);
+}
+
+export function GetSchemaInfo(arg1, arg2) {
+  return window['go']['app']['App']['GetSchemaInfo'](arg1, arg2);
+}
+
 export function GetSchemas(arg1) {
   return window['go']['app']['App']['GetSchemas'](arg1);
+}
+
+export function GetTableInfo(arg1, arg2, arg3) {
+  return window['go']['app']['App']['GetTableInfo'](arg1, arg2, arg3);
 }
 
 export function GetTableRows(arg1, arg2, arg3) {
