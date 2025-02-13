@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { database } from "../../../wailsjs/go/models";
 import { computed } from "vue";
 import { useConnections } from "../../composables/useConnections";
 import { useUrlParams } from "../../composables/useUrlParams";
+import { app } from "../../../wailsjs/go/models";
 
-const { connection } = defineProps<{ connection: database.Connection }>();
+const { connection } = defineProps<{ connection: app.Connection }>();
 
 const { isConnected, connect, disconnect, select } = useConnections();
 const { databaseId } = useUrlParams();
@@ -12,7 +12,7 @@ const toast = useToast();
 
 const connected = computed(() => isConnected(connection.id));
 
-function getConnectionName(connection: database.Connection) {
+function getConnectionName(connection: app.Connection) {
   if (connection.name) {
     return connection.name;
   }
@@ -98,7 +98,11 @@ function copyToClipboard(text: string) {
     </div>
 
     <template #footer>
-      <div class="flex justify-between">
+      <div class="flex gap-2 justify-end">
+        <AppConnectionRemoveButton :connection="connection" />
+        <UTooltip text="Edit" :content="{ side: 'top' }">
+          <UButton icon="lucide:edit" color="neutral" variant="soft" />
+        </UTooltip>
         <UTooltip
           :text="connected ? 'Disconnect' : 'Connect'"
           :content="{ side: 'right' }"
@@ -114,13 +118,6 @@ function copyToClipboard(text: string) {
             "
           />
         </UTooltip>
-
-        <div class="flex gap-2 justify-end">
-          <AppConnectionRemoveButton :connection="connection" />
-          <UTooltip text="Edit" :content="{ side: 'top' }">
-            <UButton icon="lucide:edit" color="neutral" variant="soft" />
-          </UTooltip>
-        </div>
       </div>
     </template>
   </UCard>

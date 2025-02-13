@@ -1,4 +1,4 @@
-package database
+package app
 
 import (
 	"database/sql"
@@ -13,23 +13,6 @@ import (
 
 var activeConnections = make(map[string]*sql.DB)
 var dbClients = make(map[string]client.DatabaseClient)
-
-func CreateConnection(connection Connection) error {
-	if connection.ID == "" {
-		id, err := uuid.NewRandom()
-		if err != nil {
-			return err
-		}
-		connection.ID = id.String()
-	}
-
-	query := `
-        INSERT INTO connection (id, name, type, connection_string)
-        VALUES (?, ?, ?, ?)
-    `
-	_, err := metadataDB.Exec(query, connection.ID, connection.Name, connection.Type, connection.ConnectionString)
-	return err
-}
 
 func GetConnections() ([]Connection, error) {
 	query := `SELECT id, created_at, updated_at, name, type, connection_string FROM connection`
@@ -49,6 +32,24 @@ func GetConnections() ([]Connection, error) {
 		connections = append(connections, connection)
 	}
 	return connections, nil
+}
+
+func CreateConnection(connection Connection) error {
+	if connection.ID == "" {
+		id, err := uuid.NewRandom()
+		if err != nil {
+			return err
+		}
+		connection.ID = id.String()
+	}
+
+	query := `
+        INSERT INTO connection (id, name, type, connection_string)
+        VALUES (?, ?, ?, ?)
+    `
+	_, err := metadataDB.Exec(query, connection.ID, connection.Name, connection.Type, connection.ConnectionString)
+
+	return err
 }
 
 func UpdateConnection(connection Connection) error {
@@ -75,90 +76,73 @@ func Connect(id string) error {
 		return err
 	}
 
-	var conn *sql.DB
+	var db *sql.DB
 	switch dbType {
 	case "sqlite":
-		conn, err = sql.Open("sqlite3", connectionString)
-		dbClients[id] = &client.SqliteClient{}
+		db, err = sql.Open("sqlite3", connectionString)
+		dbClients[id] = &client.SqliteClient{Db: db}
 	case "mysql":
-		conn, err = sql.Open("mysql", connectionString)
-		dbClients[id] = &client.MysqlClient{}
+		db, err = sql.Open("mysql", connectionString)
+		dbClients[id] = &client.MysqlClient{Db: db}
 	case "postgres":
-		conn, err = sql.Open("postgres", connectionString)
-		dbClients[id] = &client.PostgresClient{}
+		db, err = sql.Open("postgres", connectionString)
+		dbClients[id] = &client.PostgresClient{Db: db}
 	default:
 		return fmt.Errorf("unsupported database type: %s", dbType)
 	}
+
 	if err != nil {
 		return err
 	}
 
-	activeConnections[id] = conn
+	activeConnections[id] = db
 	return nil
 }
 
 func Disconnect(id string) error {
-	if conn, exists := activeConnections[id]; exists {
-		delete(dbClients, id)
-		return conn.Close()
+	conn, exists := activeConnections[id]
+	if !exists {
+		return fmt.Errorf("no active connection for database ID: %s", id)
 	}
-	return fmt.Errorf("no active connection for database ID: %s", id)
+
+	delete(dbClients, id)
+	return conn.Close()
 }
 
 func GetSchemas(id string) (client.QueryResult, error) {
-	conn, exists := activeConnections[id]
-	if !exists {
-		return client.QueryResult{}, fmt.Errorf("no active connection for database ID: %s", id)
-	}
-
 	dbClient, exists := dbClients[id]
 	if !exists {
 		return client.QueryResult{}, fmt.Errorf("no database client for database ID: %s", id)
 	}
 
-	return dbClient.GetSchemas(conn)
+	return dbClient.GetSchemas()
 }
 
 func GetTables(id string, schema string) (client.QueryResult, error) {
-	conn, exists := activeConnections[id]
-	if !exists {
-		return client.QueryResult{}, fmt.Errorf("no active connection for database ID: %s", id)
-	}
-
 	dbClient, exists := dbClients[id]
 	if !exists {
 		return client.QueryResult{}, fmt.Errorf("no database client for database ID: %s", id)
 	}
 
-	return dbClient.GetTables(conn, schema)
+	return dbClient.GetTables(schema)
 }
 
 func GetTableRows(id string, schema string, table string) (client.QueryResult, error) {
-	conn, exists := activeConnections[id]
-	if !exists {
-		return client.QueryResult{}, fmt.Errorf("no active connection for database ID: %s", id)
-	}
-
 	dbClient, exists := dbClients[id]
 	if !exists {
 		return client.QueryResult{}, fmt.Errorf("no database client for database ID: %s", id)
 	}
 
-	return dbClient.GetTableRows(conn, schema, table)
+	return dbClient.GetTableRows(schema, table)
 }
 
 func ExecuteQuery(id string, query string) (client.QueryResult, error) {
-	conn, exists := activeConnections[id]
-	if !exists {
-		return client.QueryResult{}, fmt.Errorf("no active connection for database ID: %s", id)
-	}
-
 	dbClient, exists := dbClients[id]
 	if !exists {
 		return client.QueryResult{}, fmt.Errorf("no database client for database ID: %s", id)
 	}
 
-	return dbClient.ExecuteQuery(conn, query)
+	return dbClient.ExecuteQuery(query)
 }
 
 type Connection struct {

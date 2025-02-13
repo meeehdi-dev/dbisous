@@ -5,23 +5,25 @@ import (
 	"fmt"
 )
 
-type MysqlClient struct{}
+type MysqlClient struct {
+	Db *sql.DB
+}
 
-func (c *MysqlClient) GetSchemas(db *sql.DB) (QueryResult, error) {
+func (c *MysqlClient) GetSchemas() (QueryResult, error) {
 	query := "SELECT * FROM information_schema.schemata"
-	return executeQuery(db, query)
+	return executeQuery(c.Db, query)
 }
 
-func (c *MysqlClient) GetTables(db *sql.DB, schema string) (QueryResult, error) {
+func (c *MysqlClient) GetTables(schema string) (QueryResult, error) {
 	query := "SELECT * FROM information_schema.tables WHERE table_schema = ?"
-	return executeQuery(db, query, schema)
+	return executeQuery(c.Db, query, schema)
 }
 
-func (c *MysqlClient) GetTableRows(db *sql.DB, schema string, table string) (QueryResult, error) {
-	query := fmt.Sprintf("SELECT * FROM `%s`.`%s`", schema,table)
-	return executeQuery(db, query)
+func (c *MysqlClient) GetTableRows(schema string, table string) (QueryResult, error) {
+	query := fmt.Sprintf("SELECT * FROM `%s`.`%s`", schema, table)
+	return executeQuery(c.Db, query)
 }
 
-func (c *MysqlClient) ExecuteQuery(db *sql.DB, query string, args ...interface{}) (QueryResult, error) {
-	return executeQuery(db, query, args...)
+func (c *MysqlClient) ExecuteQuery(query string, args ...interface{}) (QueryResult, error) {
+	return executeQuery(c.Db, query, args...)
 }

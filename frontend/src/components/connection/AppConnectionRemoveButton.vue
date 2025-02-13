@@ -2,18 +2,18 @@
 import { ref } from "vue";
 import { Effect } from "effect";
 import { useWails } from "../../wails";
-import { database } from "../../../wailsjs/go/models";
+import { app } from "../../../wailsjs/go/models";
 import { useConnections } from "../../composables/useConnections";
 import { DeleteConnection } from "../../../wailsjs/go/app/App";
 
-const { connection } = defineProps<{ connection: database.Connection }>();
+const { connection } = defineProps<{ connection: app.Connection }>();
 
 const wails = useWails();
 const { fetchConnections } = useConnections();
 
 const open = ref(false);
 
-function removeConnection(connection: database.Connection) {
+function removeConnection(connection: app.Connection) {
   Effect.runPromise(
     wails(() => DeleteConnection(connection.id)).pipe(
       Effect.tap(fetchConnections),

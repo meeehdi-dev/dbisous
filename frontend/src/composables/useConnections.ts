@@ -4,7 +4,7 @@ import { useWails } from "../wails";
 import { Effect } from "effect";
 import { useRouter } from "vue-router";
 import { useUrlParams } from "./useUrlParams";
-import { database } from "../../wailsjs/go/models";
+import { app } from "../../wailsjs/go/models";
 import {
   Connect,
   CreateConnection,
@@ -19,7 +19,7 @@ export const useConnections = createSharedComposable(() => {
   const router = useRouter();
   const { databaseId } = useUrlParams();
 
-  const connections = ref<Array<database.Connection>>([]);
+  const connections = ref<Array<app.Connection>>([]);
   const activeConnections = ref<Array<string>>([]);
 
   const fetchConnections = async () => {
@@ -32,7 +32,7 @@ export const useConnections = createSharedComposable(() => {
     );
   };
 
-  const addConnection = async (connection: database.Connection) => {
+  const addConnection = async (connection: app.Connection) => {
     return Effect.runPromise(
       wails(() => CreateConnection(connection)).pipe(
         Effect.tap(fetchConnections),
@@ -40,7 +40,7 @@ export const useConnections = createSharedComposable(() => {
     );
   };
 
-  const updateConnectionInfo = async (connection: database.Connection) => {
+  const updateConnectionInfo = async (connection: app.Connection) => {
     return Effect.runPromise(
       wails(() => UpdateConnection(connection)).pipe(
         Effect.tap(fetchConnections),
@@ -86,7 +86,7 @@ export const useConnections = createSharedComposable(() => {
     );
   };
 
-  const getConnectionName = (connection: database.Connection) => {
+  const getConnectionName = (connection: app.Connection) => {
     if (connection.name) {
       return connection.name;
     }

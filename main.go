@@ -3,6 +3,7 @@ package main
 import (
 	"dbisous/app"
 	"embed"
+	"log"
 
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
@@ -27,10 +28,10 @@ func main() {
 		Bind: []interface{}{
 			app,
 		},
-    StartHidden: true,
+		StartHidden: true,
 	})
 
 	if err != nil {
-		println("Error:", err)
+		log.Fatal(err)
 	}
 }

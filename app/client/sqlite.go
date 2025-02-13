@@ -5,23 +5,25 @@ import (
 	"fmt"
 )
 
-type SqliteClient struct{}
+type SqliteClient struct {
+	Db *sql.DB
+}
 
-func (c *SqliteClient) GetSchemas(db *sql.DB) (QueryResult, error) {
+func (c *SqliteClient) GetSchemas() (QueryResult, error) {
 	query := "SELECT * FROM sqlite_master WHERE type='table'"
-	return executeQuery(db, query)
+	return executeQuery(c.Db, query)
 }
 
-func (c *SqliteClient) GetTables(db *sql.DB, schema string) (QueryResult, error) {
+func (c *SqliteClient) GetTables(schema string) (QueryResult, error) {
 	query := "SELECT * FROM sqlite_master WHERE type='table' AND name = ?"
-	return executeQuery(db, query, schema)
+	return executeQuery(c.Db, query, schema)
 }
 
-func (c *SqliteClient) GetTableRows(db *sql.DB, schema string, table string) (QueryResult, error) {
+func (c *SqliteClient) GetTableRows(schema string, table string) (QueryResult, error) {
 	query := fmt.Sprintf("SELECT * FROM `%s`", table)
-	return executeQuery(db, query)
+	return executeQuery(c.Db, query)
 }
 
-func (c *SqliteClient) ExecuteQuery(db *sql.DB, query string, args ...interface{}) (QueryResult, error) {
-	return executeQuery(db, query, args...)
+func (c *SqliteClient) ExecuteQuery(query string, args ...interface{}) (QueryResult, error) {
+	return executeQuery(c.Db, query, args...)
 }
