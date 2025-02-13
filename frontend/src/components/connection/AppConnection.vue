@@ -5,6 +5,7 @@ import { useUrlParams } from "../../composables/useUrlParams";
 import { app } from "../../../wailsjs/go/models";
 
 const { connection } = defineProps<{ connection: app.Connection }>();
+const emit = defineEmits<{ connectionEdit: [app.Connection] }>();
 
 const { isConnected, connect, disconnect, select } = useConnections();
 const { databaseId } = useUrlParams();
@@ -70,7 +71,14 @@ function copyToClipboard(text: string) {
                 </UTooltip>
                 <UTooltip text="Creation date" :content="{ side: 'left' }">
                   <div class="flex flex-row gap-2 items-center">
-                    <UIcon name="lucide:calendar" class="text-primary-400/50" />
+                    <UIcon
+                      name="lucide:calendar"
+                      :class="
+                        connection.created_at !== connection.updated_at
+                          ? 'text-primary-400/50'
+                          : 'text-primary-400'
+                      "
+                    />
                     <span class="text-sm">
                       {{ new Date(connection.created_at).toLocaleString() }}
                     </span>
@@ -83,10 +91,10 @@ function copyToClipboard(text: string) {
                   >
                     <UIcon
                       name="lucide:calendar-sync"
-                      class="text-secondary-400"
+                      class="text-primary-400"
                     />
                     <span class="text-sm">
-                      {{ new Date(connection.created_at).toLocaleString() }}
+                      {{ new Date(connection.updated_at).toLocaleString() }}
                     </span>
                   </div>
                 </UTooltip>
@@ -101,7 +109,12 @@ function copyToClipboard(text: string) {
       <div class="flex gap-2 justify-end">
         <AppConnectionRemoveButton :connection="connection" />
         <UTooltip text="Edit" :content="{ side: 'top' }">
-          <UButton icon="lucide:edit" color="neutral" variant="soft" />
+          <UButton
+            icon="lucide:edit"
+            color="neutral"
+            variant="soft"
+            @click="emit('connectionEdit', connection)"
+          />
         </UTooltip>
         <UTooltip
           :text="connected ? 'Disconnect' : 'Connect'"

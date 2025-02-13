@@ -3,11 +3,14 @@ import { Effect } from "effect";
 import * as v from "valibot";
 import { reactive, ref } from "vue";
 import { useWails } from "../../wails";
-import { CreateConnection, SelectFile } from "../../../wailsjs/go/app/App";
+import { CreateConnection, SelectFile, UpdateConnection } from "../../../wailsjs/go/app/App";
 import { FormSubmitEvent } from "@nuxt/ui/dist/module";
-import { useConnections } from "../../composables/useConnections";
 
-const emit = defineEmits<{ (e: "connectionAdded"): void }>();
+import { useConnections } from "../../composables/useConnections";
+import { app } from "../../../wailsjs/go/models";
+
+const emit = defineEmits<{ connectionAdded: [] }>();
+const connection = defineModel<app.Connection>();
 
 const wails = useWails();
 const { fetchConnections } = useConnections();
@@ -23,14 +26,16 @@ const schema = v.object({
 const parser = v.safeParser(schema);
 type Schema = v.InferOutput<typeof schema>;
 
-const state = reactive<Schema>({
-  id: "",
-  created_at: "",
-  updated_at: "",
-  name: "",
-  type: "",
-  connection_string: "",
-});
+const state = reactive<Schema>(
+  connection.value ?? {
+    id: "",
+    created_at: "",
+    updated_at: "",
+    name: "",
+    type: "",
+    connection_string: "",
+  },
+);
 
 const items = [
   {
@@ -44,11 +49,15 @@ const items = [
     slot: "details",
   },
 ];
-const active = ref(0);
+const active = ref(state.id ? 1 : 0);
 
-function addConnection(event: FormSubmitEvent<Schema>) {
+function submitConnection(event: FormSubmitEvent<Schema>) {
   Effect.runPromise(
-    wails(() => CreateConnection(event.data)).pipe(
+    wails(() =>
+      event.data.id
+        ? UpdateConnection(event.data)
+        : CreateConnection(event.data),
+    ).pipe(
       Effect.tap(() => {
         emit("connectionAdded");
       }),
@@ -74,7 +83,7 @@ function selectType(type: string) {
 </script>
 
 <template>
-  <UForm :schema="parser" :state="state" @submit="addConnection">
+  <UForm :schema="parser" :state="state" @submit="submitConnection">
     <UStepper :items="items" v-model="active" disabled>
       <template #type>
         <div class="flex justify-center">

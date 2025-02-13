@@ -2,6 +2,7 @@
 import { ref, useTemplateRef, watch } from "vue";
 import { useElementSize } from "@vueuse/core";
 import { useConnections } from "../composables/useConnections";
+import { app } from "../../wailsjs/go/models";
 
 const { connections } = useConnections();
 
@@ -11,6 +12,7 @@ const { height } = useElementSize(list);
 
 const slideoverOpen = ref(false);
 const secondaryAddButton = ref(false);
+const editedConnection = ref<app.Connection>();
 
 watch(height, () => {
   secondaryAddButton.value = height.value > window.outerHeight;
@@ -18,6 +20,12 @@ watch(height, () => {
 
 function onConnectionAdded() {
   slideoverOpen.value = false;
+  editedConnection.value = undefined;
+}
+
+function onConnectionEdit(connection: app.Connection) {
+  editedConnection.value = connection;
+  slideoverOpen.value = true;
 }
 
 const packageVersion = import.meta.env.PACKAGE_VERSION;
@@ -38,6 +46,7 @@ const packageVersion = import.meta.env.PACKAGE_VERSION;
           v-for="connection in connections"
           v-bind:key="connection.id"
           :connection="connection"
+          @connection-edit="onConnectionEdit"
         />
       </div>
 
@@ -54,7 +63,10 @@ const packageVersion = import.meta.env.PACKAGE_VERSION;
         description="Fill connection type and details to test and save"
       >
         <template #body>
-          <AppConnectionForm @connection-added="onConnectionAdded" />
+          <AppConnectionForm
+            v-model="editedConnection"
+            @connection-added="onConnectionAdded"
+          />
         </template>
       </USlideover>
     </div>
