@@ -15,7 +15,7 @@ func (c *MysqlClient) GetSchemas() (QueryResult, error) {
 }
 
 func (c *MysqlClient) GetDatabaseInfo() (QueryResult, error) {
-	query := "SELECT * FROM information_schema.columns WHERE schema = 'information_schema' AND table = 'schemata'"
+	query := "SELECT * FROM information_schema.columns WHERE table_schema = 'information_schema' AND table_name = 'schemata'"
 	return executeQuery(c.Db, query)
 }
 
@@ -25,8 +25,8 @@ func (c *MysqlClient) GetTables(schema string) (QueryResult, error) {
 }
 
 func (c *MysqlClient) GetSchemaInfo(schema string) (QueryResult, error) {
-	query := "SELECT * FROM information_schema.columns WHERE schema = 'information_schema' AND table = 'tables'"
-	return executeQuery(c.Db, query, schema)
+	query := "SELECT * FROM information_schema.columns WHERE table_schema = 'information_schema' AND table_name = 'tables'"
+	return executeQuery(c.Db, query)
 }
 
 func (c *MysqlClient) GetTableRows(schema string, table string) (QueryResult, error) {
@@ -35,7 +35,7 @@ func (c *MysqlClient) GetTableRows(schema string, table string) (QueryResult, er
 }
 
 func (c *MysqlClient) GetTableInfo(schema string, table string) (QueryResult, error) {
-	query := "SELECT * FROM information_schema.columns WHERE schema = ? AND table = ?"
+	query := "SELECT * FROM information_schema.columns WHERE table_schema = ? AND table_name = ?"
 	return executeQuery(c.Db, query, schema, table)
 }
 

@@ -120,8 +120,12 @@ const columnPinning = ref({ right: ["action"] });
             variant="ghost"
             @click="
               redirectToTable(
-                row.original.table_schema || row.original.schema,
-                row.original.table_name || row.original.name,
+                row.original.TABLE_SCHEMA ||
+                  row.original.table_schema ||
+                  row.original.schema,
+                row.original.TABLE_NAME ||
+                  row.original.table_name ||
+                  row.original.name,
               )
             "
           />

@@ -116,7 +116,11 @@ const columnPinning = ref({ right: ["action"] });
             icon="lucide:eye"
             variant="ghost"
             @click="
-              navigateToSchema(row.original.schema_name || row.original.name)
+              navigateToSchema(
+                row.original.SCHEMA_NAME ||
+                  row.original.schema_name ||
+                  row.original.name,
+              )
             "
           />
         </template>
