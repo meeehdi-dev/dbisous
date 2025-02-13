@@ -3,7 +3,7 @@ import { ref, useTemplateRef, watch } from "vue";
 import { useElementSize } from "@vueuse/core";
 import { useConnections } from "../composables/useConnections";
 
-const { connections, fetchConnections } = useConnections();
+const { connections } = useConnections();
 
 const list = useTemplateRef("list");
 
@@ -18,7 +18,6 @@ watch(height, () => {
 
 function onConnectionAdded() {
   slideoverOpen.value = false;
-  fetchConnections();
 }
 
 const packageVersion = import.meta.env.PACKAGE_VERSION;
@@ -39,7 +38,6 @@ const packageVersion = import.meta.env.PACKAGE_VERSION;
           v-for="connection in connections"
           v-bind:key="connection.id"
           :connection="connection"
-          @connection-removed="fetchConnections"
         />
       </div>
 

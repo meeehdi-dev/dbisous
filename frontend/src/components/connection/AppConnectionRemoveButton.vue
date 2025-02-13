@@ -5,17 +5,26 @@ import { useWails } from "../../wails";
 import { app } from "../../../wailsjs/go/models";
 import { useConnections } from "../../composables/useConnections";
 import { DeleteConnection } from "../../../wailsjs/go/app/App";
+import { useUrlParams } from "../../composables/useUrlParams";
+import { useRouter } from "vue-router";
 
 const { connection } = defineProps<{ connection: app.Connection }>();
 
 const wails = useWails();
 const { fetchConnections } = useConnections();
+const { databaseId } = useUrlParams();
+const router = useRouter();
 
 const open = ref(false);
 
 function removeConnection(connection: app.Connection) {
   Effect.runPromise(
     wails(() => DeleteConnection(connection.id)).pipe(
+      Effect.tap(() => {
+        if (connection.id === databaseId.value) {
+          router.push("/");
+        }
+      }),
       Effect.tap(fetchConnections),
     ),
   );

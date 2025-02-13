@@ -5,13 +5,17 @@ import { reactive, ref } from "vue";
 import { useWails } from "../../wails";
 import { CreateConnection, SelectFile } from "../../../wailsjs/go/app/App";
 import { FormSubmitEvent } from "@nuxt/ui/dist/module";
+import { useConnections } from "../../composables/useConnections";
 
 const emit = defineEmits<{ (e: "connectionAdded"): void }>();
 
 const wails = useWails();
+const { fetchConnections } = useConnections();
 
 const schema = v.object({
   id: v.string(),
+  created_at: v.string(),
+  updated_at: v.string(),
   name: v.string(),
   type: v.string(),
   connection_string: v.string(),
@@ -21,12 +25,26 @@ type Schema = v.InferOutput<typeof schema>;
 
 const state = reactive<Schema>({
   id: "",
+  created_at: "",
+  updated_at: "",
   name: "",
   type: "",
   connection_string: "",
 });
 
-const types = ref([{ label: "Sqlite", value: "sqlite" }]);
+const items = [
+  {
+    title: "Database type",
+    icon: "lucide:database",
+    slot: "type",
+  },
+  {
+    title: "Connection details",
+    icon: "lucide:link",
+    slot: "details",
+  },
+];
+const active = ref(0);
 
 function addConnection(event: FormSubmitEvent<Schema>) {
   Effect.runPromise(
@@ -34,6 +52,7 @@ function addConnection(event: FormSubmitEvent<Schema>) {
       Effect.tap(() => {
         emit("connectionAdded");
       }),
+      Effect.tap(fetchConnections),
     ),
   );
 }
@@ -47,46 +66,99 @@ function selectFile() {
     ),
   );
 }
+
+function selectType(type: string) {
+  state.type = type;
+  active.value = 1;
+}
 </script>
 
 <template>
-  <UForm
-    :schema="parser"
-    :state="state"
-    class="space-y-4"
-    @submit="addConnection"
-  >
-    <UFormField label="Type" name="type">
-      <USelect v-model="state.type" :items="types" class="w-full" />
-    </UFormField>
+  <UForm :schema="parser" :state="state" @submit="addConnection">
+    <UStepper :items="items" v-model="active" disabled>
+      <template #type>
+        <div class="flex justify-center">
+          <div class="flex flex-col gap-4">
+            <UButton
+              icon="simple-icons:sqlite"
+              label="SQLite"
+              size="xl"
+              :ui="{ label: 'w-full text-center' }"
+              @click="selectType('sqlite')"
+              :trailing-icon="
+                state.type === 'sqlite' ? 'lucide:check' : undefined
+              "
+            />
+            <UButton
+              icon="simple-icons:postgresql"
+              label="PostgreSQL"
+              size="xl"
+              :ui="{ label: 'w-full text-center' }"
+              @click="selectType('mysql')"
+              :trailing-icon="
+                state.type === 'mysql' ? 'lucide:check' : undefined
+              "
+              disabled
+            />
+            <UButton
+              icon="simple-icons:mysql"
+              label="MySQL / MariaDB"
+              size="xl"
+              :ui="{ label: 'w-full text-center' }"
+              @click="selectType('postgresql')"
+              :trailing-icon="
+                state.type === 'postgresql' ? 'lucide:check' : undefined
+              "
+              disabled
+            />
+          </div>
+        </div>
+      </template>
 
-    <UFormField name="id" hidden>
-      <UInput v-model="state.id" />
-    </UFormField>
-
-    <UFormField label="Name" name="name">
-      <UInput placeholder="Optional name" v-model="state.name" class="w-full" />
-    </UFormField>
-
-    <UFormField label="File" name="url">
-      <UInput
-        placeholder="Select a file"
-        v-model="state.connection_string"
-        class="w-full"
-      >
-        <template #trailing>
+      <template #details>
+        <div class="flex pb-4">
           <UButton
-            variant="link"
-            icon="lucide:upload"
-            aria-label="Upload file"
-            @click="selectFile"
+            label="Back"
+            color="neutral"
+            variant="outline"
+            icon="lucide:arrow-left"
+            @click="active = 0"
           />
-        </template>
-      </UInput>
-    </UFormField>
+        </div>
 
-    <div class="flex justify-end">
-      <UButton type="submit" label="Submit" />
-    </div>
+        <UFormField name="id" hidden>
+          <UInput v-model="state.id" />
+        </UFormField>
+
+        <UFormField label="Name" name="name">
+          <UInput
+            placeholder="Optional name"
+            v-model="state.name"
+            class="w-full"
+          />
+        </UFormField>
+
+        <UFormField label="File" name="url">
+          <UInput
+            placeholder="Select a file"
+            v-model="state.connection_string"
+            class="w-full"
+          >
+            <template #trailing>
+              <UButton
+                variant="link"
+                icon="lucide:upload"
+                aria-label="Upload file"
+                @click="selectFile"
+              />
+            </template>
+          </UInput>
+        </UFormField>
+
+        <div class="flex justify-end pt-4">
+          <UButton type="submit" icon="lucide:save" label="Save" />
+        </div>
+      </template>
+    </UStepper>
   </UForm>
 </template>
