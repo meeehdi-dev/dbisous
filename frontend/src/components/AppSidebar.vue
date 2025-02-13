@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { ref, useTemplateRef, watch } from "vue";
-import { useElementSize } from "@vueuse/core";
+import { computed, ref, useTemplateRef } from "vue";
 import { useConnections } from "../composables/useConnections";
 import { app } from "../../wailsjs/go/models";
 
@@ -8,15 +7,16 @@ const { connections } = useConnections();
 
 const list = useTemplateRef("list");
 
-const { height } = useElementSize(list);
-
 const slideoverOpen = ref(false);
-const secondaryAddButton = ref(false);
 const editedConnection = ref<app.Connection>();
 
-watch(height, () => {
-  secondaryAddButton.value = height.value > window.outerHeight;
-});
+const secondaryAddButton = computed(
+  () =>
+    list.value &&
+    list.value.scrollHeight &&
+    list.value.clientHeight &&
+    list.value.scrollHeight > list.value.clientHeight,
+);
 
 function onConnectionAdded() {
   slideoverOpen.value = false;
