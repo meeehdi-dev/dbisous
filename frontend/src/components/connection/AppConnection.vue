@@ -124,7 +124,7 @@ function copyToClipboard(text: string) {
             :icon="connected ? 'lucide:unplug' : 'lucide:plug'"
             :color="connected ? 'warning' : 'primary'"
             variant="soft"
-            @click="
+            @click.prevent="
               () => {
                 connected ? disconnect(connection.id) : connect(connection.id);
               }

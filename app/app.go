@@ -3,7 +3,6 @@ package app
 import (
 	"context"
 	"dbisous/app/client"
-	"log"
 
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
@@ -20,7 +19,7 @@ func (a *App) Startup(ctx context.Context) {
 	a.ctx = ctx
 	err := InitMetadataDB("metadata.db")
 	if err != nil {
-		log.Fatal(err)
+		runtime.MessageDialog(a.ctx, runtime.MessageDialogOptions{Title: err.Error()})
 	}
 }
 
