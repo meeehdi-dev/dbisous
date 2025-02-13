@@ -17,13 +17,13 @@ jobs:
       fail-fast: false
       matrix:
         build:
-          - name: 'DBisous-linux'
+          - name: 'dbisous'
             platform:  'linux/amd64'
             os: 'ubuntu-latest'
-          - name: 'DBisous-win'
+          - name: 'dbisous'
             platform:  'windows/amd64'
             os: 'windows-latest'
-          - name: 'DBisous-mac'
+          - name: 'dbisous'
             platform:  'darwin/universal'
             os: 'macos-latest'
 
