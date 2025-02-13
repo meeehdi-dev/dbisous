@@ -62,7 +62,19 @@ const packageVersion = import.meta.env.PACKAGE_VERSION;
     </div>
     <div>
       <div class="p-4 flex flex-1 justify-center items-center">
-        v{{ packageVersion }}
+        <UModal>
+          <UButton
+            icon="simple-icons:git"
+            color="neutral"
+            variant="soft"
+            size="sm"
+            :label="packageVersion"
+          />
+
+          <template #content>
+            <Placeholder class="h-48 m-4" />
+          </template>
+        </UModal>
       </div>
     </div>
   </div>
