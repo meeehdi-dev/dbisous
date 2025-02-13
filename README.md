@@ -1,19 +1,51 @@
-# README
+# dbisous
 
-## About
+**Cross-platform database manager built with Wails (Golang) and Vue.js for viewing, editing, and querying databases.**
 
-This is the official Wails Vue-TS template.
+## Features
 
-You can configure the project by editing `wails.json`. More information about the project settings can be found
-here: https://wails.io/docs/reference/project-config
+- **Database Connection Management**: Connect to SQLite, MySQL, PostgreSQL, and more.
+- **Table Viewer**: List tables, view structures, and paginate data.
+- **Query Execution**: Execute SQL queries with syntax highlighting and save frequently used queries.
+- **Data Editing**: Add, update, and delete rows directly from the viewer.
+- **Data Export**: Export table data to CSV, JSON, and other formats.
+- **User Management**: Manage database users and roles.
+- **Performance Monitoring**: View query performance metrics.
+- **Security**: Encrypt sensitive data and implement role-based access control (RBAC).
+- **Cross-Platform Support**: Runs on Windows, macOS, and Linux.
 
-## Live Development
+## Installation
 
-To run in live development mode, run `wails dev` in the project directory. This will run a Vite development
-server that will provide very fast hot reload of your frontend changes. If you want to develop in a browser
-and have access to your Go methods, there is also a dev server that runs on http://localhost:34115. Connect
-to this in your browser, and you can call your Go code from devtools.
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/meeehdi-dev/dbisous.git
+   cd dbisous
+   ```
 
-## Building
+2. **Install dependencies**:
+   ```bash
+   go mod tidy
+   cd frontend && npm install
+   ```
 
-To build a redistributable, production mode package, use `wails build`.
+3. **Build and run**:
+   ```bash
+   wails build
+   ./build/bin/dbisous # (.exe on win, .app on macos)
+   ```
+
+## Usage
+
+1. **Connect to a Database**: Set up a new connection profile and connect to your database.
+2. **View Tables**: Browse and view the structure and data of your tables.
+3. **Execute Queries**: Use the SQL query editor to run and save queries.
+4. **Edit Data**: Directly edit table data from the viewer.
+5. **Export Data**: Export table data to various formats.
+
+## Contributing
+
+Contributions are welcome! Please open an issue or submit a pull request.
+
+## License
+
+This project is licensed under the MIT License. See [LICENSE.md](LICENSE.md) for details.
