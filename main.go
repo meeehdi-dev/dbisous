@@ -28,7 +28,6 @@ func main() {
 		Bind: []interface{}{
 			app,
 		},
-		StartHidden: true,
 	})
 
 	if err != nil {
