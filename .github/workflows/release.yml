@@ -17,10 +17,10 @@ jobs:
       fail-fast: false
       matrix:
         build:
-          - name: 'dbisous'
+          - name: 'dbisous-linux'
             platform:  'linux/amd64'
             os: 'ubuntu-latest'
-          - name: 'dbisous'
+          - name: 'dbisous.exe'
             platform:  'windows/amd64'
             os: 'windows-latest'
           - name: 'dbisous'
