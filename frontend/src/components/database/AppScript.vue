@@ -53,13 +53,17 @@ async function executeQuery() {
 </script>
 
 <template>
-  <div class="p-4 flex flex-col gap-4 w-full">
-    <AppEditor v-model="query" />
-    <div class="flex gap-2 items-center">
-      <UButton icon="lucide:terminal" label="Execute" @click="executeQuery" />
-      <span v-if="queryResult.sql_duration" class="text-sm text-neutral-400">{{
-        queryResult.sql_duration
-      }}</span>
+  <div class="flex flex-1 flex-col gap-4 w-full">
+    <div class="flex flex-col p-4 gap-4">
+      <AppEditor v-model="query" />
+      <div class="flex gap-2 items-center">
+        <UButton icon="lucide:terminal" label="Execute" @click="executeQuery" />
+        <span
+          v-if="queryResult.sql_duration"
+          class="text-sm text-neutral-400"
+          >{{ queryResult.sql_duration }}</span
+        >
+      </div>
     </div>
     <USeparator
       :label="`${queryResult.rows.length.toString()} result${queryResult.rows.length > 1 ? 's' : ''}`"
