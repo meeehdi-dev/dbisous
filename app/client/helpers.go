@@ -61,7 +61,7 @@ func fetchRows(rows *sql.Rows) (QueryResult, error) {
 func executeQuery(db *sql.DB, query string, args ...interface{}) (QueryResult, error) {
 	start := time.Now()
 	rows, err := db.Query(query, args...)
-	sqlDuration := time.Since(start).String()
+	duration := time.Since(start).String()
 	if err != nil {
 		return QueryResult{}, err
 	}
@@ -72,7 +72,7 @@ func executeQuery(db *sql.DB, query string, args ...interface{}) (QueryResult, e
 		return QueryResult{}, err
 	}
 
-	result.SqlDuration = sqlDuration
-	result.TotalDuration = time.Since(start).String()
+	result.Duration = duration
+
 	return result, nil
 }

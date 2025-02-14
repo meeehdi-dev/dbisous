@@ -7,7 +7,7 @@ import { GetSchemas } from "../../../wailsjs/go/app/App";
 import { useUrlParams } from "../../composables/useUrlParams";
 import { useWails } from "../../wails";
 import { client } from "../../../wailsjs/go/models";
-import { formatColumns, RowAction } from "./table";
+import { formatColumns, FormattedQueryResult, RowAction } from "./table";
 
 const wails = useWails();
 const router = useRouter();
@@ -31,26 +31,8 @@ const tabs = [
   },
 ];
 
-const data = ref<
-  Omit<client.QueryResult, "convertValues" | "columns"> & {
-    columns: Array<TableColumn<TableData>>;
-  }
->({
-  columns: [],
-  rows: [],
-  sql_duration: "",
-  total_duration: "",
-});
-const info = ref<
-  Omit<client.QueryResult, "convertValues" | "columns"> & {
-    columns: Array<TableColumn<TableData>>;
-  }
->({
-  columns: [],
-  rows: [],
-  sql_duration: "",
-  total_duration: "",
-});
+const data = ref<FormattedQueryResult>();
+const info = ref<FormattedQueryResult>();
 await Effect.runPromise(
   wails(() => GetSchemas(databaseId.value)).pipe(
     Effect.tap((result) => {
@@ -82,8 +64,8 @@ function navigateToSchema(schemaId: string) {
   >
     <template #data>
       <AppRows
-        :rows="data.rows"
-        :columns="data.columns"
+        :rows="data?.rows"
+        :columns="data?.columns"
         :actions="[RowAction.View]"
         @view="
           (row) =>
@@ -96,7 +78,7 @@ function navigateToSchema(schemaId: string) {
       />
     </template>
     <template #info>
-      <AppRows :rows="info.rows" :columns="info.columns" />
+      <AppRows :rows="info?.rows" :columns="info?.columns" />
     </template>
     <template #script>
       <AppScript />

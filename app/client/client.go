@@ -19,8 +19,7 @@ type QueryResult struct {
 	// NOTE: Rows should be []Row (fixed in wails v3?)
 	Rows          interface{}      `json:"rows"`
 	Columns       []ColumnMetadata `json:"columns"`
-	SqlDuration   string           `json:"sql_duration"`
-	TotalDuration string           `json:"total_duration"`
+	Duration   string           `json:"duration"`
 }
 
 type Result struct {

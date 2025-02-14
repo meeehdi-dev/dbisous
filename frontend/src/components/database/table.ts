@@ -15,6 +15,13 @@ export type Emits = {
   remove: [TableData];
 };
 
+export type FormattedQueryResult = Omit<
+  client.QueryResult,
+  "convertValues" | "columns"
+> & {
+  columns: Array<TableColumn<TableData>>;
+};
+
 export const cell =
   (type?: string, nullable?: boolean) => (ctx: CellContext<unknown, unknown>) =>
     h(AppCell, {

@@ -1,10 +1,8 @@
 <script setup lang="ts">
-import type { TableColumn, TableData } from "@nuxt/ui/dist/runtime/types";
 import { ref } from "vue";
 import { useUrlParams } from "../../composables/useUrlParams";
-import { client } from "../../../wailsjs/go/models";
 import { Effect } from "effect";
-import { formatColumns } from "./table";
+import { formatColumns, FormattedQueryResult } from "./table";
 import { useWails } from "../../wails";
 import { GetTable } from "../../../wailsjs/go/app/App";
 
@@ -32,26 +30,8 @@ const tabs = [
   },
 ];
 
-const data = ref<
-  Omit<client.QueryResult, "convertValues" | "columns"> & {
-    columns: Array<TableColumn<TableData>>;
-  }
->({
-  columns: [],
-  rows: [],
-  sql_duration: "",
-  total_duration: "",
-});
-const info = ref<
-  Omit<client.QueryResult, "convertValues" | "columns"> & {
-    columns: Array<TableColumn<TableData>>;
-  }
->({
-  columns: [],
-  rows: [],
-  sql_duration: "",
-  total_duration: "",
-});
+const data = ref<FormattedQueryResult>();
+const info = ref<FormattedQueryResult>();
 await Effect.runPromise(
   wails(() => GetTable(databaseId.value, schemaId.value, tableId.value)).pipe(
     Effect.tap((result) => {
@@ -79,16 +59,16 @@ await Effect.runPromise(
       :ui="{ root: 'h-full', content: 'flex flex-1 flex-col gap-2' }"
     >
       <template #data>
-        <AppRows :rows="data.rows" :columns="data.columns" />
+        <AppRows :rows="data?.rows" :columns="data?.columns" />
       </template>
       <template #info>
-        <AppRows :rows="info.rows" :columns="info.columns" />
+        <AppRows :rows="info?.rows" :columns="info?.columns" />
       </template>
       <template #script>
         <AppScript :default-query="`SELECT * FROM ${tableId};`" />
       </template>
     </UTabs>
-    <div class="p-2">
+    <div class="px-2 pb-2">
       <UAlert
         title="3 pending changes"
         icon="lucide:info"

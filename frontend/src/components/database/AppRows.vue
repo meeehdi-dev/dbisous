@@ -7,16 +7,29 @@ const emit = defineEmits<Emits>();
 
 const table = useTemplateRef("table");
 
-const { rows, columns, actions } = defineProps<{
-  rows: TableData[];
-  columns: TableColumn<TableData>[];
+const {
+  rows = [],
+  columns = [],
+  actions,
+} = defineProps<{
+  rows?: TableData[];
+  columns?: TableColumn<TableData>[];
   actions?: RowAction[];
 }>();
-const key = ref(0);
 
-watch([rows, columns], () => {
-  key.value++;
-});
+const key = ref(0);
+watch(
+  () => rows,
+  () => {
+    key.value++;
+  },
+);
+watch(
+  () => columns,
+  () => {
+    key.value++;
+  },
+);
 
 const columnPinning = ref({ right: ["action"] });
 
@@ -61,7 +74,7 @@ const pagination = ref({
           />
         </template>
       </UTable>
-      <div v-if="columns.length > 0" class="flex justify-center">
+      <div v-if="columns && columns.length > 0" class="flex justify-center">
         <UButton icon="lucide:plus" variant="soft" label="Add row" />
       </div>
     </div>

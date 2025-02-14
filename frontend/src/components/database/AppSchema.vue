@@ -1,13 +1,11 @@
 <script setup lang="ts">
-import type { TableColumn, TableData } from "@nuxt/ui/dist/runtime/types";
 import { useRouter } from "vue-router";
 import { ref } from "vue";
-import { client } from "../../../wailsjs/go/models";
 import { useUrlParams } from "../../composables/useUrlParams";
 import { useWails } from "../../wails";
 import { GetTables } from "../../../wailsjs/go/app/App";
 import { Effect } from "effect";
-import { formatColumns, RowAction } from "./table";
+import { formatColumns, FormattedQueryResult, RowAction } from "./table";
 
 const wails = useWails();
 const router = useRouter();
@@ -31,26 +29,8 @@ const tabs = [
   },
 ];
 
-const data = ref<
-  Omit<client.QueryResult, "convertValues" | "columns"> & {
-    columns: Array<TableColumn<TableData>>;
-  }
->({
-  columns: [],
-  rows: [],
-  sql_duration: "",
-  total_duration: "",
-});
-const info = ref<
-  Omit<client.QueryResult, "convertValues" | "columns"> & {
-    columns: Array<TableColumn<TableData>>;
-  }
->({
-  columns: [],
-  rows: [],
-  sql_duration: "",
-  total_duration: "",
-});
+const data = ref<FormattedQueryResult>();
+const info = ref<FormattedQueryResult>();
 await Effect.runPromise(
   wails(() => GetTables(databaseId.value, schemaId.value)).pipe(
     Effect.tap((result) => {
@@ -85,8 +65,8 @@ function navigateToTable(schemaId: string, tableId: string) {
   >
     <template #data>
       <AppRows
-        :rows="data.rows"
-        :columns="data.columns"
+        :rows="data?.rows"
+        :columns="data?.columns"
         :actions="[RowAction.View]"
         @view="
           (row) =>
@@ -102,7 +82,7 @@ function navigateToTable(schemaId: string, tableId: string) {
       />
     </template>
     <template #info>
-      <AppRows :rows="info.rows" :columns="info.columns" />
+      <AppRows :rows="info?.rows" :columns="info?.columns" />
     </template>
     <template #script>
       <AppScript />
