@@ -3,13 +3,20 @@ import { computed } from "vue";
 import { useConnections } from "../../composables/useConnections";
 import { useUrlParams } from "../../composables/useUrlParams";
 import { app } from "../../../wailsjs/go/models";
+import { Effect } from "effect";
+import { useWails } from "../../wails";
+import { DeleteConnection } from "../../../wailsjs/go/app/App";
+import { useRouter } from "vue-router";
 
 const { connection } = defineProps<{ connection: app.Connection }>();
 const emit = defineEmits<{ connectionEdit: [app.Connection] }>();
 
-const { isConnected, connect, disconnect, select } = useConnections();
+const { isConnected, connect, disconnect, select, fetchConnections } =
+  useConnections();
 const { databaseId } = useUrlParams();
 const toast = useToast();
+const wails = useWails();
+const router = useRouter();
 
 const connected = computed(() => isConnected(connection.id));
 
@@ -27,6 +34,19 @@ function copyToClipboard(text: string) {
     title: "Successfully copied to clipboard!",
     description: text,
   });
+}
+
+function removeConnection(connection: app.Connection) {
+  Effect.runPromise(
+    wails(() => DeleteConnection(connection.id)).pipe(
+      Effect.tap(() => {
+        if (connection.id === databaseId.value) {
+          router.push("/");
+        }
+      }),
+      Effect.tap(fetchConnections),
+    ),
+  );
 }
 </script>
 
@@ -108,7 +128,14 @@ function copyToClipboard(text: string) {
 
     <template #footer>
       <div class="flex gap-2 justify-end">
-        <AppConnectionRemoveButton :connection="connection" />
+        <AppPopconfirm
+          text="Are you sure?"
+          @confirm="removeConnection(connection)"
+        >
+          <UTooltip text="Remove" :content="{ side: 'left' }">
+            <UButton icon="lucide:trash" color="error" variant="soft" />
+          </UTooltip>
+        </AppPopconfirm>
         <UTooltip text="Edit" :content="{ side: 'top' }">
           <UButton
             icon="lucide:edit"

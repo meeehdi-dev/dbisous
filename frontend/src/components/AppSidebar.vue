@@ -1,22 +1,24 @@
 <script setup lang="ts">
-import { computed, ref, useTemplateRef } from "vue";
+import { ref, useTemplateRef, watch } from "vue";
 import { useConnections } from "../composables/useConnections";
 import { app } from "../../wailsjs/go/models";
 
 const { connections } = useConnections();
 
-const list = useTemplateRef("list");
+const container = useTemplateRef("container");
 
 const slideoverOpen = ref(false);
 const editedConnection = ref<app.Connection>();
 
-const secondaryAddButton = computed(
-  () =>
-    list.value &&
-    list.value.scrollHeight &&
-    list.value.clientHeight &&
-    list.value.scrollHeight > list.value.clientHeight,
-);
+const secondaryAddButton = ref(false);
+watch(connections, () => {
+  setTimeout(() => {
+    secondaryAddButton.value = !!(
+      container.value &&
+      container.value.scrollHeight > container.value.clientHeight
+    );
+  }, 1);
+});
 
 function onConnectionAdded() {
   slideoverOpen.value = false;
@@ -32,8 +34,11 @@ const packageVersion = import.meta.env.PACKAGE_VERSION;
 </script>
 
 <template>
-  <div class="w-72 bg-slate-800 flex flex-col justify-between">
-    <div class="flex flex-col px-2 py-4 gap-4 items-center">
+  <div
+    ref="container"
+    class="w-72 bg-slate-800 flex overflow-auto flex-col justify-between"
+  >
+    <div class="flex flex-1 flex-col px-2 py-4 gap-4 items-center">
       <UButton
         v-if="secondaryAddButton"
         icon="lucide:plus"
@@ -41,7 +46,7 @@ const packageVersion = import.meta.env.PACKAGE_VERSION;
         label="Add connection"
       />
 
-      <div ref="list" class="w-full flex flex-col gap-2">
+      <div class="w-full flex flex-col gap-2">
         <AppConnection
           v-for="connection in connections"
           v-bind:key="connection.id"

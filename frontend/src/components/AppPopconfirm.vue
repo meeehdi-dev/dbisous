@@ -1,12 +1,29 @@
 <script setup lang="ts">
+import { onClickOutside } from "@vueuse/core";
+import { ref, useTemplateRef } from "vue";
+
 const emit = defineEmits<{ confirm: [] }>();
 
 const { text } = defineProps<{ text: string }>();
-const open = defineModel<boolean>({ default: false });
+const open = ref(false);
+
+const container = useTemplateRef("container");
+
+onClickOutside(null, (event) => {
+  if (event.target !== container.value) {
+    open.value = false;
+  }
+});
+
+function onConfirm() {
+  emit("confirm");
+  open.value = false;
+}
 </script>
 
 <template>
   <UPopover
+    ref="container"
     v-model:open="open"
     :content="{
       side: 'right',
@@ -14,7 +31,9 @@ const open = defineModel<boolean>({ default: false });
     }"
     arrow
   >
-    <slot />
+    <div @click="open = true">
+      <slot />
+    </div>
 
     <template #content>
       <UCard
@@ -26,7 +45,7 @@ const open = defineModel<boolean>({ default: false });
 
         <template #footer>
           <UButton icon="lucide:x" color="error" @click="open = false" />
-          <UButton icon="lucide:check" @click="emit('confirm')" />
+          <UButton icon="lucide:check" @click="onConfirm" />
         </template>
       </UCard>
     </template>
