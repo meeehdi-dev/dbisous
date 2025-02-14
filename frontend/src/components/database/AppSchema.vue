@@ -5,7 +5,7 @@ import { ref } from "vue";
 import { client } from "../../../wailsjs/go/models";
 import { useUrlParams } from "../../composables/useUrlParams";
 import { useWails } from "../../wails";
-import { GetSchemaInfo, GetTables } from "../../../wailsjs/go/app/App";
+import { GetTables } from "../../../wailsjs/go/app/App";
 import { Effect } from "effect";
 import { formatColumns, RowAction } from "./table";
 
@@ -41,20 +41,6 @@ const data = ref<
   sql_duration: "",
   total_duration: "",
 });
-await Effect.runPromise(
-  wails(() => GetTables(databaseId.value, schemaId.value)).pipe(
-    Effect.tap((result) => {
-      data.value = {
-        ...result,
-        columns: formatColumns(result.columns, false),
-      };
-    }),
-    Effect.catchTags({
-      WailsError: Effect.succeed,
-    }),
-  ),
-);
-
 const info = ref<
   Omit<client.QueryResult, "convertValues" | "columns"> & {
     columns: Array<TableColumn<TableData>>;
@@ -66,11 +52,15 @@ const info = ref<
   total_duration: "",
 });
 await Effect.runPromise(
-  wails(() => GetSchemaInfo(databaseId.value, schemaId.value)).pipe(
+  wails(() => GetTables(databaseId.value, schemaId.value)).pipe(
     Effect.tap((result) => {
+      data.value = {
+        ...result.data,
+        columns: formatColumns(result.data.columns),
+      };
       info.value = {
-        ...result,
-        columns: formatColumns(result.columns, false),
+        ...result.info,
+        columns: formatColumns(result.info.columns, false),
       };
     }),
     Effect.catchTags({
@@ -88,7 +78,11 @@ function navigateToTable(schemaId: string, tableId: string) {
 </script>
 
 <template>
-  <UTabs :items="tabs" variant="link" :ui="{ content: 'flex flex-col gap-2' }">
+  <UTabs
+    :items="tabs"
+    variant="link"
+    :ui="{ root: 'h-full', content: 'flex flex-1 flex-col gap-2' }"
+  >
     <template #data>
       <AppRows
         :rows="data.rows"

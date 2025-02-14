@@ -1,12 +1,9 @@
 package client
 
 type DatabaseClient interface {
-	GetSchemas() (QueryResult, error)
-	GetDatabaseInfo() (QueryResult, error)
-	GetTables(schema string) (QueryResult, error)
-	GetSchemaInfo(schema string) (QueryResult, error)
-	GetTableRows(schema string, table string) (QueryResult, error)
-	GetTableInfo(schema string, table string) (QueryResult, error)
+	GetSchemas() (Result, error)
+	GetTables(schema string) (Result, error)
+	GetTable(schema string, table string) (Result, error)
 	ExecuteQuery(query string, args ...interface{}) (QueryResult, error)
 }
 
@@ -24,4 +21,9 @@ type QueryResult struct {
 	Columns       []ColumnMetadata `json:"columns"`
 	SqlDuration   string           `json:"sql_duration"`
 	TotalDuration string           `json:"total_duration"`
+}
+
+type Result struct {
+	Data QueryResult `json:"data"`
+	Info QueryResult `json:"info"`
 }

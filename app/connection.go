@@ -73,12 +73,12 @@ func Connect(id string) error {
 	case "sqlite":
 		db, err = sql.Open("sqlite3", connectionString)
 		dbClients[id] = &client.SqliteClient{Db: db}
-	case "mysql":
-		db, err = sql.Open("mysql", connectionString)
-		dbClients[id] = &client.MysqlClient{Db: db}
-	case "postgresql":
-		db, err = sql.Open("postgres", connectionString)
-		dbClients[id] = &client.PostgresClient{Db: db}
+	// case "mysql":
+	// 	db, err = sql.Open("mysql", connectionString)
+	// 	dbClients[id] = &client.MysqlClient{Db: db}
+	// case "postgresql":
+	// 	db, err = sql.Open("postgres", connectionString)
+	// 	dbClients[id] = &client.PostgresClient{Db: db}
 	default:
 		return fmt.Errorf("unsupported database type: %s", dbType)
 	}
@@ -101,59 +101,32 @@ func Disconnect(id string) error {
 	return conn.Close()
 }
 
-func GetSchemas(id string) (client.QueryResult, error) {
+func GetSchemas(id string) (client.Result, error) {
 	dbClient, exists := dbClients[id]
 	if !exists {
-		return client.QueryResult{}, fmt.Errorf("no database client for database ID: %s", id)
+		return client.Result{}, fmt.Errorf("no database client for database ID: %s", id)
 	}
 
 	return dbClient.GetSchemas()
 }
 
-func GetDatabaseInfo(id string) (client.QueryResult, error) {
-	dbClient, exists := dbClients[id]
-	if !exists {
-		return client.QueryResult{}, fmt.Errorf("no database client for database ID: %s", id)
-	}
-
-	return dbClient.GetDatabaseInfo()
-}
-
-func GetTables(id string, schema string) (client.QueryResult, error) {
+func GetTables(id string, schema string) (client.Result, error) {
 	dbClient, exists := dbClients[id]
 
 	if !exists {
-		return client.QueryResult{}, fmt.Errorf("no database client for database ID: %s", id)
+		return client.Result{}, fmt.Errorf("no database client for database ID: %s", id)
 	}
 
 	return dbClient.GetTables(schema)
 }
 
-func GetSchemaInfo(id string, schema string) (client.QueryResult, error) {
+func GetTable(id string, schema string, table string) (client.Result, error) {
 	dbClient, exists := dbClients[id]
 	if !exists {
-		return client.QueryResult{}, fmt.Errorf("no database client for database ID: %s", id)
+		return client.Result{}, fmt.Errorf("no database client for database ID: %s", id)
 	}
 
-	return dbClient.GetSchemaInfo(schema)
-}
-
-func GetTableRows(id string, schema string, table string) (client.QueryResult, error) {
-	dbClient, exists := dbClients[id]
-	if !exists {
-		return client.QueryResult{}, fmt.Errorf("no database client for database ID: %s", id)
-	}
-
-	return dbClient.GetTableRows(schema, table)
-}
-
-func GetTableInfo(id string, schema string, table string) (client.QueryResult, error) {
-	dbClient, exists := dbClients[id]
-	if !exists {
-		return client.QueryResult{}, fmt.Errorf("no database client for database ID: %s", id)
-	}
-
-	return dbClient.GetTableInfo(schema, table)
+	return dbClient.GetTable(schema, table)
 }
 
 func ExecuteQuery(id string, query string) (client.QueryResult, error) {

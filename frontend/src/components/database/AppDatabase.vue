@@ -3,7 +3,7 @@ import { useRouter } from "vue-router";
 import type { TableColumn, TableData } from "@nuxt/ui/dist/module";
 import { ref } from "vue";
 import { Effect } from "effect";
-import { GetDatabaseInfo, GetSchemas } from "../../../wailsjs/go/app/App";
+import { GetSchemas } from "../../../wailsjs/go/app/App";
 import { useUrlParams } from "../../composables/useUrlParams";
 import { useWails } from "../../wails";
 import { client } from "../../../wailsjs/go/models";
@@ -41,20 +41,6 @@ const data = ref<
   sql_duration: "",
   total_duration: "",
 });
-await Effect.runPromise(
-  wails(() => GetSchemas(databaseId.value)).pipe(
-    Effect.tap((result) => {
-      data.value = {
-        ...result,
-        columns: formatColumns(result.columns, false),
-      };
-    }),
-    Effect.catchTags({
-      WailsError: Effect.succeed,
-    }),
-  ),
-);
-
 const info = ref<
   Omit<client.QueryResult, "convertValues" | "columns"> & {
     columns: Array<TableColumn<TableData>>;
@@ -66,11 +52,15 @@ const info = ref<
   total_duration: "",
 });
 await Effect.runPromise(
-  wails(() => GetDatabaseInfo(databaseId.value)).pipe(
+  wails(() => GetSchemas(databaseId.value)).pipe(
     Effect.tap((result) => {
+      data.value = {
+        ...result.data,
+        columns: formatColumns(result.data.columns),
+      };
       info.value = {
-        ...result,
-        columns: formatColumns(result.columns, false),
+        ...result.info,
+        columns: formatColumns(result.info.columns, false),
       };
     }),
     Effect.catchTags({
