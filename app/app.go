@@ -8,7 +8,7 @@ import (
 )
 
 type App struct {
-	ctx context.Context
+	Ctx context.Context
 }
 
 func NewApp() *App {

@@ -3,11 +3,11 @@ package main
 import (
 	"dbisous/app"
 	"embed"
-	"log"
 
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
 	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
+	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
 //go:embed frontend/dist
@@ -31,6 +31,6 @@ func main() {
 	})
 
 	if err != nil {
-		log.Fatal(err)
+		runtime.MessageDialog(app.Ctx, runtime.MessageDialogOptions{Title: err.Error()})
 	}
 }
