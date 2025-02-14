@@ -1,12 +1,10 @@
 <script setup lang="ts">
-import type { TableColumn, TableData } from "@nuxt/ui/dist/runtime/types";
 import { ref } from "vue";
 import { useUrlParams } from "../../composables/useUrlParams";
-import { client } from "../../../wailsjs/go/models";
 import { Effect } from "effect";
-import { cell } from "./cell";
+import { formatColumns, FormattedQueryResult } from "./table";
 import { useWails } from "../../wails";
-import { GetTableInfo, GetTableRows } from "../../../wailsjs/go/app/App";
+import { GetTable } from "../../../wailsjs/go/app/App";
 
 const wails = useWails();
 const { databaseId, schemaId, tableId } = useUrlParams();
@@ -32,66 +30,22 @@ const tabs = [
   },
 ];
 
-const data = ref<
-  Omit<client.QueryResult, "convertValues" | "columns"> & {
-    columns: Array<TableColumn<TableData>>;
-  }
->({
-  columns: [],
-  rows: [],
-  sql_duration: "",
-  total_duration: "",
-});
+const data = ref<FormattedQueryResult>();
+const info = ref<FormattedQueryResult>();
 await Effect.runPromise(
-  wails(() =>
-    GetTableRows(databaseId.value, schemaId.value, tableId.value),
-  ).pipe(
-    Effect.andThen((result) => ({
-      ...result,
-      columns: result.columns
-        .map((column) => ({
-          accessorKey: column.name,
-          header: column.name,
-          cell: cell(column.type),
-        }))
-        .concat([
-          // @ts-expect-error tkt
-          {
-            accessorKey: "action",
-            header: "Actions",
-          },
-        ]),
-    })),
+  wails(() => GetTable(databaseId.value, schemaId.value, tableId.value)).pipe(
     Effect.tap((result) => {
-      data.value = result;
+      data.value = {
+        ...result.data,
+        columns: formatColumns(result.data.columns),
+      };
+      info.value = {
+        ...result.info,
+        columns: formatColumns(result.info.columns, false),
+      };
     }),
-  ),
-);
-
-const info = ref<
-  Omit<client.QueryResult, "convertValues" | "columns"> & {
-    columns: Array<TableColumn<TableData>>;
-  }
->({
-  columns: [],
-  rows: [],
-  sql_duration: "",
-  total_duration: "",
-});
-await Effect.runPromise(
-  wails(() =>
-    GetTableInfo(databaseId.value, schemaId.value, tableId.value),
-  ).pipe(
-    Effect.andThen((result) => ({
-      ...result,
-      columns: result.columns.map((column) => ({
-        accessorKey: column.name,
-        header: column.name,
-        cell: cell(""),
-      })),
-    })),
-    Effect.tap((result) => {
-      info.value = result;
+    Effect.catchTags({
+      WailsError: Effect.succeed,
     }),
   ),
 );
@@ -102,19 +56,19 @@ await Effect.runPromise(
     <UTabs
       :items="tabs"
       variant="link"
-      :ui="{ content: 'flex flex-col gap-2' }"
+      :ui="{ root: 'h-full', content: 'flex flex-1 flex-col gap-2' }"
     >
       <template #data>
-        <AppRows :rows="data.rows" :columns="data.columns" />
+        <AppRows :rows="data?.rows" :columns="data?.columns" />
       </template>
       <template #info>
-        <AppRows :rows="info.rows" :columns="info.columns" />
+        <AppRows :rows="info?.rows" :columns="info?.columns" />
       </template>
       <template #script>
         <AppScript :default-query="`SELECT * FROM ${tableId};`" />
       </template>
     </UTabs>
-    <div class="p-2">
+    <div class="px-2 pb-2">
       <UAlert
         title="3 pending changes"
         icon="lucide:info"

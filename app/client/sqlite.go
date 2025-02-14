@@ -9,34 +9,59 @@ type SqliteClient struct {
 	Db *sql.DB
 }
 
-func (c *SqliteClient) GetSchemas() (QueryResult, error) {
-	query := "SELECT * FROM sqlite_master WHERE type='table'"
-	return executeQuery(c.Db, query)
+func (c *SqliteClient) GetSchemas() (Result, error) {
+	var result Result
+
+	data, err := executeQuery(c.Db, "SELECT * FROM sqlite_master WHERE type='table'")
+	if err != nil {
+		return result, err
+	}
+	result.Data = data
+
+	info, err := executeQuery(c.Db, "SELECT * FROM pragma_table_info('sqlite_master')")
+	if err != nil {
+		return result, err
+	}
+	result.Info = info
+
+	return result, nil
 }
 
-func (c *SqliteClient) GetDatabaseInfo() (QueryResult, error) {
-	query := "SELECT * FROM pragma_table_info('sqlite_master')"
-	return executeQuery(c.Db, query)
+func (c *SqliteClient) GetTables(schema string) (Result, error) {
+	var result Result
+
+	data, err := executeQuery(c.Db, "SELECT * FROM sqlite_master WHERE type='table' AND name = ?", schema)
+	if err != nil {
+		return result, err
+	}
+	result.Data = data
+
+	info, err := executeQuery(c.Db, "SELECT * FROM pragma_table_info(?)", schema)
+	if err != nil {
+		return result, err
+	}
+	result.Info = info
+
+	return result, nil
 }
 
-func (c *SqliteClient) GetTables(schema string) (QueryResult, error) {
-	query := "SELECT * FROM sqlite_master WHERE type='table' AND name = ?"
-	return executeQuery(c.Db, query, schema)
-}
+func (c *SqliteClient) GetTable(schema string, table string) (Result, error) {
+	var result Result
 
-func (c *SqliteClient) GetSchemaInfo(schema string) (QueryResult, error) {
-	query := "SELECT * FROM pragma_table_info(?)"
-	return executeQuery(c.Db, query, schema)
-}
+	data, err := executeQuery(c.Db, fmt.Sprintf("SELECT * FROM %s", table))
+	if err != nil {
+		return result, err
+	}
+	result.Data = data
 
-func (c *SqliteClient) GetTableRows(schema string, table string) (QueryResult, error) {
-	query := fmt.Sprintf("SELECT * FROM %s", table)
-	return executeQuery(c.Db, query)
-}
+	info, err := executeQuery(c.Db, "SELECT * FROM pragma_table_info(?)", table)
+	if err != nil {
+		return result, err
+	}
+	result.Info = info
 
-func (c *SqliteClient) GetTableInfo(schema string, table string) (QueryResult, error) {
-	query := "SELECT * FROM pragma_table_info(?)"
-	return executeQuery(c.Db, query, table)
+	return result, nil
+
 }
 
 func (c *SqliteClient) ExecuteQuery(query string, args ...interface{}) (QueryResult, error) {

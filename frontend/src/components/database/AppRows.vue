@@ -1,22 +1,35 @@
 <script setup lang="ts">
 import type { TableColumn, TableData } from "@nuxt/ui/dist/module";
 import { ref, useTemplateRef, watch } from "vue";
-import { Emits, RowAction } from "./row";
+import { Emits, RowAction } from "./table";
 
 const emit = defineEmits<Emits>();
 
 const table = useTemplateRef("table");
 
-const { rows, columns, actions } = defineProps<{
-  rows: TableData[];
-  columns: TableColumn<TableData>[];
+const {
+  rows = [],
+  columns = [],
+  actions,
+} = defineProps<{
+  rows?: TableData[];
+  columns?: TableColumn<TableData>[];
   actions?: RowAction[];
 }>();
-const key = ref(0);
 
-watch([rows, columns], () => {
-  key.value++;
-});
+const key = ref(0);
+watch(
+  () => rows,
+  () => {
+    key.value++;
+  },
+);
+watch(
+  () => columns,
+  () => {
+    key.value++;
+  },
+);
 
 const columnPinning = ref({ right: ["action"] });
 
@@ -27,7 +40,7 @@ const pagination = ref({
 </script>
 
 <template>
-  <div class="flex flex-1 flex-col justify-between">
+  <div class="flex flex-1 flex-col gap-4 justify-between">
     <div class="flex flex-col gap-4">
       <UTable
         ref="table"
@@ -61,19 +74,10 @@ const pagination = ref({
           />
         </template>
       </UTable>
-      <div class="flex justify-center">
+      <div v-if="columns && columns.length > 0" class="flex justify-center">
         <UButton icon="lucide:plus" variant="soft" label="Add row" />
       </div>
     </div>
-    <div class="flex justify-center border-t border-(--ui-border) py-4">
-      <UPagination
-        :default-page="
-          (table?.tableApi?.getState().pagination.pageIndex || 0) + 1
-        "
-        :items-per-page="table?.tableApi?.getState().pagination.pageSize"
-        :total="table?.tableApi?.getFilteredRowModel().rows.length"
-        @update:page="(p) => table?.tableApi?.setPageIndex(p - 1)"
-      />
-    </div>
+    <AppPagination :tableApi="table?.tableApi" />
   </div>
 </template>

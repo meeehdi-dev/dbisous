@@ -1,14 +1,11 @@
 <script setup lang="ts">
-import type { TableColumn, TableData } from "@nuxt/ui/dist/runtime/types";
 import { useRouter } from "vue-router";
 import { ref } from "vue";
-import { client } from "../../../wailsjs/go/models";
 import { useUrlParams } from "../../composables/useUrlParams";
 import { useWails } from "../../wails";
-import { GetSchemaInfo, GetTables } from "../../../wailsjs/go/app/App";
+import { GetTables } from "../../../wailsjs/go/app/App";
 import { Effect } from "effect";
-import { cell } from "./cell";
-import { RowAction } from "./row";
+import { formatColumns, FormattedQueryResult, RowAction } from "./table";
 
 const wails = useWails();
 const router = useRouter();
@@ -32,62 +29,22 @@ const tabs = [
   },
 ];
 
-const data = ref<
-  Omit<client.QueryResult, "convertValues" | "columns"> & {
-    columns: Array<TableColumn<TableData>>;
-  }
->({
-  columns: [],
-  rows: [],
-  sql_duration: "",
-  total_duration: "",
-});
+const data = ref<FormattedQueryResult>();
+const info = ref<FormattedQueryResult>();
 await Effect.runPromise(
   wails(() => GetTables(databaseId.value, schemaId.value)).pipe(
-    Effect.andThen((result) => ({
-      ...result,
-      columns: result.columns
-        .map((column) => ({
-          accessorKey: column.name,
-          header: column.name,
-          cell: cell(column.type),
-        }))
-        .concat([
-          // @ts-expect-error tkt
-          {
-            accessorKey: "action",
-            header: "Actions",
-          },
-        ]),
-    })),
     Effect.tap((result) => {
-      data.value = result;
+      data.value = {
+        ...result.data,
+        columns: formatColumns(result.data.columns),
+      };
+      info.value = {
+        ...result.info,
+        columns: formatColumns(result.info.columns, false),
+      };
     }),
-  ),
-);
-
-const info = ref<
-  Omit<client.QueryResult, "convertValues" | "columns"> & {
-    columns: Array<TableColumn<TableData>>;
-  }
->({
-  columns: [],
-  rows: [],
-  sql_duration: "",
-  total_duration: "",
-});
-await Effect.runPromise(
-  wails(() => GetSchemaInfo(databaseId.value, schemaId.value)).pipe(
-    Effect.andThen((result) => ({
-      ...result,
-      columns: result.columns.map((column) => ({
-        accessorKey: column.name,
-        header: column.name,
-        cell: cell(""),
-      })),
-    })),
-    Effect.tap((result) => {
-      info.value = result;
+    Effect.catchTags({
+      WailsError: Effect.succeed,
     }),
   ),
 );
@@ -101,11 +58,15 @@ function navigateToTable(schemaId: string, tableId: string) {
 </script>
 
 <template>
-  <UTabs :items="tabs" variant="link" :ui="{ content: 'flex flex-col gap-2' }">
+  <UTabs
+    :items="tabs"
+    variant="link"
+    :ui="{ root: 'h-full', content: 'flex flex-1 flex-col gap-2' }"
+  >
     <template #data>
       <AppRows
-        :rows="data.rows"
-        :columns="data.columns"
+        :rows="data?.rows"
+        :columns="data?.columns"
         :actions="[RowAction.View]"
         @view="
           (row) =>
@@ -121,7 +82,7 @@ function navigateToTable(schemaId: string, tableId: string) {
       />
     </template>
     <template #info>
-      <AppRows :rows="info.rows" :columns="info.columns" />
+      <AppRows :rows="info?.rows" :columns="info?.columns" />
     </template>
     <template #script>
       <AppScript />

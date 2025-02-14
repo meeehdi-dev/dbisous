@@ -3,12 +3,11 @@ import { useRouter } from "vue-router";
 import type { TableColumn, TableData } from "@nuxt/ui/dist/module";
 import { ref } from "vue";
 import { Effect } from "effect";
-import { GetDatabaseInfo, GetSchemas } from "../../../wailsjs/go/app/App";
+import { GetSchemas } from "../../../wailsjs/go/app/App";
 import { useUrlParams } from "../../composables/useUrlParams";
 import { useWails } from "../../wails";
 import { client } from "../../../wailsjs/go/models";
-import { cell } from "./cell";
-import { RowAction } from "./row";
+import { formatColumns, FormattedQueryResult, RowAction } from "./table";
 
 const wails = useWails();
 const router = useRouter();
@@ -32,62 +31,22 @@ const tabs = [
   },
 ];
 
-const data = ref<
-  Omit<client.QueryResult, "convertValues" | "columns"> & {
-    columns: Array<TableColumn<TableData>>;
-  }
->({
-  columns: [],
-  rows: [],
-  sql_duration: "",
-  total_duration: "",
-});
+const data = ref<FormattedQueryResult>();
+const info = ref<FormattedQueryResult>();
 await Effect.runPromise(
   wails(() => GetSchemas(databaseId.value)).pipe(
-    Effect.andThen((result) => ({
-      ...result,
-      columns: result.columns
-        .map((column) => ({
-          accessorKey: column.name,
-          header: column.name,
-          cell: cell(""),
-        }))
-        .concat([
-          // @ts-expect-error tkt
-          {
-            accessorKey: "action",
-            header: "Actions",
-          },
-        ]),
-    })),
     Effect.tap((result) => {
-      data.value = result;
+      data.value = {
+        ...result.data,
+        columns: formatColumns(result.data.columns),
+      };
+      info.value = {
+        ...result.info,
+        columns: formatColumns(result.info.columns, false),
+      };
     }),
-  ),
-);
-
-const info = ref<
-  Omit<client.QueryResult, "convertValues" | "columns"> & {
-    columns: Array<TableColumn<TableData>>;
-  }
->({
-  columns: [],
-  rows: [],
-  sql_duration: "",
-  total_duration: "",
-});
-await Effect.runPromise(
-  wails(() => GetDatabaseInfo(databaseId.value)).pipe(
-    Effect.andThen((result) => ({
-      ...result,
-      columns: result.columns.map((column) => ({
-        accessorKey: column.name,
-        header: column.name,
-        cell: cell(""),
-      })),
-    })),
-    Effect.tap((result) => {
-      info.value = result;
+    Effect.catchTags({
+      WailsError: Effect.succeed,
     }),
   ),
 );
@@ -105,8 +64,8 @@ function navigateToSchema(schemaId: string) {
   >
     <template #data>
       <AppRows
-        :rows="data.rows"
-        :columns="data.columns"
+        :rows="data?.rows"
+        :columns="data?.columns"
         :actions="[RowAction.View]"
         @view="
           (row) =>
@@ -119,7 +78,7 @@ function navigateToSchema(schemaId: string) {
       />
     </template>
     <template #info>
-      <AppRows :rows="info.rows" :columns="info.columns" />
+      <AppRows :rows="info?.rows" :columns="info?.columns" />
     </template>
     <template #script>
       <AppScript />

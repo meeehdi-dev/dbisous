@@ -1,16 +1,14 @@
 <script setup lang="ts">
-// import { Effect } from "effect";
 import { ref } from "vue";
-// import { useWails } from "../../wails";
 
 const {
   value,
-  type,
+  type = "",
   nullable = false,
 } = defineProps<{
   value: unknown;
-  type: string;
-  nullable: boolean;
+  type?: string;
+  nullable?: boolean;
 }>();
 
 const bool = ref(!!value);

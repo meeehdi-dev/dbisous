@@ -60,28 +60,16 @@ func (a *App) Disconnect(id string) error {
 	return Disconnect(id)
 }
 
-func (a *App) GetSchemas(id string) (client.QueryResult, error) {
+func (a *App) GetSchemas(id string) (client.Result, error) {
 	return GetSchemas(id)
 }
 
-func (a *App) GetDatabaseInfo(id string) (client.QueryResult, error) {
-	return GetDatabaseInfo(id)
-}
-
-func (a *App) GetTables(id string, schema string) (client.QueryResult, error) {
+func (a *App) GetTables(id string, schema string) (client.Result, error) {
 	return GetTables(id, schema)
 }
 
-func (a *App) GetSchemaInfo(id string, schema string) (client.QueryResult, error) {
-	return GetSchemaInfo(id, schema)
-}
-
-func (a *App) GetTableRows(id string, schema string, table string) (client.QueryResult, error) {
-	return GetTableRows(id, schema, table)
-}
-
-func (a *App) GetTableInfo(id string, schema string, table string) (client.QueryResult, error) {
-	return GetTableInfo(id, schema, table)
+func (a *App) GetTable(id string, schema string, table string) (client.Result, error) {
+	return GetTable(id, schema, table)
 }
 
 func (a *App) ExecuteQuery(id string, query string) (client.QueryResult, error) {

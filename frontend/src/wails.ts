@@ -1,19 +1,23 @@
 import { Effect } from "effect";
 
+class WailsError extends Error {
+  readonly _tag = "WailsError";
+}
+
 export const useWails = () => {
   const toast = useToast();
 
   const wails = <T>(fn: () => PromiseLike<T>) =>
     Effect.tryPromise({
       try: fn,
-      catch: (err: unknown): Effect.Effect<void, string> => {
+      catch: (err: unknown) => {
         const error = typeof err === "string" ? err : (err as Error).message;
         toast.add({
           title: fn.name,
-          description: err as string,
+          description: error,
           color: "error",
         });
-        return Effect.fail(error);
+        return new WailsError(error);
       },
     });
 
