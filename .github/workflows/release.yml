@@ -1,5 +1,3 @@
-name: Build
-
 on:
   push:
     tags:
@@ -12,8 +10,7 @@ env:
 jobs:
   build:
     strategy:
-    # Failure in one platform build won't impact the others
-      fail-fast: false
+      fail-fast: false # Failure in one platform build won't impact the others
       matrix:
         build:
           - name: 'dbisous-linux'
@@ -28,14 +25,10 @@ jobs:
 
     runs-on: ${{ matrix.build.os }}
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-        with:
-          submodules: recursive
-
-      - name: Build wails
+      - name: git checkout
+        uses: actions/checkout@v4
+      - name: build app
         uses: dAppServer/wails-build-action@main
-        id: build
         with:
           build-name: ${{ matrix.build.name }}
           build-platform: ${{ matrix.build.platform }}
