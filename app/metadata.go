@@ -10,6 +10,7 @@ import (
 var metadataDB *sql.DB
 
 const path = "dbisous/metadata.db"
+
 func InitMetadataDB() error {
 	dataFilePath, err := xdg.DataFile(path)
 	if err != nil {
@@ -49,7 +50,12 @@ CREATE TABLE IF NOT EXISTS connection (
   type TEXT NOT NULL,
   connection_string TEXT NOT NULL
 )`
+
 func createMetadataTable() error {
 	_, err := metadataDB.Exec(query)
-	return err
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
