@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { TableColumn, TableData } from "@nuxt/ui/dist/runtime/types";
+import type { TableColumn, TableData } from "@nuxt/ui/dist/runtime/types";
 import { ref } from "vue";
 import { useUrlParams } from "../../composables/useUrlParams";
 import { client } from "../../../wailsjs/go/models";
@@ -15,7 +15,6 @@ const { databaseId } = useUrlParams();
 
 const query = ref(defaultQuery ?? "");
 
-const queryResultKey = ref(0);
 const queryResult = ref<
   Omit<client.QueryResult, "convertValues" | "columns"> & {
     columns: Array<TableColumn<TableData>>;
@@ -47,13 +46,10 @@ async function executeQuery() {
       })),
       Effect.tap((data) => {
         queryResult.value = data;
-        queryResultKey.value++;
       }),
     ),
   );
 }
-
-const columnPinning = ref({ right: ["action"] });
 </script>
 
 <template>
@@ -68,16 +64,6 @@ const columnPinning = ref({ right: ["action"] });
     <USeparator
       :label="`${queryResult.rows.length.toString()} result${queryResult.rows.length > 1 ? 's' : ''}`"
     />
-    <UTable
-      :data="queryResult.rows"
-      :columns="queryResult.columns"
-      :key="queryResultKey"
-      v-model:column-pinning="columnPinning"
-    >
-      <template #action-cell="{ row }">
-        <UButton icon="lucide:copy" color="info" variant="ghost" />
-        <UButton icon="lucide:trash" color="error" variant="ghost" />
-      </template>
-    </UTable>
+    <AppRows :rows="queryResult.rows" :columns="queryResult.columns" />
   </div>
 </template>

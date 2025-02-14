@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { TableColumn, TableData } from "@nuxt/ui/dist/runtime/types";
+import type { TableColumn, TableData } from "@nuxt/ui/dist/runtime/types";
 import { useRouter } from "vue-router";
 import { ref } from "vue";
 import { client } from "../../../wailsjs/go/models";
@@ -8,6 +8,7 @@ import { useWails } from "../../wails";
 import { GetSchemaInfo, GetTables } from "../../../wailsjs/go/app/App";
 import { Effect } from "effect";
 import { cell } from "./cell";
+import { RowAction } from "./row";
 
 const wails = useWails();
 const router = useRouter();
@@ -31,7 +32,6 @@ const tabs = [
   },
 ];
 
-const dataKey = ref(0);
 const data = ref<
   Omit<client.QueryResult, "convertValues" | "columns"> & {
     columns: Array<TableColumn<TableData>>;
@@ -62,12 +62,10 @@ await Effect.runPromise(
     })),
     Effect.tap((result) => {
       data.value = result;
-      dataKey.value++;
     }),
   ),
 );
 
-const infoKey = ref(0);
 const info = ref<
   Omit<client.QueryResult, "convertValues" | "columns"> & {
     columns: Array<TableColumn<TableData>>;
@@ -90,55 +88,40 @@ await Effect.runPromise(
     })),
     Effect.tap((result) => {
       info.value = result;
-      infoKey.value++;
     }),
   ),
 );
 
-function redirectToTable(schemaId: string, tableId: string) {
+function navigateToTable(schemaId: string, tableId: string) {
   router.push({
     name: "table",
     params: { schemaId, tableId },
   });
 }
-
-const columnPinning = ref({ right: ["action"] });
 </script>
 
 <template>
   <UTabs :items="tabs" variant="link" :ui="{ content: 'flex flex-col gap-2' }">
     <template #data>
-      <UTable
-        :data="data.rows"
+      <AppRows
+        :rows="data.rows"
         :columns="data.columns"
-        v-model:column-pinning="columnPinning"
-        :key="dataKey"
-      >
-        <template #action-cell="{ row }">
-          <UButton
-            icon="lucide:eye"
-            variant="ghost"
-            @click="
-              redirectToTable(
-                row.original.TABLE_SCHEMA ||
-                  row.original.table_schema ||
-                  row.original.schema,
-                row.original.TABLE_NAME ||
-                  row.original.table_name ||
-                  row.original.name,
-              )
-            "
-          />
-        </template>
-      </UTable>
+        :actions="[RowAction.View]"
+        @view="
+          (row) =>
+            navigateToTable(
+              row.original.TABLE_SCHEMA ||
+                row.original.table_schema ||
+                row.original.schema,
+              row.original.TABLE_NAME ||
+                row.original.table_name ||
+                row.original.name,
+            )
+        "
+      />
     </template>
     <template #info>
-      <UTable
-        :data="info.rows"
-        :columns="info.columns"
-        v-model:column-pinning="columnPinning"
-        :key="infoKey"
-      />
+      <AppRows :rows="info.rows" :columns="info.columns" />
     </template>
     <template #script>
       <AppScript />

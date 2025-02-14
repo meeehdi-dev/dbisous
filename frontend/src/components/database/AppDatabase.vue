@@ -8,6 +8,7 @@ import { useUrlParams } from "../../composables/useUrlParams";
 import { useWails } from "../../wails";
 import { client } from "../../../wailsjs/go/models";
 import { cell } from "./cell";
+import { RowAction } from "./row";
 
 const wails = useWails();
 const router = useRouter();
@@ -31,7 +32,6 @@ const tabs = [
   },
 ];
 
-const dataKey = ref(0);
 const data = ref<
   Omit<client.QueryResult, "convertValues" | "columns"> & {
     columns: Array<TableColumn<TableData>>;
@@ -62,12 +62,10 @@ await Effect.runPromise(
     })),
     Effect.tap((result) => {
       data.value = result;
-      dataKey.value++;
     }),
   ),
 );
 
-const infoKey = ref(0);
 const info = ref<
   Omit<client.QueryResult, "convertValues" | "columns"> & {
     columns: Array<TableColumn<TableData>>;
@@ -90,7 +88,6 @@ await Effect.runPromise(
     })),
     Effect.tap((result) => {
       info.value = result;
-      infoKey.value++;
     }),
   ),
 );
@@ -98,41 +95,31 @@ await Effect.runPromise(
 function navigateToSchema(schemaId: string) {
   router.push({ name: "schema", params: { schemaId } });
 }
-
-const columnPinning = ref({ right: ["action"] });
 </script>
 
 <template>
-  <UTabs :items="tabs" variant="link" :ui="{ content: 'flex flex-col gap-2' }">
+  <UTabs
+    :items="tabs"
+    variant="link"
+    :ui="{ root: 'h-full', content: 'flex flex-1 flex-col gap-2' }"
+  >
     <template #data>
-      <UTable
-        :data="data.rows"
+      <AppRows
+        :rows="data.rows"
         :columns="data.columns"
-        v-model:column-pinning="columnPinning"
-        :key="dataKey"
-      >
-        <template #action-cell="{ row }">
-          <UButton
-            icon="lucide:eye"
-            variant="ghost"
-            @click="
-              navigateToSchema(
-                row.original.SCHEMA_NAME ||
-                  row.original.schema_name ||
-                  row.original.name,
-              )
-            "
-          />
-        </template>
-      </UTable>
+        :actions="[RowAction.View]"
+        @view="
+          (row) =>
+            navigateToSchema(
+              row.original.SCHEMA_NAME ||
+                row.original.schema_name ||
+                row.original.name,
+            )
+        "
+      />
     </template>
     <template #info>
-      <UTable
-        :data="info.rows"
-        :columns="info.columns"
-        v-model:column-pinning="columnPinning"
-        :key="infoKey"
-      />
+      <AppRows :rows="info.rows" :columns="info.columns" />
     </template>
     <template #script>
       <AppScript />

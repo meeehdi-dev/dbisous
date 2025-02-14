@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { TableColumn, TableData } from "@nuxt/ui/dist/runtime/types";
+import type { TableColumn, TableData } from "@nuxt/ui/dist/runtime/types";
 import { ref } from "vue";
 import { useUrlParams } from "../../composables/useUrlParams";
 import { client } from "../../../wailsjs/go/models";
@@ -32,7 +32,6 @@ const tabs = [
   },
 ];
 
-const dataKey = ref(0);
 const data = ref<
   Omit<client.QueryResult, "convertValues" | "columns"> & {
     columns: Array<TableColumn<TableData>>;
@@ -65,12 +64,10 @@ await Effect.runPromise(
     })),
     Effect.tap((result) => {
       data.value = result;
-      dataKey.value++;
     }),
   ),
 );
 
-const infoKey = ref(0);
 const info = ref<
   Omit<client.QueryResult, "convertValues" | "columns"> & {
     columns: Array<TableColumn<TableData>>;
@@ -95,12 +92,9 @@ await Effect.runPromise(
     })),
     Effect.tap((result) => {
       info.value = result;
-      infoKey.value++;
     }),
   ),
 );
-
-const columnPinning = ref({ right: ["action"] });
 </script>
 
 <template>
@@ -111,28 +105,10 @@ const columnPinning = ref({ right: ["action"] });
       :ui="{ content: 'flex flex-col gap-2' }"
     >
       <template #data>
-        <UTable
-          :data="data.rows"
-          :columns="data.columns"
-          :key="dataKey"
-          v-model:column-pinning="columnPinning"
-        >
-          <template #action-cell="{ row }">
-            <UButton icon="lucide:copy" color="info" variant="ghost" />
-            <UButton icon="lucide:trash" color="error" variant="ghost" />
-          </template>
-        </UTable>
-        <div class="flex justify-center">
-          <UButton icon="lucide:plus" variant="soft" label="Add row" />
-        </div>
+        <AppRows :rows="data.rows" :columns="data.columns" />
       </template>
       <template #info>
-        <UTable
-          :data="info.rows"
-          :columns="info.columns"
-          v-model:column-pinning="columnPinning"
-          :key="infoKey"
-        />
+        <AppRows :rows="info.rows" :columns="info.columns" />
       </template>
       <template #script>
         <AppScript :default-query="`SELECT * FROM ${tableId};`" />
