@@ -17,7 +17,7 @@ function getConnectionName(connection: app.Connection) {
   if (connection.name) {
     return connection.name;
   }
-  const parts = connection.connection_string.split("/");
+  const parts = connection.connection_string.replace(/\\/g, "/").split("/");
   return parts[parts.length - 1];
 }
 
