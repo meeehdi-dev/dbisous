@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import type { TableColumn, TableData } from "@nuxt/ui/dist/module";
 import { ref, useTemplateRef, watch } from "vue";
-import { Emits, RowAction } from "./table";
+import { RowEmits, RowAction } from "./table";
 
-const emit = defineEmits<Emits>();
+const emit = defineEmits<RowEmits>();
 
 const table = useTemplateRef("table");
 

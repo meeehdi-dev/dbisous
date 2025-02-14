@@ -1,12 +1,10 @@
 <script setup lang="ts">
 import { useRouter } from "vue-router";
-import type { TableColumn, TableData } from "@nuxt/ui/dist/module";
 import { ref } from "vue";
 import { Effect } from "effect";
 import { GetSchemas } from "../../../wailsjs/go/app/App";
 import { useUrlParams } from "../../composables/useUrlParams";
 import { useWails } from "../../wails";
-import { client } from "../../../wailsjs/go/models";
 import { formatColumns, FormattedQueryResult, RowAction } from "./table";
 
 const wails = useWails();

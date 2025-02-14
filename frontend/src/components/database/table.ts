@@ -9,7 +9,7 @@ export enum RowAction {
   Remove = "remove",
 }
 
-export type Emits = {
+export type RowEmits = {
   view: [TableData];
   copy: [TableData];
   remove: [TableData];
