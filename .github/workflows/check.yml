@@ -1,0 +1,18 @@
+on:
+  pull_request:
+    branches:
+      - 'main'
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: git checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: check if branch is ahead of main
+        run: |
+          if ! git merge-base --is-ancestor origin/main ${{ github.event.pull_request.head.sha }};
+          then echo "This branch is not up to date with main";
+          exit 1; fi
