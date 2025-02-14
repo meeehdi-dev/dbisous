@@ -61,7 +61,7 @@ const pagination = ref({
           />
         </template>
       </UTable>
-      <div class="flex justify-center">
+      <div v-if="columns.length > 0" class="flex justify-center">
         <UButton icon="lucide:plus" variant="soft" label="Add row" />
       </div>
     </div>
