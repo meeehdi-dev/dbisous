@@ -27,7 +27,7 @@ const pagination = ref({
 </script>
 
 <template>
-  <div class="flex flex-1 flex-col justify-between">
+  <div class="flex flex-1 flex-col gap-4 justify-between">
     <div class="flex flex-col gap-4">
       <UTable
         ref="table"
