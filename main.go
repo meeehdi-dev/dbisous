@@ -3,6 +3,8 @@ package main
 import (
 	"dbisous/app"
 	"embed"
+	"os"
+	"strings"
 
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
@@ -16,6 +18,17 @@ var assets embed.FS
 func main() {
 	app := app.NewApp()
 
+	startHidden := false
+	env := os.Environ()
+	for _, e := range env {
+		split := strings.Split(e, "=")
+		key := split[0]
+		if key == "devserver" {
+			startHidden = true
+			break
+		}
+	}
+
 	err := wails.Run(&options.App{
 		Title:     "dbisous",
 		MinWidth:  1024,
@@ -28,6 +41,7 @@ func main() {
 		Bind: []interface{}{
 			app,
 		},
+		StartHidden: startHidden,
 	})
 
 	if err != nil {
