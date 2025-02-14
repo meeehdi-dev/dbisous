@@ -2,8 +2,8 @@ name: Build
 
 on:
   push:
-    tags:
-      - "v[0-9]+.[0-9]+.[0-9]+"
+    branches:
+      - main
 
 env:
   # Necessary for most environments as build failure can occur due to OOM issues
@@ -11,7 +11,6 @@ env:
 
 jobs:
   build:
-    if: github.event.base_ref == 'refs/heads/main'
     strategy:
     # Failure in one platform build won't impact the others
       fail-fast: false
