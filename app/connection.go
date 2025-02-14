@@ -15,8 +15,7 @@ var activeConnections = make(map[string]*sql.DB)
 var dbClients = make(map[string]client.DatabaseClient)
 
 func GetConnections() ([]Connection, error) {
-	query := `SELECT id, created_at, updated_at, name, type, connection_string FROM connection`
-	rows, err := metadataDB.Query(query)
+	rows, err := metadataDB.Query(`SELECT id, created_at, updated_at, name, type, connection_string FROM connection`)
 	if err != nil {
 		return nil, err
 	}
@@ -31,6 +30,7 @@ func GetConnections() ([]Connection, error) {
 		}
 		connections = append(connections, connection)
 	}
+
 	return connections, nil
 }
 
@@ -43,35 +43,27 @@ func CreateConnection(connection Connection) error {
 		connection.ID = id.String()
 	}
 
-	query := `
-        INSERT INTO connection (id, name, type, connection_string)
-        VALUES (?, ?, ?, ?)
-    `
-	_, err := metadataDB.Exec(query, connection.ID, connection.Name, connection.Type, connection.ConnectionString)
+	_, err := metadataDB.Exec(`INSERT INTO connection (id, name, type, connection_string)
+  VALUES (?, ?, ?, ?)`, connection.ID, connection.Name, connection.Type, connection.ConnectionString)
 
 	return err
 }
 
 func UpdateConnection(connection Connection) error {
-	query := `
-        UPDATE connection
-        SET name = ?, type = ?, connection_string = ?, updated_at = CURRENT_TIMESTAMP
-        WHERE id = ?
-    `
-	_, err := metadataDB.Exec(query, connection.Name, connection.Type, connection.ConnectionString, connection.ID)
+	_, err := metadataDB.Exec(`UPDATE connection
+  SET name = ?, type = ?, connection_string = ?, updated_at = CURRENT_TIMESTAMP
+  WHERE id = ?`, connection.Name, connection.Type, connection.ConnectionString, connection.ID)
 	return err
 }
 
 func DeleteConnection(id string) error {
-	query := `DELETE FROM connection WHERE id = ?`
-	_, err := metadataDB.Exec(query, id)
+	_, err := metadataDB.Exec(`DELETE FROM connection WHERE id = ?`, id)
 	return err
 }
 
 func Connect(id string) error {
-	query := `SELECT type, connection_string FROM connection WHERE id = ?`
 	var dbType, connectionString string
-	err := metadataDB.QueryRow(query, id).Scan(&dbType, &connectionString)
+	err := metadataDB.QueryRow(`SELECT type, connection_string FROM connection WHERE id = ?`, id).Scan(&dbType, &connectionString)
 	if err != nil {
 		return err
 	}

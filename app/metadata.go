@@ -41,7 +41,8 @@ func CloseMetadataDB() {
 	}
 }
 
-const query = `
+func createMetadataTable() error {
+	_, err := metadataDB.Exec(`
 CREATE TABLE IF NOT EXISTS connection (
   id TEXT PRIMARY KEY,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -49,10 +50,7 @@ CREATE TABLE IF NOT EXISTS connection (
   name TEXT NOT NULL,
   type TEXT NOT NULL,
   connection_string TEXT NOT NULL
-)`
-
-func createMetadataTable() error {
-	_, err := metadataDB.Exec(query)
+)`)
 	if err != nil {
 		return err
 	}
