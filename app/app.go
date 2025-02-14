@@ -16,10 +16,10 @@ func NewApp() *App {
 }
 
 func (a *App) Startup(ctx context.Context) {
-	a.ctx = ctx
+	a.Ctx = ctx
 	err := InitMetadataDB("metadata.db")
 	if err != nil {
-		runtime.MessageDialog(a.ctx, runtime.MessageDialogOptions{Title: err.Error()})
+		runtime.MessageDialog(a.Ctx, runtime.MessageDialogOptions{Title: err.Error()})
 	}
 }
 
@@ -28,7 +28,7 @@ func (a *App) Shutdown(ctx context.Context) {
 }
 
 func (a *App) SelectFile() (string, error) {
-	file, err := runtime.OpenFileDialog(a.ctx, runtime.OpenDialogOptions{})
+	file, err := runtime.OpenFileDialog(a.Ctx, runtime.OpenDialogOptions{})
 	if err != nil {
 		return "", err
 	}
