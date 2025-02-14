@@ -6,7 +6,8 @@ const { tableApi } = defineProps<{
 </script>
 
 <template>
-  <div class="flex justify-center border-t border-(--ui-border) py-4">
+  <div class="flex flex-col items-center py-4 gap-4">
+    <USeparator />
     <UPagination
       :default-page="(tableApi?.getState().pagination.pageIndex || 0) + 1"
       :items-per-page="tableApi?.getState().pagination.pageSize"

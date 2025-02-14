@@ -65,8 +65,6 @@ const pagination = ref({
         <UButton icon="lucide:plus" variant="soft" label="Add row" />
       </div>
     </div>
-    <div class="flex justify-center border-t border-(--ui-border) py-4">
-      <AppPagination :tableApi="table?.tableApi" />
-    </div>
+    <AppPagination :tableApi="table?.tableApi" />
   </div>
 </template>
