@@ -4,6 +4,7 @@
 # wails
 build/**
 !build/appicon.png
+frontend/package.json.md5
 frontend/dist
 frontend/wailsjs
 
