@@ -4,7 +4,7 @@ import { ref } from "vue";
 import { useUrlParams } from "../../composables/useUrlParams";
 import { client } from "../../../wailsjs/go/models";
 import { Effect } from "effect";
-import { cell } from "./cell";
+import { formatColumns } from "./table";
 import { useWails } from "../../wails";
 import { GetTableInfo, GetTableRows } from "../../../wailsjs/go/app/App";
 
@@ -46,24 +46,14 @@ await Effect.runPromise(
   wails(() =>
     GetTableRows(databaseId.value, schemaId.value, tableId.value),
   ).pipe(
-    Effect.andThen((result) => ({
-      ...result,
-      columns: result.columns
-        .map((column) => ({
-          accessorKey: column.name,
-          header: column.name,
-          cell: cell(column.type),
-        }))
-        .concat([
-          // @ts-expect-error tkt
-          {
-            accessorKey: "action",
-            header: "Actions",
-          },
-        ]),
-    })),
     Effect.tap((result) => {
-      data.value = result;
+      data.value = {
+        ...result,
+        columns: formatColumns(result.columns, false),
+      };
+    }),
+    Effect.catchTags({
+      WailsError: Effect.succeed,
     }),
   ),
 );
@@ -82,16 +72,14 @@ await Effect.runPromise(
   wails(() =>
     GetTableInfo(databaseId.value, schemaId.value, tableId.value),
   ).pipe(
-    Effect.andThen((result) => ({
-      ...result,
-      columns: result.columns.map((column) => ({
-        accessorKey: column.name,
-        header: column.name,
-        cell: cell(""),
-      })),
-    })),
     Effect.tap((result) => {
-      info.value = result;
+      info.value = {
+        ...result,
+        columns: formatColumns(result.columns, false),
+      };
+    }),
+    Effect.catchTags({
+      WailsError: Effect.succeed,
     }),
   ),
 );

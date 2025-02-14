@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { TableColumn, TableData } from "@nuxt/ui/dist/module";
 import { ref, useTemplateRef, watch } from "vue";
-import { Emits, RowAction } from "./row";
+import { Emits, RowAction } from "./table";
 
 const emit = defineEmits<Emits>();
 
@@ -66,14 +66,7 @@ const pagination = ref({
       </div>
     </div>
     <div class="flex justify-center border-t border-(--ui-border) py-4">
-      <UPagination
-        :default-page="
-          (table?.tableApi?.getState().pagination.pageIndex || 0) + 1
-        "
-        :items-per-page="table?.tableApi?.getState().pagination.pageSize"
-        :total="table?.tableApi?.getFilteredRowModel().rows.length"
-        @update:page="(p) => table?.tableApi?.setPageIndex(p - 1)"
-      />
+      <AppPagination :tableApi="table?.tableApi" />
     </div>
   </div>
 </template>

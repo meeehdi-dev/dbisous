@@ -4,7 +4,7 @@ import { ref } from "vue";
 import { useUrlParams } from "../../composables/useUrlParams";
 import { client } from "../../../wailsjs/go/models";
 import { Effect } from "effect";
-import { cell } from "./cell";
+import { cell } from "./table";
 import { useWails } from "../../wails";
 import { ExecuteQuery } from "../../../wailsjs/go/app/App";
 
