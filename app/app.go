@@ -17,7 +17,7 @@ func NewApp() *App {
 
 func (a *App) Startup(ctx context.Context) {
 	a.Ctx = ctx
-	err := InitMetadataDB("metadata.db")
+	err := InitMetadataDB()
 	if err != nil {
 		runtime.MessageDialog(a.Ctx, runtime.MessageDialogOptions{Title: err.Error()})
 	}

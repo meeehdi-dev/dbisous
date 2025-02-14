@@ -9,10 +9,12 @@ import (
 
 var metadataDB *sql.DB
 
-func InitMetadataDB(filepath string) error {
-	var err error
-
-	dataFilePath, err := xdg.DataFile("dbisous/metadata.db")
+const path = "dbisous/metadata.db"
+func InitMetadataDB() error {
+	dataFilePath, err := xdg.DataFile(path)
+	if err != nil {
+		return err
+	}
 
 	metadataDB, err = sql.Open("sqlite3", dataFilePath)
 	if err != nil {
@@ -24,7 +26,12 @@ func InitMetadataDB(filepath string) error {
 		return err
 	}
 
-	return createMetadataTable()
+	err = createMetadataTable()
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func CloseMetadataDB() {
@@ -33,8 +40,7 @@ func CloseMetadataDB() {
 	}
 }
 
-func createMetadataTable() error {
-	query := `
+const query = `
 CREATE TABLE IF NOT EXISTS connection (
   id TEXT PRIMARY KEY,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -43,6 +49,7 @@ CREATE TABLE IF NOT EXISTS connection (
   type TEXT NOT NULL,
   connection_string TEXT NOT NULL
 )`
+func createMetadataTable() error {
 	_, err := metadataDB.Exec(query)
 	return err
 }
