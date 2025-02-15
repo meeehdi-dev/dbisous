@@ -2,7 +2,10 @@
 import { useRouter } from "vue-router";
 import { ref } from "vue";
 import { Effect } from "effect";
-import { GetSchemas } from "../../../wailsjs/go/app/App";
+import {
+  GetDatabaseInfo,
+  GetDatabaseSchemas,
+} from "../../../wailsjs/go/app/App";
 import { useUrlParams } from "../../composables/useUrlParams";
 import { useWails } from "../../wails";
 import { formatColumns, FormattedQueryResult, RowAction } from "./table";
@@ -31,23 +34,38 @@ const tabs = [
 
 const data = ref<FormattedQueryResult>();
 const info = ref<FormattedQueryResult>();
-await Effect.runPromise(
-  wails(() => GetSchemas(databaseId.value)).pipe(
-    Effect.tap((result) => {
-      data.value = {
-        ...result.data,
-        columns: formatColumns(result.data.columns),
-      };
-      info.value = {
-        ...result.info,
-        columns: formatColumns(result.info.columns, false),
-      };
-    }),
-    Effect.catchTags({
-      WailsError: Effect.succeed,
-    }),
-  ),
-);
+async function getData(page = 1, itemsPerPage = 10) {
+  await Effect.runPromise(
+    wails(() => GetDatabaseSchemas(databaseId.value, page, itemsPerPage)).pipe(
+      Effect.tap((result) => {
+        data.value = {
+          ...result,
+          columns: formatColumns(result.columns),
+        };
+      }),
+      Effect.catchTags({
+        WailsError: Effect.succeed,
+      }),
+    ),
+  );
+}
+async function getInfo(page = 1, itemsPerPage = 10) {
+  await Effect.runPromise(
+    wails(() => GetDatabaseInfo(databaseId.value, page, itemsPerPage)).pipe(
+      Effect.tap((result) => {
+        info.value = {
+          ...result,
+          columns: formatColumns(result.columns, false),
+        };
+      }),
+      Effect.catchTags({
+        WailsError: Effect.succeed,
+      }),
+    ),
+  );
+}
+getData();
+getInfo();
 
 function navigateToSchema(schemaId: string) {
   router.push({ name: "schema", params: { schemaId } });
@@ -72,10 +90,11 @@ function navigateToSchema(schemaId: string) {
                 row.original.name,
             )
         "
+        @pagination-change="getData"
       />
     </template>
     <template #info>
-      <AppRows :data="info" />
+      <AppRows :data="info" @pagination-change="getInfo" />
     </template>
     <template #script>
       <AppScript />

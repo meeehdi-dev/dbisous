@@ -21,7 +21,7 @@ const { total = 0 } = defineProps<{
         </UTooltip>
       </div>
       <UPagination
-        v-model="page"
+        v-model:page="page"
         :items-per-page="itemsPerPage"
         :total="total"
       />

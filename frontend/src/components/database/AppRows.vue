@@ -5,7 +5,7 @@ import { RowEmits, RowAction } from "./table";
 
 const emit = defineEmits<RowEmits>();
 
-const { data, actions } = defineProps<{
+const { data, actions = [] } = defineProps<{
   data?: {
     rows?: TableData[];
     columns?: TableColumn<TableData>[];
@@ -14,8 +14,16 @@ const { data, actions } = defineProps<{
   actions?: RowAction[];
 }>();
 
-const page = ref(0);
+const page = ref(1);
 const itemsPerPage = ref(10);
+
+watch(page, () => {
+  emit("paginationChange", page.value, itemsPerPage.value);
+});
+watch(itemsPerPage, () => {
+  page.value = 1;
+  emit("paginationChange", page.value, itemsPerPage.value);
+});
 
 const key = ref(0);
 watch(
@@ -45,21 +53,21 @@ const columnPinning = ref({ right: ["action"] });
       >
         <template #action-cell="{ row }">
           <UButton
-            v-if="actions?.includes(RowAction.View)"
+            v-if="actions.includes(RowAction.View)"
             icon="lucide:eye"
             color="primary"
             variant="ghost"
             @click="emit(RowAction.View, row)"
           />
           <UButton
-            v-if="actions?.includes(RowAction.Copy)"
+            v-if="actions.includes(RowAction.Copy)"
             icon="lucide:copy"
             color="secondary"
             variant="ghost"
             @click="emit(RowAction.Copy, row)"
           />
           <UButton
-            v-if="actions?.includes(RowAction.Remove)"
+            v-if="actions.includes(RowAction.Remove)"
             icon="lucide:trash"
             color="error"
             variant="ghost"

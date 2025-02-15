@@ -60,16 +60,34 @@ func (a *App) Disconnect(id string) error {
 	return Disconnect(id)
 }
 
-func (a *App) GetSchemas(id string) (client.Result, error) {
-	return GetSchemas(id)
+func (a *App) GetDatabaseSchemas(id string, page int, itemsPerPage int) (client.QueryResult, error) {
+	limit, offset := itemsPerPage, (page-1)*itemsPerPage
+	return GetDatabaseSchemas(id, limit, offset)
 }
 
-func (a *App) GetTables(id string, schema string) (client.Result, error) {
-	return GetTables(id, schema)
+func (a *App) GetDatabaseInfo(id string, page int, itemsPerPage int) (client.QueryResult, error) {
+	limit, offset := itemsPerPage, (page-1)*itemsPerPage
+	return GetDatabaseInfo(id, limit, offset)
 }
 
-func (a *App) GetTable(id string, schema string, table string) (client.Result, error) {
-	return GetTable(id, schema, table)
+func (a *App) GetSchemaTables(id string, page int, itemsPerPage int, schema string) (client.QueryResult, error) {
+	limit, offset := itemsPerPage, (page-1)*itemsPerPage
+	return GetSchemaTables(id, limit, offset, schema)
+}
+
+func (a *App) GetSchemaInfo(id string, page int, itemsPerPage int, schema string) (client.QueryResult, error) {
+	limit, offset := itemsPerPage, (page-1)*itemsPerPage
+	return GetSchemaInfo(id, limit, offset, schema)
+}
+
+func (a *App) GetTableRows(id string, page int, itemsPerPage int, schema string, table string) (client.QueryResult, error) {
+	limit, offset := itemsPerPage, (page-1)*itemsPerPage
+	return GetTableRows(id, limit, offset, schema, table)
+}
+
+func (a *App) GetTableInfo(id string, page int, itemsPerPage int, schema string, table string) (client.QueryResult, error) {
+	limit, offset := itemsPerPage, (page-1)*itemsPerPage
+	return GetTableInfo(id, limit, offset, schema, table)
 }
 
 func (a *App) ExecuteQuery(id string, query string) (client.QueryResult, error) {

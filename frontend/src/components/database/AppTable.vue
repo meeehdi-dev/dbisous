@@ -4,7 +4,7 @@ import { useUrlParams } from "../../composables/useUrlParams";
 import { Effect } from "effect";
 import { formatColumns, FormattedQueryResult } from "./table";
 import { useWails } from "../../wails";
-import { GetTable } from "../../../wailsjs/go/app/App";
+import { GetTableInfo, GetTableRows } from "../../../wailsjs/go/app/App";
 
 const wails = useWails();
 const { databaseId, schemaId, tableId } = useUrlParams();
@@ -32,23 +32,54 @@ const tabs = [
 
 const data = ref<FormattedQueryResult>();
 const info = ref<FormattedQueryResult>();
-await Effect.runPromise(
-  wails(() => GetTable(databaseId.value, schemaId.value, tableId.value)).pipe(
-    Effect.tap((result) => {
-      data.value = {
-        ...result.data,
-        columns: formatColumns(result.data.columns),
-      };
-      info.value = {
-        ...result.info,
-        columns: formatColumns(result.info.columns, false),
-      };
-    }),
-    Effect.catchTags({
-      WailsError: Effect.succeed,
-    }),
-  ),
-);
+async function getData(page = 1, itemsPerPage = 10) {
+  await Effect.runPromise(
+    wails(() =>
+      GetTableRows(
+        databaseId.value,
+        page,
+        itemsPerPage,
+        schemaId.value,
+        tableId.value,
+      ),
+    ).pipe(
+      Effect.tap((result) => {
+        data.value = {
+          ...result,
+          columns: formatColumns(result.columns),
+        };
+      }),
+      Effect.catchTags({
+        WailsError: Effect.succeed,
+      }),
+    ),
+  );
+}
+async function getInfo(page = 1, itemsPerPage = 10) {
+  await Effect.runPromise(
+    wails(() =>
+      GetTableInfo(
+        databaseId.value,
+        page,
+        itemsPerPage,
+        schemaId.value,
+        tableId.value,
+      ),
+    ).pipe(
+      Effect.tap((result) => {
+        info.value = {
+          ...result,
+          columns: formatColumns(result.columns, false),
+        };
+      }),
+      Effect.catchTags({
+        WailsError: Effect.succeed,
+      }),
+    ),
+  );
+}
+getData();
+getInfo();
 </script>
 
 <template>
@@ -59,16 +90,16 @@ await Effect.runPromise(
       :ui="{ root: 'h-full', content: 'flex flex-1 flex-col gap-2' }"
     >
       <template #data>
-        <AppRows :data="data" />
+        <AppRows :data="data" @pagination-change="getData" />
       </template>
       <template #info>
-        <AppRows :data="info" />
+        <AppRows :data="info" @pagination-change="getInfo" />
       </template>
       <template #script>
         <AppScript :default-query="`SELECT * FROM ${tableId};`" />
       </template>
     </UTabs>
-    <div class="px-2 pb-2">
+    <!-- <div class="px-2 pb-2">
       <UAlert
         title="3 pending changes"
         icon="lucide:info"
@@ -112,6 +143,6 @@ await Effect.runPromise(
           </div>
         </template>
       </UModal>
-    </div>
+    </div> -->
   </div>
 </template>

@@ -3,9 +3,9 @@ import { useRouter } from "vue-router";
 import { ref } from "vue";
 import { useUrlParams } from "../../composables/useUrlParams";
 import { useWails } from "../../wails";
-import { GetTables } from "../../../wailsjs/go/app/App";
 import { Effect } from "effect";
 import { formatColumns, FormattedQueryResult, RowAction } from "./table";
+import { GetSchemaInfo, GetSchemaTables } from "../../../wailsjs/go/app/App";
 
 const wails = useWails();
 const router = useRouter();
@@ -31,23 +31,42 @@ const tabs = [
 
 const data = ref<FormattedQueryResult>();
 const info = ref<FormattedQueryResult>();
-await Effect.runPromise(
-  wails(() => GetTables(databaseId.value, schemaId.value)).pipe(
-    Effect.tap((result) => {
-      data.value = {
-        ...result.data,
-        columns: formatColumns(result.data.columns),
-      };
-      info.value = {
-        ...result.info,
-        columns: formatColumns(result.info.columns, false),
-      };
-    }),
-    Effect.catchTags({
-      WailsError: Effect.succeed,
-    }),
-  ),
-);
+async function getData(page = 1, itemsPerPage = 10) {
+  await Effect.runPromise(
+    wails(() =>
+      GetSchemaTables(databaseId.value, page, itemsPerPage, schemaId.value),
+    ).pipe(
+      Effect.tap((result) => {
+        data.value = {
+          ...result,
+          columns: formatColumns(result.columns),
+        };
+      }),
+      Effect.catchTags({
+        WailsError: Effect.succeed,
+      }),
+    ),
+  );
+}
+async function getInfo(page = 1, itemsPerPage = 10) {
+  await Effect.runPromise(
+    wails(() =>
+      GetSchemaInfo(databaseId.value, page, itemsPerPage, schemaId.value),
+    ).pipe(
+      Effect.tap((result) => {
+        info.value = {
+          ...result,
+          columns: formatColumns(result.columns, false),
+        };
+      }),
+      Effect.catchTags({
+        WailsError: Effect.succeed,
+      }),
+    ),
+  );
+}
+getData();
+getInfo();
 
 function navigateToTable(schemaId: string, tableId: string) {
   router.push({
@@ -78,10 +97,11 @@ function navigateToTable(schemaId: string, tableId: string) {
                 row.original.name,
             )
         "
+        @pagination-change="getData"
       />
     </template>
     <template #info>
-      <AppRows :data="info" />
+      <AppRows :data="info" @pagination-change="getInfo" />
     </template>
     <template #script>
       <AppScript />
