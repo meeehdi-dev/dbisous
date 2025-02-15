@@ -1,52 +1,45 @@
 <script setup lang="ts">
 import type { TableColumn, TableData } from "@nuxt/ui/dist/module";
-import { ref, useTemplateRef, watch } from "vue";
+import { ref, watch } from "vue";
 import { RowEmits, RowAction } from "./table";
 
 const emit = defineEmits<RowEmits>();
 
-const table = useTemplateRef("table");
-
-const {
-  rows = [],
-  columns = [],
-  actions,
-} = defineProps<{
-  rows?: TableData[];
-  columns?: TableColumn<TableData>[];
+const { data, actions } = defineProps<{
+  data?: {
+    rows?: TableData[];
+    columns?: TableColumn<TableData>[];
+    total?: number;
+  };
   actions?: RowAction[];
 }>();
 
+const page = ref(0);
+const itemsPerPage = ref(10);
+
 const key = ref(0);
 watch(
-  () => rows,
+  () => data?.rows,
   () => {
     key.value++;
   },
 );
 watch(
-  () => columns,
+  () => data?.columns,
   () => {
     key.value++;
   },
 );
 
 const columnPinning = ref({ right: ["action"] });
-
-const pagination = ref({
-  pageIndex: 0,
-  pageSize: 5,
-});
 </script>
 
 <template>
   <div class="flex flex-1 flex-col gap-4 justify-between">
     <div class="flex flex-col gap-4">
       <UTable
-        ref="table"
-        v-model:pagination="pagination"
-        :data="rows"
-        :columns="columns"
+        :data="data?.rows"
+        :columns="data?.columns"
         v-model:column-pinning="columnPinning"
         :key="key"
       >
@@ -74,10 +67,17 @@ const pagination = ref({
           />
         </template>
       </UTable>
-      <div v-if="columns && columns.length > 0" class="flex justify-center">
+      <div
+        v-if="data?.columns && data.columns.length > 0"
+        class="flex justify-center"
+      >
         <UButton icon="lucide:plus" variant="soft" label="Add row" />
       </div>
     </div>
-    <AppPagination :tableApi="table?.tableApi" />
+    <AppPagination
+      v-model:page="page"
+      v-model:items-per-page="itemsPerPage"
+      :total="data?.total"
+    />
   </div>
 </template>

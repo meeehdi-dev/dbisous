@@ -12,13 +12,13 @@ type MysqlClient struct {
 func (c *MysqlClient) GetSchemas() (Result, error) {
 	var result Result
 
-	data, err := executeQuery(c.Db, "SELECT * FROM information_schema.schemata")
+	data, err := executeSelectQuery(c.Db, "information_schema.schemata")
 	if err != nil {
 		return result, err
 	}
 	result.Data = data
 
-	info, err := executeQuery(c.Db, "SELECT * FROM information_schema.columns WHERE table_schema = 'information_schema' AND table_name = 'schemata'")
+	info, err := executeSelectQuery(c.Db, "information_schema.columns WHERE table_schema = 'information_schema' AND table_name = 'schemata'")
 	if err != nil {
 		return result, err
 	}
@@ -30,13 +30,13 @@ func (c *MysqlClient) GetSchemas() (Result, error) {
 func (c *MysqlClient) GetTables(schema string) (Result, error) {
 	var result Result
 
-	data, err := executeQuery(c.Db, "SELECT * FROM information_schema.tables WHERE table_schema = ?", schema)
+	data, err := executeSelectQuery(c.Db, "information_schema.tables WHERE table_schema = ?", schema)
 	if err != nil {
 		return result, err
 	}
 	result.Data = data
 
-	info, err := executeQuery(c.Db, "SELECT * FROM information_schema.columns WHERE table_schema = 'information_schema' AND table_name = 'tables'")
+	info, err := executeSelectQuery(c.Db, "information_schema.columns WHERE table_schema = 'information_schema' AND table_name = 'tables'")
 	if err != nil {
 		return result, err
 	}
@@ -48,13 +48,13 @@ func (c *MysqlClient) GetTables(schema string) (Result, error) {
 func (c *MysqlClient) GetTable(schema string, table string) (Result, error) {
 	var result Result
 
-	data, err := executeQuery(c.Db, fmt.Sprintf("SELECT * FROM `%s`.`%s`", schema, table))
+	data, err := executeSelectQuery(c.Db, fmt.Sprintf("`%s`.`%s`", schema, table))
 	if err != nil {
 		return result, err
 	}
 	result.Data = data
 
-	info, err := executeQuery(c.Db, "SELECT * FROM information_schema.columns WHERE table_schema = ? AND table_name = ?", schema, table)
+	info, err := executeSelectQuery(c.Db, "information_schema.columns WHERE table_schema = ? AND table_name = ?", schema, table)
 	if err != nil {
 		return result, err
 	}

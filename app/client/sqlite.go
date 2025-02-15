@@ -2,7 +2,6 @@ package client
 
 import (
 	"database/sql"
-	"fmt"
 )
 
 type SqliteClient struct {
@@ -12,13 +11,13 @@ type SqliteClient struct {
 func (c *SqliteClient) GetSchemas() (Result, error) {
 	var result Result
 
-	data, err := executeQuery(c.Db, "SELECT * FROM sqlite_master WHERE type='table'")
+	data, err := executeSelectQuery(c.Db, "sqlite_master WHERE type = 'table'")
 	if err != nil {
 		return result, err
 	}
 	result.Data = data
 
-	info, err := executeQuery(c.Db, "SELECT * FROM pragma_table_info('sqlite_master')")
+	info, err := executeSelectQuery(c.Db, "pragma_table_info('sqlite_master')")
 	if err != nil {
 		return result, err
 	}
@@ -30,13 +29,13 @@ func (c *SqliteClient) GetSchemas() (Result, error) {
 func (c *SqliteClient) GetTables(schema string) (Result, error) {
 	var result Result
 
-	data, err := executeQuery(c.Db, "SELECT * FROM sqlite_master WHERE type='table' AND name = ?", schema)
+	data, err := executeSelectQuery(c.Db, "sqlite_master WHERE type='table' AND name = ?", schema)
 	if err != nil {
 		return result, err
 	}
 	result.Data = data
 
-	info, err := executeQuery(c.Db, "SELECT * FROM pragma_table_info(?)", schema)
+	info, err := executeSelectQuery(c.Db, "pragma_table_info(?)", schema)
 	if err != nil {
 		return result, err
 	}
@@ -48,20 +47,19 @@ func (c *SqliteClient) GetTables(schema string) (Result, error) {
 func (c *SqliteClient) GetTable(schema string, table string) (Result, error) {
 	var result Result
 
-	data, err := executeQuery(c.Db, fmt.Sprintf("SELECT * FROM %s", table))
+	data, err := executeSelectQuery(c.Db, table)
 	if err != nil {
 		return result, err
 	}
 	result.Data = data
 
-	info, err := executeQuery(c.Db, "SELECT * FROM pragma_table_info(?)", table)
+	info, err := executeSelectQuery(c.Db, "pragma_table_info(?)", table)
 	if err != nil {
 		return result, err
 	}
 	result.Info = info
 
 	return result, nil
-
 }
 
 func (c *SqliteClient) ExecuteQuery(query string, args ...interface{}) (QueryResult, error) {

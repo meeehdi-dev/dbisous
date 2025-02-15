@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watch } from "vue";
+import { ref, watch } from "vue";
 import { useUrlParams } from "../../composables/useUrlParams";
 import { Effect } from "effect";
 import { formatColumns, FormattedQueryResult, RowAction } from "./table";
@@ -39,21 +39,6 @@ async function executeQuery() {
     ),
   );
 }
-
-const results = computed(() => {
-  if (!data.value) {
-    return "No active query";
-  }
-
-  switch (data.value.rows.length) {
-    case 0:
-      return "No result";
-    case 1:
-      return "1 result";
-    default:
-      return data.value.rows.length + " results";
-  }
-});
 </script>
 
 <template>
@@ -76,11 +61,6 @@ const results = computed(() => {
         </UBadge>
       </div>
     </div>
-    <USeparator :label="results" />
-    <AppRows
-      :rows="data?.rows"
-      :columns="data?.columns"
-      :actions="[RowAction.Copy, RowAction.Remove]"
-    />
+    <AppRows :data="data" :actions="[RowAction.Copy, RowAction.Remove]" />
   </div>
 </template>

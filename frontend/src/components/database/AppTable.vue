@@ -16,7 +16,7 @@ const tabs = [
   {
     label: "Rows",
     slot: "data",
-    icon: "lucide:list-ordered",
+    icon: "lucide:list",
   },
   {
     label: "Info",
@@ -59,10 +59,10 @@ await Effect.runPromise(
       :ui="{ root: 'h-full', content: 'flex flex-1 flex-col gap-2' }"
     >
       <template #data>
-        <AppRows :rows="data?.rows" :columns="data?.columns" />
+        <AppRows :data="data" />
       </template>
       <template #info>
-        <AppRows :rows="info?.rows" :columns="info?.columns" />
+        <AppRows :data="info" />
       </template>
       <template #script>
         <AppScript :default-query="`SELECT * FROM ${tableId};`" />

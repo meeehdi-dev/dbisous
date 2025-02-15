@@ -2,6 +2,7 @@ package client
 
 import (
 	"database/sql"
+	"fmt"
 	"time"
 )
 
@@ -55,24 +56,39 @@ func fetchRows(rows *sql.Rows) (QueryResult, error) {
 	return QueryResult{
 		Rows:    results,
 		Columns: columnMetadata,
+		Total:   len(results),
 	}, nil
 }
 
 func executeQuery(db *sql.DB, query string, args ...interface{}) (QueryResult, error) {
+	var result QueryResult
+
 	start := time.Now()
 	rows, err := db.Query(query, args...)
 	duration := time.Since(start).String()
 	if err != nil {
-		return QueryResult{}, err
+		return result, err
 	}
 	defer rows.Close()
 
-	result, err := fetchRows(rows)
+	result, err = fetchRows(rows)
 	if err != nil {
-		return QueryResult{}, err
+		return result, err
 	}
 
 	result.Duration = duration
+
+	return result, nil
+}
+
+func executeSelectQuery(db *sql.DB, query string, args ...interface{}) (QueryResult, error) {
+	result, err := executeQuery(db, fmt.Sprintf("SELECT * FROM %s", query), args...)
+
+	countRow := db.QueryRow(fmt.Sprintf("SELECT COUNT(*) FROM %s", query), args...)
+	err = countRow.Scan(&result.Total)
+	if err != nil {
+		return result, err
+	}
 
 	return result, nil
 }
