@@ -111,7 +111,6 @@ function selectType(type: string) {
               :trailing-icon="
                 state.type === 'postgresql' ? 'lucide:check' : undefined
               "
-              disabled
             />
             <UButton
               icon="simple-icons:mysql"
@@ -122,7 +121,6 @@ function selectType(type: string) {
               :trailing-icon="
                 state.type === 'mysql' ? 'lucide:check' : undefined
               "
-              disabled
             />
           </div>
         </div>

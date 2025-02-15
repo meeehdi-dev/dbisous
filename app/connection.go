@@ -73,12 +73,12 @@ func Connect(id string) error {
 	case "sqlite":
 		db, err = sql.Open("sqlite3", connectionString)
 		dbClients[id] = &client.SqliteClient{Db: db}
-	// case "mysql":
-	// 	db, err = sql.Open("mysql", connectionString)
-	// 	dbClients[id] = &client.MysqlClient{Db: db}
-	// case "postgresql":
-	// 	db, err = sql.Open("postgres", connectionString)
-	// 	dbClients[id] = &client.PostgresClient{Db: db}
+	case "mysql":
+		db, err = sql.Open("mysql", connectionString)
+		dbClients[id] = &client.MysqlClient{Db: db}
+	case "postgresql":
+		db, err = sql.Open("postgres", connectionString)
+		dbClients[id] = &client.PostgresClient{Db: db}
 	default:
 		return fmt.Errorf("unsupported database type: %s", dbType)
 	}
