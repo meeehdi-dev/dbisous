@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, ref, watch } from "vue";
 import { useUrlParams } from "../../composables/useUrlParams";
 import { Effect } from "effect";
 import { formatColumns, FormattedQueryResult, RowAction } from "./table";
@@ -13,6 +13,10 @@ const { databaseId } = useUrlParams();
 
 const query = ref(defaultQuery ?? "");
 const error = ref("");
+
+watch(query, () => {
+  error.value = "";
+});
 
 const data = ref<FormattedQueryResult>();
 async function executeQuery() {
@@ -67,10 +71,10 @@ const results = computed(() => {
           :class="`text-sm text-neutral-400 pointer-events-none transition-opacity ${data && data.duration ? 'opacity-100' : 'opacity-0'}`"
           >{{ data?.duration }}</span
         >
+        <UBadge v-if="error" color="warning">
+          {{ error }}
+        </UBadge>
       </div>
-      <UBadge v-if="error" color="warning">
-        {{ error }}
-      </UBadge>
     </div>
     <USeparator :label="results" />
     <AppRows
