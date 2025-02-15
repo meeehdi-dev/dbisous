@@ -15,7 +15,7 @@ const tabs = [
   {
     label: "Tables",
     slot: "data",
-    icon: "lucide:list-ordered",
+    icon: "lucide:list",
   },
   {
     label: "Info",
@@ -65,8 +65,7 @@ function navigateToTable(schemaId: string, tableId: string) {
   >
     <template #data>
       <AppRows
-        :rows="data?.rows"
-        :columns="data?.columns"
+        :data="data"
         :actions="[RowAction.View]"
         @view="
           (row) =>
@@ -82,7 +81,7 @@ function navigateToTable(schemaId: string, tableId: string) {
       />
     </template>
     <template #info>
-      <AppRows :rows="info?.rows" :columns="info?.columns" />
+      <AppRows :data="info" />
     </template>
     <template #script>
       <AppScript />
