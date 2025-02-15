@@ -9,34 +9,58 @@ type MysqlClient struct {
 	Db *sql.DB
 }
 
-func (c *MysqlClient) GetSchemas() (QueryResult, error) {
-	query := "SELECT * FROM information_schema.schemata"
-	return executeQuery(c.Db, query)
+func (c *MysqlClient) GetSchemas() (Result, error) {
+	var result Result
+
+	data, err := executeQuery(c.Db, "SELECT * FROM information_schema.schemata")
+	if err != nil {
+		return result, err
+	}
+	result.Data = data
+
+	info, err := executeQuery(c.Db, "SELECT * FROM information_schema.columns WHERE table_schema = 'information_schema' AND table_name = 'schemata'")
+	if err != nil {
+		return result, err
+	}
+	result.Info = info
+
+	return result, nil
 }
 
-func (c *MysqlClient) GetDatabaseInfo() (QueryResult, error) {
-	query := "SELECT * FROM information_schema.columns WHERE table_schema = 'information_schema' AND table_name = 'schemata'"
-	return executeQuery(c.Db, query)
+func (c *MysqlClient) GetTables(schema string) (Result, error) {
+	var result Result
+
+	data, err := executeQuery(c.Db, "SELECT * FROM information_schema.tables WHERE table_schema = ?", schema)
+	if err != nil {
+		return result, err
+	}
+	result.Data = data
+
+	info, err := executeQuery(c.Db, "SELECT * FROM information_schema.columns WHERE table_schema = 'information_schema' AND table_name = 'tables'")
+	if err != nil {
+		return result, err
+	}
+	result.Info = info
+
+	return result, nil
 }
 
-func (c *MysqlClient) GetTables(schema string) (QueryResult, error) {
-	query := "SELECT * FROM information_schema.tables WHERE table_schema = ?"
-	return executeQuery(c.Db, query, schema)
-}
+func (c *MysqlClient) GetTable(schema string, table string) (Result, error) {
+	var result Result
 
-func (c *MysqlClient) GetSchemaInfo(schema string) (QueryResult, error) {
-	query := "SELECT * FROM information_schema.columns WHERE table_schema = 'information_schema' AND table_name = 'tables'"
-	return executeQuery(c.Db, query)
-}
+	data, err := executeQuery(c.Db, fmt.Sprintf("SELECT * FROM `%s`.`%s`", schema, table))
+	if err != nil {
+		return result, err
+	}
+	result.Data = data
 
-func (c *MysqlClient) GetTableRows(schema string, table string) (QueryResult, error) {
-	query := fmt.Sprintf("SELECT * FROM %s.%s", schema, table)
-	return executeQuery(c.Db, query)
-}
+	info, err := executeQuery(c.Db, "SELECT * FROM information_schema.columns WHERE table_schema = ? AND table_name = ?", schema, table)
+	if err != nil {
+		return result, err
+	}
+	result.Info = info
 
-func (c *MysqlClient) GetTableInfo(schema string, table string) (QueryResult, error) {
-	query := "SELECT * FROM information_schema.columns WHERE table_schema = ? AND table_name = ?"
-	return executeQuery(c.Db, query, schema, table)
+	return result, nil
 }
 
 func (c *MysqlClient) ExecuteQuery(query string, args ...interface{}) (QueryResult, error) {
