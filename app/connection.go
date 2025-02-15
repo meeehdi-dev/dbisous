@@ -101,32 +101,60 @@ func Disconnect(id string) error {
 	return conn.Close()
 }
 
-func GetSchemas(id string) (client.Result, error) {
+func GetDatabaseSchemas(id string, limit int, offset int) (client.QueryResult, error) {
 	dbClient, exists := dbClients[id]
 	if !exists {
-		return client.Result{}, fmt.Errorf("no database client for database ID: %s", id)
+		return client.QueryResult{}, fmt.Errorf("no database client for database ID: %s", id)
 	}
 
-	return dbClient.GetSchemas()
+	return dbClient.GetDatabaseSchemas(limit, offset)
 }
 
-func GetTables(id string, schema string) (client.Result, error) {
+func GetDatabaseInfo(id string, limit int, offset int) (client.QueryResult, error) {
 	dbClient, exists := dbClients[id]
-
 	if !exists {
-		return client.Result{}, fmt.Errorf("no database client for database ID: %s", id)
+		return client.QueryResult{}, fmt.Errorf("no database client for database ID: %s", id)
 	}
 
-	return dbClient.GetTables(schema)
+	return dbClient.GetDatabaseInfo(limit, offset)
 }
 
-func GetTable(id string, schema string, table string) (client.Result, error) {
+func GetSchemaTables(id string, limit int, offset int, schema string) (client.QueryResult, error) {
 	dbClient, exists := dbClients[id]
+
 	if !exists {
-		return client.Result{}, fmt.Errorf("no database client for database ID: %s", id)
+		return client.QueryResult{}, fmt.Errorf("no database client for database ID: %s", id)
 	}
 
-	return dbClient.GetTable(schema, table)
+	return dbClient.GetSchemaTables(limit, offset, schema)
+}
+
+func GetSchemaInfo(id string, limit int, offset int, schema string) (client.QueryResult, error) {
+	dbClient, exists := dbClients[id]
+
+	if !exists {
+		return client.QueryResult{}, fmt.Errorf("no database client for database ID: %s", id)
+	}
+
+	return dbClient.GetSchemaInfo(limit, offset, schema)
+}
+
+func GetTableRows(id string, limit int, offset int, schema string, table string) (client.QueryResult, error) {
+	dbClient, exists := dbClients[id]
+	if !exists {
+		return client.QueryResult{}, fmt.Errorf("no database client for database ID: %s", id)
+	}
+
+	return dbClient.GetTableRows(limit, offset, schema, table)
+}
+
+func GetTableInfo(id string, limit int, offset int, schema string, table string) (client.QueryResult, error) {
+	dbClient, exists := dbClients[id]
+	if !exists {
+		return client.QueryResult{}, fmt.Errorf("no database client for database ID: %s", id)
+	}
+
+	return dbClient.GetTableInfo(limit, offset, schema, table)
 }
 
 func ExecuteQuery(id string, query string) (client.QueryResult, error) {
