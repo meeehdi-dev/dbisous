@@ -9,8 +9,8 @@ import { GetTableInfo, GetTableRows } from "../../../wailsjs/go/app/App";
 const wails = useWails();
 const { databaseId, schemaId, tableId } = useUrlParams();
 
-const transactionQuery = ref(`SELECT * FROM ${tableId.value}`);
-const open = ref(false);
+// const transactionQuery = ref(`SELECT * FROM ${tableId.value}`);
+// const open = ref(false);
 
 const tabs = [
   {
@@ -31,8 +31,9 @@ const tabs = [
 ];
 
 const data = ref<FormattedQueryResult>();
-const info = ref<FormattedQueryResult>();
-async function getData(page = 1, itemsPerPage = 10) {
+const fetchingData = ref(false);
+async function fetchData(page = 1, itemsPerPage = 10) {
+  fetchingData.value = true;
   await Effect.runPromise(
     wails(() =>
       GetTableRows(
@@ -48,6 +49,7 @@ async function getData(page = 1, itemsPerPage = 10) {
           ...result,
           columns: formatColumns(result.columns),
         };
+        fetchingData.value = false;
       }),
       Effect.catchTags({
         WailsError: Effect.succeed,
@@ -55,7 +57,12 @@ async function getData(page = 1, itemsPerPage = 10) {
     ),
   );
 }
-async function getInfo(page = 1, itemsPerPage = 10) {
+fetchData();
+
+const info = ref<FormattedQueryResult>();
+const fetchingInfo = ref(false);
+async function fetchInfo(page = 1, itemsPerPage = 10) {
+  fetchingInfo.value = true;
   await Effect.runPromise(
     wails(() =>
       GetTableInfo(
@@ -71,6 +78,7 @@ async function getInfo(page = 1, itemsPerPage = 10) {
           ...result,
           columns: formatColumns(result.columns, false),
         };
+        fetchingInfo.value = false;
       }),
       Effect.catchTags({
         WailsError: Effect.succeed,
@@ -78,8 +86,7 @@ async function getInfo(page = 1, itemsPerPage = 10) {
     ),
   );
 }
-getData();
-getInfo();
+fetchInfo();
 </script>
 
 <template>
@@ -87,13 +94,21 @@ getInfo();
     <UTabs
       :items="tabs"
       variant="link"
-      :ui="{ root: 'h-full', content: 'flex flex-1 flex-col gap-2' }"
+      :ui="{ root: 'flex flex-auto', content: 'flex flex-auto flex-col gap-2' }"
     >
       <template #data>
-        <AppRows :data="data" @pagination-change="getData" />
+        <AppRows
+          :loading="fetchingData"
+          :data="data"
+          @pagination-change="fetchData"
+        />
       </template>
       <template #info>
-        <AppRows :data="info" @pagination-change="getInfo" />
+        <AppRows
+          :loading="fetchingInfo"
+          :data="info"
+          @pagination-change="fetchInfo"
+        />
       </template>
       <template #script>
         <AppScript :default-query="`SELECT * FROM ${tableId};`" />
