@@ -87,6 +87,8 @@ async function fetchInfo(page = 1, itemsPerPage = 10) {
   );
 }
 fetchInfo();
+
+const defaultQuery = ref(`SELECT * FROM ${tableId.value};`);
 </script>
 
 <template>
@@ -114,7 +116,7 @@ fetchInfo();
         />
       </template>
       <template #script>
-        <AppScript :default-query="`SELECT * FROM ${tableId};`" />
+        <AppScript v-model:default-query="defaultQuery" />
       </template>
     </UTabs>
     <!-- <div class="px-2 pb-2">

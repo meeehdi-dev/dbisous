@@ -35,15 +35,14 @@ func GetConnections() ([]Connection, error) {
 }
 
 func CreateConnection(connection Connection) error {
-	if connection.ID == "" {
-		id, err := uuid.NewRandom()
-		if err != nil {
-			return err
-		}
-		connection.ID = id.String()
+	id, err := uuid.NewRandom()
+	if err != nil {
+		return err
 	}
 
-	_, err := metadataDB.Exec(`INSERT INTO connection (id, name, type, connection_string)
+	connection.ID = id.String()
+
+	_, err = metadataDB.Exec(`INSERT INTO connection (id, name, type, connection_string)
   VALUES (?, ?, ?, ?)`, connection.ID, connection.Name, connection.Type, connection.ConnectionString)
 
 	return err
@@ -163,14 +162,45 @@ func ExecuteQuery(id string, query string) (client.QueryResult, error) {
 		return client.QueryResult{}, fmt.Errorf("no database client for database ID: %s", id)
 	}
 
-	return dbClient.ExecuteQuery(query)
+	result, err := dbClient.ExecuteQuery(query)
+	if err != nil {
+		return result, err
+	}
+
+	queryId, err := uuid.NewRandom()
+	if err != nil {
+		return result, err
+	}
+
+	_, err = metadataDB.Exec(`INSERT INTO past_query (id, query) VALUES (?, ?) ON CONFLICT(query) DO UPDATE SET last_used = CURRENT_TIMESTAMP`, queryId.String(), query)
+	if err != nil {
+		return result, err
+	}
+
+	return result, nil
 }
 
-type Connection struct {
-	ID               string `json:"id"`
-	CreatedAt        string `json:"created_at"`
-	UpdatedAt        string `json:"updated_at"`
-	Name             string `json:"name"`
-	Type             string `json:"type"`
-	ConnectionString string `json:"connection_string"`
+func GetPastQueries() ([]PastQuery, error) {
+	rows, err := metadataDB.Query(`SELECT id, query, last_used FROM past_query ORDER BY last_used DESC`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var pastQueries []PastQuery
+	for rows.Next() {
+		var pastQuery PastQuery
+		err := rows.Scan(&pastQuery.ID, &pastQuery.Query, &pastQuery.LastUsed)
+		if err != nil {
+			return nil, err
+		}
+		pastQueries = append(pastQueries, pastQuery)
+	}
+
+	return pastQueries, nil
+}
+
+func DeletePastQuery(id string) error {
+	_, err := metadataDB.Exec(`DELETE FROM past_query WHERE id = ?`, id)
+	return err
 }

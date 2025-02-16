@@ -93,3 +93,11 @@ func (a *App) GetTableInfo(id string, page int, itemsPerPage int, schema string,
 func (a *App) ExecuteQuery(id string, query string) (client.QueryResult, error) {
 	return ExecuteQuery(id, query)
 }
+
+func (a *App) GetPastQueries() ([]PastQuery, error) {
+	return GetPastQueries()
+}
+
+func (a *App) DeletePastQuery(id string) error {
+	return DeletePastQuery(id)
+}

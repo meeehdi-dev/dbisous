@@ -4,14 +4,19 @@ import { useUrlParams } from "../../composables/useUrlParams";
 import { Effect } from "effect";
 import { formatColumns, FormattedQueryResult, RowAction } from "./table";
 import { useWails } from "../../wails";
-import { ExecuteQuery } from "../../../wailsjs/go/app/App";
+import {
+  DeletePastQuery,
+  ExecuteQuery,
+  GetPastQueries,
+} from "../../../wailsjs/go/app/App";
+import { app } from "../../../wailsjs/go/models";
 
-const { defaultQuery } = defineProps<{ defaultQuery?: string }>();
+const defaultQuery = defineModel<string>("defaultQuery");
 
 const wails = useWails();
 const { databaseId } = useUrlParams();
 
-const query = ref(defaultQuery ?? "");
+const query = ref(defaultQuery.value ?? "");
 const error = ref("");
 
 watch(query, () => {
@@ -31,6 +36,7 @@ async function fetchData() {
           columns: formatColumns(result.columns),
         };
         fetchingData.value = false;
+        fetchPastQueries();
       }),
       Effect.catchTags({
         WailsError: (err) => {
@@ -42,14 +48,92 @@ async function fetchData() {
     ),
   );
 }
+
+const pastQueries = ref<app.PastQuery[]>([]);
+const fetchingPastQueries = ref(false);
+async function fetchPastQueries() {
+  fetchingPastQueries.value = true;
+  await Effect.runPromise(
+    wails(GetPastQueries).pipe(
+      Effect.tap((result) => {
+        pastQueries.value = result;
+        fetchingPastQueries.value = false;
+      }),
+      Effect.catchTags({
+        WailsError: Effect.succeed,
+      }),
+    ),
+  );
+}
+fetchPastQueries();
+
+function removePastQuery(pastQuery: app.PastQuery) {
+  Effect.runPromise(
+    wails(() => DeletePastQuery(pastQuery.id)).pipe(
+      Effect.tap(fetchPastQueries),
+    ),
+  );
+}
+
+function setQuery(q: string, execute = false) {
+  query.value = q;
+  defaultQuery.value = q;
+  if (execute) {
+    fetchData();
+  }
+}
 </script>
 
 <template>
   <div class="flex flex-auto flex-col">
     <div class="flex flex-col p-4 gap-4">
-      <AppEditor v-model="query" />
+      <div class="flex gap-2">
+        <div class="flex flex-1/2">
+          <AppEditor v-model="query" :default-value="defaultQuery" />
+        </div>
+        <div
+          class="flex flex-1/2 flex-col gap-2 p-2 bg-neutral-950 rounded h-[116px] overflow-auto"
+        >
+          <div
+            v-for="past_query in pastQueries"
+            v-bind:key="past_query.id"
+            class="w-full"
+          >
+            <UTooltip :text="past_query.query" :content="{ side: 'left' }">
+              <UButton
+                color="neutral"
+                variant="soft"
+                size="xs"
+                :label="past_query.query"
+                @click="setQuery(past_query.query)"
+                class="w-full"
+                :ui="{ label: 'flex flex-auto' }"
+              >
+                <template #trailing>
+                  <div class="flex gap-1">
+                    <UButton
+                      variant="ghost"
+                      size="xs"
+                      icon="lucide:play"
+                      @click.stop="setQuery(past_query.query, true)"
+                    />
+                    <UButton
+                      color="warning"
+                      variant="ghost"
+                      size="xs"
+                      icon="lucide:trash"
+                      @click.stop="removePastQuery(past_query)"
+                    />
+                  </div>
+                </template>
+              </UButton>
+            </UTooltip>
+          </div>
+        </div>
+      </div>
       <div class="flex gap-2 items-center">
         <UButton
+          :disabled="!query"
           :icon="error ? 'lucide:triangle-alert' : 'lucide:terminal'"
           label="Execute"
           @click="fetchData"
