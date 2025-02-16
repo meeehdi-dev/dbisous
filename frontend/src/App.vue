@@ -11,10 +11,10 @@ onMounted(() => {
 
 <template>
   <UApp>
-    <div class="flex w-screen h-screen overflow-hidden">
+    <div class="flex flex-auto w-screen h-screen overflow-hidden">
       <AppSidebar />
       <div class="flex flex-auto bg-slate-900 overflow-hidden">
-        <div class="flex flex-auto flex-col overflow-auto">
+        <div class="flex flex-auto flex-col overflow-hidden">
           <AppBreadcrumb />
           <Suspense>
             <RouterView v-slot="{ Component, route }">

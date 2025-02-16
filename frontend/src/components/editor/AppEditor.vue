@@ -17,7 +17,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="bg-neutral-950 pl-2 py-2 rounded">
-    <div ref="container" class="w-full h-[100px]" />
+  <div class="flex flex-auto bg-neutral-950 pl-2 py-2 rounded">
+    <div ref="container" class="flex flex-auto h-[100px]" />
   </div>
 </template>

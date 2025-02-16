@@ -48,8 +48,8 @@ const columnPinning = ref({ right: ["action"] });
 </script>
 
 <template>
-  <div class="flex flex-auto flex-col gap-4 justify-between">
-    <div class="flex flex-auto flex-col gap-4">
+  <div class="flex flex-auto flex-col gap-4 justify-between overflow-hidden">
+    <div class="flex flex-auto flex-col gap-4 overflow-auto">
       <UTable
         :data="data?.rows"
         :columns="data?.columns"
@@ -57,7 +57,6 @@ const columnPinning = ref({ right: ["action"] });
         :loading="loading"
         :key="key"
         sticky
-        :ui="{ root: 'flex flex-initial', base: 'max-h-full' }"
       >
         <template #action-cell="{ row }">
           <UButton

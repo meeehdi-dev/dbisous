@@ -90,11 +90,14 @@ fetchInfo();
 </script>
 
 <template>
-  <div class="flex flex-col justify-between h-full">
+  <div class="flex flex-auto flex-col justify-between">
     <UTabs
       :items="tabs"
       variant="link"
-      :ui="{ root: 'flex flex-auto', content: 'flex flex-auto flex-col gap-2' }"
+      :ui="{
+        root: 'flex flex-auto overflow-hidden',
+        content: 'flex flex-auto flex-col gap-2 overflow-hidden',
+      }"
     >
       <template #data>
         <AppRows

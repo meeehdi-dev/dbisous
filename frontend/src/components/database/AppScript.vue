@@ -45,7 +45,7 @@ async function fetchData() {
 </script>
 
 <template>
-  <div class="flex flex-auto flex-col w-full">
+  <div class="flex flex-auto flex-col">
     <div class="flex flex-col p-4 gap-4">
       <AppEditor v-model="query" />
       <div class="flex gap-2 items-center">
