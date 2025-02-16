@@ -19,7 +19,9 @@ watch(query, () => {
 });
 
 const data = ref<FormattedQueryResult>();
-async function executeQuery() {
+const fetchingData = ref(false);
+async function fetchData() {
+  fetchingData.value = true;
   await Effect.runPromise(
     wails(() => ExecuteQuery(databaseId.value, query.value)).pipe(
       Effect.tap((result) => {
@@ -28,6 +30,7 @@ async function executeQuery() {
           ...result,
           columns: formatColumns(result.columns),
         };
+        fetchingData.value = false;
       }),
       Effect.catchTags({
         WailsError: (err) => {
@@ -42,14 +45,14 @@ async function executeQuery() {
 </script>
 
 <template>
-  <div class="flex flex-1 flex-col w-full">
+  <div class="flex flex-auto flex-col w-full">
     <div class="flex flex-col p-4 gap-4">
       <AppEditor v-model="query" />
       <div class="flex gap-2 items-center">
         <UButton
           :icon="error ? 'lucide:triangle-alert' : 'lucide:terminal'"
           label="Execute"
-          @click="executeQuery"
+          @click="fetchData"
           :color="error ? 'warning' : 'primary'"
         />
         <span
@@ -61,6 +64,10 @@ async function executeQuery() {
         </UBadge>
       </div>
     </div>
-    <AppRows :data="data" :actions="[RowAction.Copy, RowAction.Remove]" />
+    <AppRows
+      :loading="fetchingData"
+      :data="data"
+      :actions="[RowAction.Copy, RowAction.Remove]"
+    />
   </div>
 </template>

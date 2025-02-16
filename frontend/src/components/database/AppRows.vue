@@ -5,7 +5,12 @@ import { RowEmits, RowAction } from "./table";
 
 const emit = defineEmits<RowEmits>();
 
-const { data, actions = [] } = defineProps<{
+const {
+  loading,
+  data,
+  actions = [],
+} = defineProps<{
+  loading: boolean;
   data?: {
     rows?: TableData[];
     columns?: TableColumn<TableData>[];
@@ -43,13 +48,16 @@ const columnPinning = ref({ right: ["action"] });
 </script>
 
 <template>
-  <div class="flex flex-1 flex-col gap-4 justify-between">
-    <div class="flex flex-col gap-4">
+  <div class="flex flex-auto flex-col gap-4 justify-between">
+    <div class="flex flex-auto flex-col gap-4">
       <UTable
         :data="data?.rows"
         :columns="data?.columns"
         v-model:column-pinning="columnPinning"
+        :loading="loading"
         :key="key"
+        sticky
+        :ui="{ root: 'flex flex-initial', base: 'max-h-full' }"
       >
         <template #action-cell="{ row }">
           <UButton
@@ -77,7 +85,7 @@ const columnPinning = ref({ right: ["action"] });
       </UTable>
       <div
         v-if="data?.columns && data.columns.length > 0"
-        class="flex justify-center"
+        class="flex flex-initial justify-center"
       >
         <UButton icon="lucide:plus" variant="soft" label="Add row" />
       </div>

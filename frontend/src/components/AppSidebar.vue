@@ -1,24 +1,12 @@
 <script setup lang="ts">
-import { ref, useTemplateRef, watch } from "vue";
+import { ref } from "vue";
 import { useConnections } from "../composables/useConnections";
 import { app } from "../../wailsjs/go/models";
 
 const { connections } = useConnections();
 
-const container = useTemplateRef("container");
-
 const slideoverOpen = ref(false);
 const editedConnection = ref<app.Connection>();
-
-const secondaryAddButton = ref(false);
-watch(connections, () => {
-  setTimeout(() => {
-    secondaryAddButton.value = !!(
-      container.value &&
-      container.value.scrollHeight > container.value.clientHeight
-    );
-  }, 1);
-});
 
 function onConnectionAdded() {
   slideoverOpen.value = false;
@@ -34,19 +22,11 @@ const packageVersion = import.meta.env.PACKAGE_VERSION;
 </script>
 
 <template>
-  <div
-    ref="container"
-    class="w-72 bg-slate-800 flex overflow-auto flex-col justify-between"
-  >
-    <div class="flex flex-1 flex-col px-2 py-4 gap-4 items-center">
-      <UButton
-        v-if="secondaryAddButton"
-        icon="lucide:plus"
-        @click="slideoverOpen = true"
-        label="Add connection"
-      />
-
-      <div class="w-full flex flex-col gap-2">
+  <div class="min-w-72 bg-slate-800 flex flex-auto flex-col justify-between">
+    <div
+      class="flex flex-initial flex-col px-2 py-4 gap-4 items-center overflow-hidden"
+    >
+      <div class="w-full flex flex-initial flex-col gap-2 overflow-auto">
         <AppConnection
           v-for="connection in connections"
           v-bind:key="connection.id"
@@ -59,6 +39,7 @@ const packageVersion = import.meta.env.PACKAGE_VERSION;
         icon="lucide:plus"
         @click="slideoverOpen = true"
         label="Add connection"
+        class="flex flex-initial"
       />
 
       <USlideover
@@ -75,8 +56,8 @@ const packageVersion = import.meta.env.PACKAGE_VERSION;
         </template>
       </USlideover>
     </div>
-    <div>
-      <div class="p-4 flex flex-1 justify-center items-center">
+    <div class="flex flex-initial">
+      <div class="p-4 flex flex-auto justify-center items-center">
         <UModal>
           <UButton
             icon="simple-icons:git"

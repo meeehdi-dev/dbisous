@@ -12,9 +12,9 @@ const { total = 0 } = defineProps<{
 </script>
 
 <template>
-  <div class="flex flex-col py-4 gap-4">
+  <div class="flex flex-initial flex-col">
     <USeparator />
-    <div class="flex justify-between px-2">
+    <div class="flex justify-between px-2 py-4">
       <div class="flex items-center gap-2">
         <UTooltip text="Items per page" :content="{ side: 'right' }">
           <USelect v-model="itemsPerPage" :items="items" />

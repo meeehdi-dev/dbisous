@@ -66,7 +66,7 @@ function removeConnection(connection: app.Connection) {
       <div class="flex flex-initial">
         <UIcon :name="`simple-icons:${connection.type}`" class="size-8" />
       </div>
-      <div class="flex flex-1 flex-row gap-2 justify-between">
+      <div class="flex flex-auto flex-row gap-2 justify-between">
         <UTooltip :text="connection.name" :content="{ side: 'right' }">
           <span class="line-clamp-1 text-ellipsis">
             {{ getConnectionName(connection) }}
