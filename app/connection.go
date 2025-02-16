@@ -35,15 +35,14 @@ func GetConnections() ([]Connection, error) {
 }
 
 func CreateConnection(connection Connection) error {
-	if connection.ID == "" {
-		id, err := uuid.NewRandom()
-		if err != nil {
-			return err
-		}
-		connection.ID = id.String()
+	id, err := uuid.NewRandom()
+	if err != nil {
+		return err
 	}
 
-	_, err := metadataDB.Exec(`INSERT INTO connection (id, name, type, connection_string)
+	connection.ID = id.String()
+
+	_, err = metadataDB.Exec(`INSERT INTO connection (id, name, type, connection_string)
   VALUES (?, ?, ?, ?)`, connection.ID, connection.Name, connection.Type, connection.ConnectionString)
 
 	return err
@@ -73,12 +72,12 @@ func Connect(id string) error {
 	case "sqlite":
 		db, err = sql.Open("sqlite3", connectionString)
 		dbClients[id] = &client.SqliteClient{Db: db}
-	// case "mysql":
-	// 	db, err = sql.Open("mysql", connectionString)
-	// 	dbClients[id] = &client.MysqlClient{Db: db}
-	// case "postgresql":
-	// 	db, err = sql.Open("postgres", connectionString)
-	// 	dbClients[id] = &client.PostgresClient{Db: db}
+	case "mysql":
+		db, err = sql.Open("mysql", connectionString)
+		dbClients[id] = &client.MysqlClient{Db: db}
+	case "postgresql":
+		db, err = sql.Open("postgres", connectionString)
+		dbClients[id] = &client.PostgresClient{Db: db}
 	default:
 		return fmt.Errorf("unsupported database type: %s", dbType)
 	}
@@ -101,32 +100,60 @@ func Disconnect(id string) error {
 	return conn.Close()
 }
 
-func GetSchemas(id string) (client.Result, error) {
+func GetDatabaseSchemas(id string, limit int, offset int) (client.QueryResult, error) {
 	dbClient, exists := dbClients[id]
 	if !exists {
-		return client.Result{}, fmt.Errorf("no database client for database ID: %s", id)
+		return client.QueryResult{}, fmt.Errorf("no database client for database ID: %s", id)
 	}
 
-	return dbClient.GetSchemas()
+	return dbClient.GetDatabaseSchemas(limit, offset)
 }
 
-func GetTables(id string, schema string) (client.Result, error) {
+func GetDatabaseInfo(id string, limit int, offset int) (client.QueryResult, error) {
 	dbClient, exists := dbClients[id]
-
 	if !exists {
-		return client.Result{}, fmt.Errorf("no database client for database ID: %s", id)
+		return client.QueryResult{}, fmt.Errorf("no database client for database ID: %s", id)
 	}
 
-	return dbClient.GetTables(schema)
+	return dbClient.GetDatabaseInfo(limit, offset)
 }
 
-func GetTable(id string, schema string, table string) (client.Result, error) {
+func GetSchemaTables(id string, limit int, offset int, schema string) (client.QueryResult, error) {
 	dbClient, exists := dbClients[id]
+
 	if !exists {
-		return client.Result{}, fmt.Errorf("no database client for database ID: %s", id)
+		return client.QueryResult{}, fmt.Errorf("no database client for database ID: %s", id)
 	}
 
-	return dbClient.GetTable(schema, table)
+	return dbClient.GetSchemaTables(limit, offset, schema)
+}
+
+func GetSchemaInfo(id string, limit int, offset int, schema string) (client.QueryResult, error) {
+	dbClient, exists := dbClients[id]
+
+	if !exists {
+		return client.QueryResult{}, fmt.Errorf("no database client for database ID: %s", id)
+	}
+
+	return dbClient.GetSchemaInfo(limit, offset, schema)
+}
+
+func GetTableRows(id string, limit int, offset int, schema string, table string) (client.QueryResult, error) {
+	dbClient, exists := dbClients[id]
+	if !exists {
+		return client.QueryResult{}, fmt.Errorf("no database client for database ID: %s", id)
+	}
+
+	return dbClient.GetTableRows(limit, offset, schema, table)
+}
+
+func GetTableInfo(id string, limit int, offset int, schema string, table string) (client.QueryResult, error) {
+	dbClient, exists := dbClients[id]
+	if !exists {
+		return client.QueryResult{}, fmt.Errorf("no database client for database ID: %s", id)
+	}
+
+	return dbClient.GetTableInfo(limit, offset, schema, table)
 }
 
 func ExecuteQuery(id string, query string) (client.QueryResult, error) {
@@ -135,14 +162,45 @@ func ExecuteQuery(id string, query string) (client.QueryResult, error) {
 		return client.QueryResult{}, fmt.Errorf("no database client for database ID: %s", id)
 	}
 
-	return dbClient.ExecuteQuery(query)
+	result, err := dbClient.ExecuteQuery(query)
+	if err != nil {
+		return result, err
+	}
+
+	queryId, err := uuid.NewRandom()
+	if err != nil {
+		return result, err
+	}
+
+	_, err = metadataDB.Exec(`INSERT INTO past_query (id, query) VALUES (?, ?) ON CONFLICT(query) DO UPDATE SET last_used = CURRENT_TIMESTAMP`, queryId.String(), query)
+	if err != nil {
+		return result, err
+	}
+
+	return result, nil
 }
 
-type Connection struct {
-	ID               string `json:"id"`
-	CreatedAt        string `json:"created_at"`
-	UpdatedAt        string `json:"updated_at"`
-	Name             string `json:"name"`
-	Type             string `json:"type"`
-	ConnectionString string `json:"connection_string"`
+func GetPastQueries() ([]PastQuery, error) {
+	rows, err := metadataDB.Query(`SELECT id, query, last_used FROM past_query ORDER BY last_used DESC`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var pastQueries []PastQuery
+	for rows.Next() {
+		var pastQuery PastQuery
+		err := rows.Scan(&pastQuery.ID, &pastQuery.Query, &pastQuery.LastUsed)
+		if err != nil {
+			return nil, err
+		}
+		pastQueries = append(pastQueries, pastQuery)
+	}
+
+	return pastQueries, nil
+}
+
+func DeletePastQuery(id string) error {
+	_, err := metadataDB.Exec(`DELETE FROM past_query WHERE id = ?`, id)
+	return err
 }

@@ -1,72 +1,79 @@
 <script setup lang="ts">
 import type { TableColumn, TableData } from "@nuxt/ui/dist/module";
-import { ref, useTemplateRef, watch } from "vue";
+import { ref, watch } from "vue";
 import { RowEmits, RowAction } from "./table";
 
 const emit = defineEmits<RowEmits>();
 
-const table = useTemplateRef("table");
-
 const {
-  rows = [],
-  columns = [],
-  actions,
+  loading,
+  data,
+  actions = [],
 } = defineProps<{
-  rows?: TableData[];
-  columns?: TableColumn<TableData>[];
+  loading: boolean;
+  data?: {
+    rows?: TableData[];
+    columns?: TableColumn<TableData>[];
+    total?: number;
+  };
   actions?: RowAction[];
 }>();
 
+const page = ref(1);
+const itemsPerPage = ref(10);
+
+watch(page, () => {
+  emit("paginationChange", page.value, itemsPerPage.value);
+});
+watch(itemsPerPage, () => {
+  page.value = 1;
+  emit("paginationChange", page.value, itemsPerPage.value);
+});
+
 const key = ref(0);
 watch(
-  () => rows,
+  () => data?.rows,
   () => {
     key.value++;
   },
 );
 watch(
-  () => columns,
+  () => data?.columns,
   () => {
     key.value++;
   },
 );
 
 const columnPinning = ref({ right: ["action"] });
-
-const pagination = ref({
-  pageIndex: 0,
-  pageSize: 5,
-});
 </script>
 
 <template>
-  <div class="flex flex-1 flex-col gap-4 justify-between">
-    <div class="flex flex-col gap-4">
+  <div class="flex flex-auto flex-col gap-4 justify-between overflow-hidden">
+    <div class="flex flex-auto flex-col gap-4 overflow-auto">
       <UTable
-        ref="table"
-        v-model:pagination="pagination"
-        :data="rows"
-        :columns="columns"
+        :data="data?.rows"
+        :columns="data?.columns"
         v-model:column-pinning="columnPinning"
+        :loading="loading"
         :key="key"
       >
         <template #action-cell="{ row }">
           <UButton
-            v-if="actions?.includes(RowAction.View)"
+            v-if="actions.includes(RowAction.View)"
             icon="lucide:eye"
             color="primary"
             variant="ghost"
             @click="emit(RowAction.View, row)"
           />
           <UButton
-            v-if="actions?.includes(RowAction.Copy)"
+            v-if="actions.includes(RowAction.Copy)"
             icon="lucide:copy"
             color="secondary"
             variant="ghost"
             @click="emit(RowAction.Copy, row)"
           />
           <UButton
-            v-if="actions?.includes(RowAction.Remove)"
+            v-if="actions.includes(RowAction.Remove)"
             icon="lucide:trash"
             color="error"
             variant="ghost"
@@ -74,10 +81,17 @@ const pagination = ref({
           />
         </template>
       </UTable>
-      <div v-if="columns && columns.length > 0" class="flex justify-center">
+      <div
+        v-if="data?.columns && data.columns.length > 0"
+        class="flex flex-initial justify-center"
+      >
         <UButton icon="lucide:plus" variant="soft" label="Add row" />
       </div>
     </div>
-    <AppPagination :tableApi="table?.tableApi" />
+    <AppPagination
+      v-model:page="page"
+      v-model:items-per-page="itemsPerPage"
+      :total="data?.total"
+    />
   </div>
 </template>

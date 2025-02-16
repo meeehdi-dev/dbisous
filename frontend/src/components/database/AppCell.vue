@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref } from "vue";
+import { booleanTypes, dateTypes, numberTypes, textTypes } from "./table";
 
 const {
   value,
@@ -35,21 +36,21 @@ const types = ref<Array<string>>([]);
     v-model="t"
     class="w-full"
   />
-  <UCheckbox v-else-if="type === 'BOOLEAN'" v-model="bool" />
+  <UCheckbox v-else-if="booleanTypes.includes(type)" v-model="bool" />
   <UInput
-    v-else-if="type === 'TEXT'"
+    v-else-if="textTypes.includes(type)"
     variant="ghost"
     :value="value"
     class="w-full"
   />
   <UInput
-    v-else-if="type === 'TIMESTAMP'"
+    v-else-if="dateTypes.includes(type)"
     variant="ghost"
     :value="value"
     class="w-full"
   />
   <UInputNumber
-    v-else-if="type.startsWith('INT')"
+    v-else-if="numberTypes.includes(type)"
     variant="ghost"
     :value="value"
     class="w-full"

@@ -2,7 +2,10 @@
 import { useRouter } from "vue-router";
 import { ref } from "vue";
 import { Effect } from "effect";
-import { GetSchemas } from "../../../wailsjs/go/app/App";
+import {
+  GetDatabaseInfo,
+  GetDatabaseSchemas,
+} from "../../../wailsjs/go/app/App";
 import { useUrlParams } from "../../composables/useUrlParams";
 import { useWails } from "../../wails";
 import { formatColumns, FormattedQueryResult, RowAction } from "./table";
@@ -15,7 +18,7 @@ const tabs = [
   {
     label: "Schemas",
     slot: "data",
-    icon: "lucide:list-ordered",
+    icon: "lucide:list",
   },
   {
     label: "Info",
@@ -30,24 +33,46 @@ const tabs = [
 ];
 
 const data = ref<FormattedQueryResult>();
+const fetchingData = ref(false);
+async function fetchData(page = 1, itemsPerPage = 10) {
+  fetchingData.value = true;
+  await Effect.runPromise(
+    wails(() => GetDatabaseSchemas(databaseId.value, page, itemsPerPage)).pipe(
+      Effect.tap((result) => {
+        data.value = {
+          ...result,
+          columns: formatColumns(result.columns),
+        };
+        fetchingData.value = false;
+      }),
+      Effect.catchTags({
+        WailsError: Effect.succeed,
+      }),
+    ),
+  );
+}
+fetchData();
+
 const info = ref<FormattedQueryResult>();
-await Effect.runPromise(
-  wails(() => GetSchemas(databaseId.value)).pipe(
-    Effect.tap((result) => {
-      data.value = {
-        ...result.data,
-        columns: formatColumns(result.data.columns),
-      };
-      info.value = {
-        ...result.info,
-        columns: formatColumns(result.info.columns, false),
-      };
-    }),
-    Effect.catchTags({
-      WailsError: Effect.succeed,
-    }),
-  ),
-);
+const fetchingInfo = ref(false);
+async function fetchInfo(page = 1, itemsPerPage = 10) {
+  fetchingInfo.value = true;
+  await Effect.runPromise(
+    wails(() => GetDatabaseInfo(databaseId.value, page, itemsPerPage)).pipe(
+      Effect.tap((result) => {
+        info.value = {
+          ...result,
+          columns: formatColumns(result.columns, false),
+        };
+        fetchingInfo.value = false;
+      }),
+      Effect.catchTags({
+        WailsError: Effect.succeed,
+      }),
+    ),
+  );
+}
+fetchInfo();
 
 function navigateToSchema(schemaId: string) {
   router.push({ name: "schema", params: { schemaId } });
@@ -58,12 +83,15 @@ function navigateToSchema(schemaId: string) {
   <UTabs
     :items="tabs"
     variant="link"
-    :ui="{ root: 'h-full', content: 'flex flex-1 flex-col gap-2' }"
+    :ui="{
+      root: 'flex flex-auto overflow-hidden',
+      content: 'flex flex-auto flex-col gap-2 overflow-hidden',
+    }"
   >
     <template #data>
       <AppRows
-        :rows="data?.rows"
-        :columns="data?.columns"
+        :loading="fetchingData"
+        :data="data"
         :actions="[RowAction.View]"
         @view="
           (row) =>
@@ -73,10 +101,15 @@ function navigateToSchema(schemaId: string) {
                 row.original.name,
             )
         "
+        @pagination-change="fetchData"
       />
     </template>
     <template #info>
-      <AppRows :rows="info?.rows" :columns="info?.columns" />
+      <AppRows
+        :loading="fetchingInfo"
+        :data="info"
+        @pagination-change="fetchInfo"
+      />
     </template>
     <template #script>
       <AppScript />

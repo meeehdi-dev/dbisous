@@ -38,5 +38,5 @@ watchEffect(() => {
 </script>
 
 <template>
-  <UBreadcrumb :items="items" class="p-4" />
+  <UBreadcrumb :items="items" class="flex flex-initial p-4" />
 </template>

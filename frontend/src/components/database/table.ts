@@ -13,6 +13,7 @@ export type RowEmits = {
   view: [TableData];
   copy: [TableData];
   remove: [TableData];
+  paginationChange: [number, number];
 };
 
 export type FormattedQueryResult = Omit<
@@ -52,3 +53,8 @@ export function formatColumns(
 
   return formatted;
 }
+
+export const booleanTypes = ["BOOL", "BOOLEAN", "TINYINT"];
+export const textTypes = ["NAME", "TEXT", "VARCHAR"];
+export const dateTypes = ["TIMESTAMP", "DATETIME", "DATE"];
+export const numberTypes = ["UNSIGNED BIGINT", "INT", "INT4", "FLOAT8"];

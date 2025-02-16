@@ -1,18 +1,37 @@
 <script setup lang="ts">
-const { tableApi } = defineProps<{
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  tableApi: any | undefined;
+import { ref } from "vue";
+
+const page = defineModel<number>("page");
+const itemsPerPage = defineModel<number>("items-per-page");
+
+const items = ref([10, 20, 50]);
+
+const { total = 0 } = defineProps<{
+  total?: number;
 }>();
 </script>
 
 <template>
-  <div class="flex flex-col items-center py-4 gap-4">
+  <div class="flex flex-initial flex-col">
     <USeparator />
-    <UPagination
-      :default-page="(tableApi?.getState().pagination.pageIndex || 0) + 1"
-      :items-per-page="tableApi?.getState().pagination.pageSize"
-      :total="tableApi?.getFilteredRowModel().rows.length"
-      @update:page="(p) => tableApi?.setPageIndex(p - 1)"
-    />
+    <div class="flex flex-auto justify-between px-2 py-4">
+      <div class="flex flex-auto items-center gap-2">
+        <UTooltip text="Items per page" :content="{ side: 'right' }">
+          <USelect v-model="itemsPerPage" :items="items" />
+        </UTooltip>
+      </div>
+      <UPagination
+        v-model:page="page"
+        :items-per-page="itemsPerPage"
+        :total="total"
+        :ui="{ root: 'flex flex-auto justify-center' }"
+      />
+      <div class="flex flex-auto justify-end items-center gap-1">
+        <UIcon name="lucide:list-ordered" class="text-secondary-400" />
+        <span class="text-secondary-400 text-sm">
+          {{ total }} row{{ total > 1 ? "s" : "" }}
+        </span>
+      </div>
+    </div>
   </div>
 </template>

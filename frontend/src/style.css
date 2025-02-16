@@ -60,6 +60,6 @@ button:not([disabled]) {
   --vscode-editor-background: var(--ui-color-neutral-950) !important;
 
   .view-overlays .current-line-exact {
-    border: 0 !important;
+    @apply !border-0;
   }
 }

@@ -9,34 +9,28 @@ type MysqlClient struct {
 	Db *sql.DB
 }
 
-func (c *MysqlClient) GetSchemas() (QueryResult, error) {
-	query := "SELECT * FROM information_schema.schemata"
-	return executeQuery(c.Db, query)
+func (c *MysqlClient) GetDatabaseSchemas(limit int, offset int) (QueryResult, error) {
+	return executeSelectQuery(c.Db, "information_schema.schemata", limit, offset)
 }
 
-func (c *MysqlClient) GetDatabaseInfo() (QueryResult, error) {
-	query := "SELECT * FROM information_schema.columns WHERE table_schema = 'information_schema' AND table_name = 'schemata'"
-	return executeQuery(c.Db, query)
+func (c *MysqlClient) GetDatabaseInfo(limit int, offset int) (QueryResult, error) {
+	return executeSelectQuery(c.Db, "information_schema.columns WHERE table_schema = 'information_schema' AND table_name = 'schemata'", limit, offset)
 }
 
-func (c *MysqlClient) GetTables(schema string) (QueryResult, error) {
-	query := "SELECT * FROM information_schema.tables WHERE table_schema = ?"
-	return executeQuery(c.Db, query, schema)
+func (c *MysqlClient) GetSchemaTables(limit int, offset int, schema string) (QueryResult, error) {
+	return executeSelectQuery(c.Db, "information_schema.tables WHERE table_schema = ?", limit, offset, schema)
 }
 
-func (c *MysqlClient) GetSchemaInfo(schema string) (QueryResult, error) {
-	query := "SELECT * FROM information_schema.columns WHERE table_schema = 'information_schema' AND table_name = 'tables'"
-	return executeQuery(c.Db, query)
+func (c *MysqlClient) GetSchemaInfo(limit int, offset int, schema string) (QueryResult, error) {
+	return executeSelectQuery(c.Db, "information_schema.columns WHERE table_schema = 'information_schema' AND table_name = 'tables'", limit, offset)
 }
 
-func (c *MysqlClient) GetTableRows(schema string, table string) (QueryResult, error) {
-	query := fmt.Sprintf("SELECT * FROM %s.%s", schema, table)
-	return executeQuery(c.Db, query)
+func (c *MysqlClient) GetTableRows(limit int, offset int, schema string, table string) (QueryResult, error) {
+	return executeSelectQuery(c.Db, fmt.Sprintf("`%s`.`%s`", schema, table), limit, offset)
 }
 
-func (c *MysqlClient) GetTableInfo(schema string, table string) (QueryResult, error) {
-	query := "SELECT * FROM information_schema.columns WHERE table_schema = ? AND table_name = ?"
-	return executeQuery(c.Db, query, schema, table)
+func (c *MysqlClient) GetTableInfo(limit int, offset int, schema string, table string) (QueryResult, error) {
+	return executeSelectQuery(c.Db, "information_schema.columns WHERE table_schema = ? AND table_name = ?", limit, offset, schema, table)
 }
 
 func (c *MysqlClient) ExecuteQuery(query string, args ...interface{}) (QueryResult, error) {

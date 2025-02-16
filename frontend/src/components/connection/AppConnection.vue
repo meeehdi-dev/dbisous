@@ -59,6 +59,9 @@ function removeConnection(connection: app.Connection) {
           : connected
             ? 'cursor-pointer border-r-2 border-r-primary-400/50 hover:border-r-primary-400 transition-colors'
             : 'border-r-2 border-r-transparent transition-colors',
+      header: 'sm:p-4',
+      body: 'sm:p-4',
+      footer: 'sm:p-2',
     }"
     @click="select(connection.id)"
   >
@@ -66,7 +69,7 @@ function removeConnection(connection: app.Connection) {
       <div class="flex flex-initial">
         <UIcon :name="`simple-icons:${connection.type}`" class="size-8" />
       </div>
-      <div class="flex flex-1 flex-row gap-2 justify-between">
+      <div class="flex flex-auto flex-row gap-2 justify-between">
         <UTooltip :text="connection.name" :content="{ side: 'right' }">
           <span class="line-clamp-1 text-ellipsis">
             {{ getConnectionName(connection) }}
