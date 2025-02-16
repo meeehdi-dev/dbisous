@@ -59,6 +59,9 @@ function removeConnection(connection: app.Connection) {
           : connected
             ? 'cursor-pointer border-r-2 border-r-primary-400/50 hover:border-r-primary-400 transition-colors'
             : 'border-r-2 border-r-transparent transition-colors',
+      header: 'sm:p-4',
+      body: 'sm:p-4',
+      footer: 'sm:p-2',
     }"
     @click="select(connection.id)"
   >

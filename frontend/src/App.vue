@@ -13,7 +13,7 @@ onMounted(() => {
   <UApp>
     <div class="flex flex-auto w-screen h-screen overflow-hidden">
       <AppSidebar />
-      <div class="flex flex-auto bg-slate-900 overflow-hidden">
+      <div class="flex flex-auto bg-neutral-900 overflow-hidden">
         <div class="flex flex-auto flex-col overflow-hidden">
           <AppBreadcrumb />
           <Suspense>

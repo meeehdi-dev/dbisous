@@ -28,7 +28,7 @@ const { total = 0 } = defineProps<{
       />
       <div class="flex flex-auto justify-end items-center gap-1">
         <UIcon name="lucide:list-ordered" class="text-secondary-400" />
-        <span class="text-secondary-400/80 text-sm">
+        <span class="text-secondary-400 text-sm">
           {{ total }} row{{ total > 1 ? "s" : "" }}
         </span>
       </div>
