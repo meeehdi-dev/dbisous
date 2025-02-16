@@ -87,7 +87,10 @@ function navigateToTable(schemaId: string, tableId: string) {
   <UTabs
     :items="tabs"
     variant="link"
-    :ui="{ root: 'flex flex-auto', content: 'flex flex-auto flex-col gap-2' }"
+    :ui="{
+      root: 'flex flex-auto overflow-hidden',
+      content: 'flex flex-auto flex-col gap-2 overflow-hidden',
+    }"
   >
     <template #data>
       <AppRows

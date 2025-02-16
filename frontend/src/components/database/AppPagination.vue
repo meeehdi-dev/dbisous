@@ -14,8 +14,8 @@ const { total = 0 } = defineProps<{
 <template>
   <div class="flex flex-initial flex-col">
     <USeparator />
-    <div class="flex justify-between px-2 py-4">
-      <div class="flex items-center gap-2">
+    <div class="flex flex-auto justify-between px-2 py-4">
+      <div class="flex flex-auto items-center gap-2">
         <UTooltip text="Items per page" :content="{ side: 'right' }">
           <USelect v-model="itemsPerPage" :items="items" />
         </UTooltip>
@@ -24,8 +24,9 @@ const { total = 0 } = defineProps<{
         v-model:page="page"
         :items-per-page="itemsPerPage"
         :total="total"
+        :ui="{ root: 'flex flex-auto justify-center' }"
       />
-      <div class="flex items-center gap-1">
+      <div class="flex flex-auto justify-end items-center gap-1">
         <UIcon name="lucide:list-ordered" class="text-secondary-400" />
         <span class="text-secondary-400/80 text-sm">
           {{ total }} row{{ total > 1 ? "s" : "" }}

@@ -22,7 +22,7 @@ const packageVersion = import.meta.env.PACKAGE_VERSION;
 </script>
 
 <template>
-  <div class="min-w-72 bg-slate-800 flex flex-auto flex-col justify-between">
+  <div class="min-w-72 bg-slate-800 flex flex-col justify-between">
     <div
       class="flex flex-initial flex-col px-2 py-4 gap-4 items-center overflow-hidden"
     >
