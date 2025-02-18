@@ -2,7 +2,7 @@
 import { ref, watch } from "vue";
 import { useUrlParams } from "../../composables/useUrlParams";
 import { Effect } from "effect";
-import { formatColumns, FormattedQueryResult, RowAction } from "./table";
+import { formatColumns, FormattedQueryResult } from "./table";
 import { useWails } from "../../wails";
 import {
   DeletePastQuery,
