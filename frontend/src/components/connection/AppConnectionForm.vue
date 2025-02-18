@@ -123,11 +123,14 @@ function selectType(type: string) {
             v-model="state.connection_string"
             class="w-full"
           >
-            <template #trailing>
+            <template
+              #trailing
+              v-if="state.type === 'sqlite'"
+            >
               <UButton
                 variant="link"
                 icon="lucide:upload"
-                aria-label="Upload file"
+                aria-label="Select SQLite file"
                 @click="selectFile"
               />
             </template>
