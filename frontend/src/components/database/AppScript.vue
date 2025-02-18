@@ -33,7 +33,7 @@ async function fetchData() {
         error.value = "";
         data.value = {
           ...result,
-          columns: formatColumns(result.columns),
+          columns: formatColumns(result.columns, false),
         };
         fetchingData.value = false;
         fetchPastQueries();
@@ -148,10 +148,6 @@ function setQuery(q: string, execute = false) {
         </UBadge>
       </div>
     </div>
-    <AppRows
-      :loading="fetchingData"
-      :data="data"
-      :actions="[RowAction.Copy, RowAction.Remove]"
-    />
+    <AppRows :loading="fetchingData" :data="data" />
   </div>
 </template>

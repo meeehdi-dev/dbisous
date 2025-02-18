@@ -7,27 +7,31 @@ const {
   type = "",
   defaultValue = undefined,
   nullable = false,
+  disabled,
 } = defineProps<{
   initialValue: unknown;
   type?: string;
   defaultValue?: unknown;
   nullable?: boolean;
+  disabled: boolean;
 }>();
 
 const value = ref(initialValue);
-// const resetDisabled = ref(true);
+watch(
+  () => initialValue,
+  () => {
+    value.value = initialValue;
+  },
+);
 
-// watch(value, () => {
-//   resetDisabled.value = value.value === initialValue;
-// });
 const resetDisabled = computed(() => {
   return value.value === initialValue;
 });
-
 const defaultDisabled = computed(() => defaultValue === undefined);
 
 const bool = ref(!!initialValue);
 const t = ref(initialValue as string);
+const toast = useToast();
 
 const types = ref<Array<string>>([]);
 // await Effect.runPromise(
@@ -41,6 +45,18 @@ const types = ref<Array<string>>([]);
 
 const items = computed(() => [
   {
+    label: "Copy to clipboard",
+    value: "copy",
+    icon: "lucide:copy",
+    onSelect: () => {
+      navigator.clipboard.writeText(value.value as string);
+      toast.add({
+        title: "Successfully copied to clipboard!",
+        description: value.value as string,
+      });
+    },
+  },
+  {
     label: "Reset",
     value: "reset",
     icon: "lucide:refresh-ccw",
@@ -48,7 +64,7 @@ const items = computed(() => [
     onSelect: () => {
       value.value = initialValue;
     },
-    disabled: resetDisabled.value,
+    disabled: disabled || resetDisabled.value,
   },
   {
     label: "Default value",
@@ -58,7 +74,7 @@ const items = computed(() => [
     onSelect: () => {
       value.value = defaultValue;
     },
-    disabled: defaultDisabled.value,
+    disabled: disabled || defaultDisabled.value,
   },
   {
     label: "Set to NULL",
@@ -66,7 +82,7 @@ const items = computed(() => [
     icon: "lucide:delete",
     color: nullable ? "warning" : undefined,
     onSelect: () => {},
-    disabled: !nullable,
+    disabled: disabled || !nullable,
   },
 ]);
 </script>
@@ -77,13 +93,19 @@ const items = computed(() => [
     variant="ghost"
     :items="types"
     v-model="t"
+    :disabled="disabled"
     class="w-full"
   />
-  <UCheckbox v-else-if="booleanTypes.includes(type)" v-model="bool" />
+  <UCheckbox
+    v-else-if="booleanTypes.includes(type)"
+    v-model="bool"
+    :disabled="disabled"
+  />
   <UInput
     v-else-if="textTypes.includes(type)"
     variant="ghost"
     v-model="value as string"
+    :disabled="disabled"
     :highlight="value !== initialValue"
     :color="value !== initialValue ? 'warning' : undefined"
     :ui="{
@@ -108,12 +130,14 @@ const items = computed(() => [
     v-else-if="dateTypes.includes(type)"
     variant="ghost"
     :value="initialValue"
+    :disabled="disabled"
     class="w-full"
   />
   <UInputNumber
     v-else-if="numberTypes.includes(type)"
     variant="ghost"
     :value="initialValue"
+    :disabled="disabled"
     class="w-full"
   />
   <span v-else-if="type === ''" class="italic px-2.5">{{ initialValue }}</span>

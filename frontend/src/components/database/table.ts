@@ -27,15 +27,17 @@ export type CellProps = {
   type?: string;
   defaultValue?: unknown;
   nullable?: boolean;
+  disabled: boolean;
 };
 export const cell =
-  ({ type, defaultValue, nullable }: CellProps) =>
+  ({ type, defaultValue, nullable, disabled }: CellProps) =>
   (ctx: CellContext<unknown, unknown>) =>
     h(AppCell, {
       initialValue: ctx.getValue(),
       type,
       defaultValue,
       nullable,
+      disabled,
     });
 
 export function formatColumns(
@@ -47,7 +49,7 @@ export function formatColumns(
       ({
         accessorKey: name,
         header: name,
-        cell: cell({ type, defaultValue, nullable }),
+        cell: cell({ type, defaultValue, nullable, disabled: !actions }),
       }) as TableColumn<TableData>,
   );
 
