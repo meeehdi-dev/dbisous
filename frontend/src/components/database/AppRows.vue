@@ -56,6 +56,7 @@ const columnPinning = ref({ right: ["action"] });
         v-model:column-pinning="columnPinning"
         :loading="loading"
         :key="key"
+        :ui="{ td: 'p-1' }"
       >
         <template #action-cell="{ row }">
           <UButton

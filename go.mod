@@ -9,9 +9,17 @@ require (
 	github.com/go-sql-driver/mysql v1.8.1
 	github.com/google/uuid v1.6.0
 	github.com/lib/pq v1.10.9
-	github.com/mattn/go-sqlite3 v1.14.24
-	github.com/wailsapp/wails/v2 v2.10.0
+	github.com/mattn/go-sqlite3 v1.14.23
+	github.com/wailsapp/wails/v2 v2.0.0-00010101000000-000000000000
 )
+
+replace github.com/wailsapp/wails/v2 => ../wails/v2
+
+exclude github.com/wailsapp/wails/v2 v2.10.0
+
+replace github.com/mattn/go-sqlite3 => ../go-sqlite3
+
+exclude github.com/mattn/go-sqlite3 v1.14.24
 
 require (
 	filippo.io/edwards25519 v1.1.0 // indirect

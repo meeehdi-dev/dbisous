@@ -11,9 +11,10 @@ type DatabaseClient interface {
 }
 
 type ColumnMetadata struct {
-	Name     string `json:"name"`
-	Type     string `json:"type"`
-	Nullable bool   `json:"nullable"`
+	Name         string `json:"name"`
+	Type         string `json:"type"`
+	DefaultValue string `json:"default_value"`
+	Nullable     bool   `json:"nullable"`
 }
 
 type Row map[string]interface{}

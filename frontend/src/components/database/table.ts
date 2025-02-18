@@ -23,11 +23,18 @@ export type FormattedQueryResult = Omit<
   columns: Array<TableColumn<TableData>>;
 };
 
+export type CellProps = {
+  type?: string;
+  defaultValue?: unknown;
+  nullable?: boolean;
+};
 export const cell =
-  (type?: string, nullable?: boolean) => (ctx: CellContext<unknown, unknown>) =>
+  ({ type, defaultValue, nullable }: CellProps) =>
+  (ctx: CellContext<unknown, unknown>) =>
     h(AppCell, {
-      value: ctx.getValue(),
+      initialValue: ctx.getValue(),
       type,
+      defaultValue,
       nullable,
     });
 
@@ -36,11 +43,11 @@ export function formatColumns(
   actions = true,
 ) {
   const formatted = columns.map(
-    (column) =>
+    ({ name, type, default_value: defaultValue, nullable }) =>
       ({
-        accessorKey: column.name,
-        header: column.name,
-        cell: cell(column.type, column.nullable),
+        accessorKey: name,
+        header: name,
+        cell: cell({ type, defaultValue, nullable }),
       }) as TableColumn<TableData>,
   );
 
