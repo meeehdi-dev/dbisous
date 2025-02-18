@@ -90,40 +90,7 @@ function selectType(type: string) {
   <UForm :schema="parser" :state="state" @submit="submitConnection">
     <UStepper :items="items" v-model="active" disabled>
       <template #type>
-        <div class="flex justify-center">
-          <div class="flex flex-col gap-4">
-            <UButton
-              icon="simple-icons:sqlite"
-              label="SQLite"
-              size="xl"
-              :ui="{ label: 'w-full text-center' }"
-              @click="selectType('sqlite')"
-              :trailing-icon="
-                state.type === 'sqlite' ? 'lucide:check' : undefined
-              "
-            />
-            <UButton
-              icon="simple-icons:postgresql"
-              label="PostgreSQL"
-              size="xl"
-              :ui="{ label: 'w-full text-center' }"
-              @click="selectType('postgresql')"
-              :trailing-icon="
-                state.type === 'postgresql' ? 'lucide:check' : undefined
-              "
-            />
-            <UButton
-              icon="simple-icons:mysql"
-              label="MySQL / MariaDB"
-              size="xl"
-              :ui="{ label: 'w-full text-center' }"
-              @click="selectType('mysql')"
-              :trailing-icon="
-                state.type === 'mysql' ? 'lucide:check' : undefined
-              "
-            />
-          </div>
-        </div>
+        <AppConnectionTypeSelector :value="state.type" @select="selectType" />
       </template>
 
       <template #details>

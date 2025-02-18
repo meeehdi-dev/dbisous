@@ -10,7 +10,6 @@ env:
 jobs:
   build:
     strategy:
-      fail-fast: false # Failure in one platform build won't impact the others
       matrix:
         build:
           - name: 'dbisous-linux'
@@ -20,7 +19,7 @@ jobs:
             platform:  'windows/amd64'
             os: 'windows-latest'
           - name: 'dbisous'
-            platform:  'darwin/universal'
+            platform:  'darwin/arm64'
             os: 'macos-latest'
 
     runs-on: ${{ matrix.build.os }}
@@ -28,9 +27,7 @@ jobs:
       - name: git checkout
         uses: actions/checkout@v4
       - name: build app
-        uses: dAppServer/wails-build-action@main
+        uses: ./.github/actions/wails-build-action
         with:
           build-name: ${{ matrix.build.name }}
           build-platform: ${{ matrix.build.platform }}
-          go-version: '1.24'
-          node-version: '22.x'

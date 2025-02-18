@@ -18,12 +18,17 @@ func fetchRows(rows *sql.Rows) (QueryResult, error) {
 	}
 
 	var columnMetadata []ColumnMetadata
-	for i, col := range columns {
-		nullable, _ := columnTypes[i].Nullable()
+	for i := range columns {
+		nullable, ok := columnTypes[i].Nullable()
+		if !ok {
+			nullable = false
+		}
+		// NOTE: sqlite driver considers everything nullable...
 		columnMetadata = append(columnMetadata, ColumnMetadata{
-			Name:     col,
-			Type:     columnTypes[i].DatabaseTypeName(),
-			Nullable: nullable,
+			Name:         columnTypes[i].Name(),
+			Type:         columnTypes[i].DatabaseTypeName(),
+			DefaultValue: "", // FIXME: handle NULL values in the future...
+			Nullable:     nullable,
 		})
 	}
 

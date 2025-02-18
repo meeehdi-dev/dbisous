@@ -56,6 +56,7 @@ const columnPinning = ref({ right: ["action"] });
         v-model:column-pinning="columnPinning"
         :loading="loading"
         :key="key"
+        :ui="{ td: 'p-1' }"
       >
         <template #action-cell="{ row }">
           <UButton
@@ -82,7 +83,7 @@ const columnPinning = ref({ right: ["action"] });
         </template>
       </UTable>
       <div
-        v-if="data?.columns && data.columns.length > 0"
+        v-if="data?.columns && data.columns.some((c) => c.id === 'actions')"
         class="flex flex-initial justify-center"
       >
         <UButton icon="lucide:plus" variant="soft" label="Add row" />
