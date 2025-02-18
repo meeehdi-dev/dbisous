@@ -127,10 +127,7 @@ function selectType(type: "sqlite" | "mysql" | "postgresql") {
             v-model="state.connection_string"
             class="w-full"
           >
-            <template
-              #trailing
-              v-if="state.type === 'sqlite'"
-            >
+            <template #trailing v-if="state.type === 'sqlite'">
               <UButton
                 variant="link"
                 icon="lucide:upload"
