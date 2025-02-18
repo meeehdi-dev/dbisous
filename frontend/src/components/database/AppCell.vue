@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
 import { booleanTypes, dateTypes, numberTypes, textTypes } from "./table";
+import { useCopy } from "../../composables/useCopy";
 
 const {
   initialValue,
@@ -31,7 +32,7 @@ const defaultDisabled = computed(() => defaultValue === undefined);
 
 const bool = ref(!!initialValue);
 const t = ref(initialValue as string);
-const toast = useToast();
+const { copy } = useCopy();
 
 const types = ref<Array<string>>([]);
 // await Effect.runPromise(
@@ -49,11 +50,7 @@ const items = computed(() => [
     value: "copy",
     icon: "lucide:copy",
     onSelect: () => {
-      navigator.clipboard.writeText(value.value as string);
-      toast.add({
-        title: "Successfully copied to clipboard!",
-        description: value.value as string,
-      });
+      copy(value.value as string);
     },
   },
   {
