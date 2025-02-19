@@ -16,7 +16,7 @@ import (
 var assets embed.FS
 
 func main() {
-	app := app.NewApp()
+	dbisous := app.NewApp()
 
 	startHidden := false
 	env := os.Environ()
@@ -30,21 +30,24 @@ func main() {
 	}
 
 	err := wails.Run(&options.App{
-		Title:     "dbisous",
+		Title:     "DBisous",
 		MinWidth:  1024,
 		MinHeight: 768,
 		AssetServer: &assetserver.Options{
 			Assets: assets,
 		},
-		OnStartup:  app.Startup,
-		OnShutdown: app.Shutdown,
+		OnStartup:  dbisous.Startup,
+		OnShutdown: dbisous.Shutdown,
 		Bind: []interface{}{
-			app,
+			dbisous,
 		},
+    EnumBind: []interface{}{
+      app.AllConnectionTypes,
+    },
 		StartHidden: startHidden,
 	})
 
 	if err != nil {
-		runtime.MessageDialog(app.Ctx, runtime.MessageDialogOptions{Title: err.Error()})
+		runtime.MessageDialog(dbisous.Ctx, runtime.MessageDialogOptions{Title: err.Error()})
 	}
 }

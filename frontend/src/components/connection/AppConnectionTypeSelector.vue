@@ -1,7 +1,9 @@
 <script setup lang="ts">
-const emit = defineEmits<{ select: ["sqlite" | "mysql" | "postgresql"] }>();
+import { app } from "../../../wailsjs/go/models";
 
-const { value } = defineProps<{ value: "sqlite" | "mysql" | "postgresql" }>();
+const emit = defineEmits<{ select: [app.ConnectionType] }>();
+
+const { value } = defineProps<{ value?: app.ConnectionType }>();
 </script>
 
 <template>
@@ -11,19 +13,19 @@ const { value } = defineProps<{ value: "sqlite" | "mysql" | "postgresql" }>();
         label="SQLite"
         value="sqlite"
         :active="value === 'sqlite'"
-        @click="emit('select', 'sqlite')"
+        @click="emit('select', app.ConnectionType.SQLite)"
       />
       <AppConnectionTypeButton
         label="PostgreSQL"
         value="postgresql"
         :active="value === 'postgresql'"
-        @click="emit('select', 'postgresql')"
+        @click="emit('select', app.ConnectionType.PostgreSQL)"
       />
       <AppConnectionTypeButton
         label="MySQL / MariaDB"
         value="mysql"
         :active="value === 'mysql'"
-        @click="emit('select', 'mysql')"
+        @click="emit('select', app.ConnectionType.MySQL)"
       />
     </div>
   </div>

@@ -8,6 +8,11 @@ const { connections } = useConnections();
 const slideoverOpen = ref(false);
 const editedConnection = ref<app.Connection>();
 
+function onConnectionAdd() {
+  editedConnection.value = undefined;
+  slideoverOpen.value = true;
+}
+
 function onConnectionAdded() {
   slideoverOpen.value = false;
   editedConnection.value = undefined;
@@ -37,7 +42,7 @@ const packageVersion = import.meta.env.PACKAGE_VERSION;
 
       <UButton
         icon="lucide:plus"
-        @click="slideoverOpen = true"
+        @click="onConnectionAdd"
         label="Add connection"
         class="flex flex-initial"
       />

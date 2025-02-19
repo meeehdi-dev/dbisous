@@ -204,3 +204,20 @@ func DeletePastQuery(id string) error {
 	_, err := metadataDB.Exec(`DELETE FROM past_query WHERE id = ?`, id)
 	return err
 }
+
+type ConnectionType string
+
+const (
+	SQLite     ConnectionType = "sqlite"
+	PostgreSQL ConnectionType = "postgresql"
+	MySQL      ConnectionType = "mysql"
+)
+
+var AllConnectionTypes = []struct {
+	Value  ConnectionType
+	TSName string
+}{
+	{SQLite, "SQLite"},
+	{PostgreSQL, "PostgreSQL"},
+	{MySQL, "MySQL"},
+}

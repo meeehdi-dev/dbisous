@@ -24,23 +24,15 @@ const schema = v.object({
   created_at: v.string(),
   updated_at: v.string(),
   name: v.string(),
-  type: v.union([
-    v.literal("sqlite"),
-    v.literal("mysql"),
-    v.literal("postgresql"),
-  ]),
+  type: v.enum(app.ConnectionType),
   connection_string: v.string(),
 });
 const parser = v.safeParser(schema);
 type Schema = v.InferOutput<typeof schema>;
 
-const state = reactive<Schema>(
+const state = reactive<Partial<Schema>>(
   connection.value ?? {
-    id: "",
-    created_at: "",
-    updated_at: "",
     name: "",
-    type: "",
     connection_string: "",
   },
 );
@@ -84,7 +76,7 @@ function selectFile() {
   );
 }
 
-function selectType(type: "sqlite" | "mysql" | "postgresql") {
+function selectType(type: app.ConnectionType) {
   state.type = type;
   active.value = 1;
 }
@@ -105,13 +97,9 @@ function selectType(type: "sqlite" | "mysql" | "postgresql") {
             variant="outline"
             icon="lucide:arrow-left"
             @click="active = 0"
-            v-if="state.id === ''"
+            v-if="!state.id"
           />
         </div>
-
-        <UFormField name="id" hidden>
-          <UInput v-model="state.id" />
-        </UFormField>
 
         <UFormField label="Name" name="name">
           <UInput
