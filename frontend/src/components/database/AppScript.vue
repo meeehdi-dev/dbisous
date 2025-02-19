@@ -2,7 +2,7 @@
 import { ref, watch } from "vue";
 import { useUrlParams } from "../../composables/useUrlParams";
 import { Effect } from "effect";
-import { formatColumns, FormattedQueryResult } from "./table";
+import { FormattedQueryResult } from "./table";
 import { useWails } from "../../wails";
 import {
   DeletePastQuery,
@@ -10,6 +10,7 @@ import {
   GetPastQueries,
 } from "../../../wailsjs/go/app/App";
 import { app } from "../../../wailsjs/go/models";
+import { formatQueryResult } from "../../effects/columns";
 
 const defaultQuery = defineModel<string>("defaultQuery");
 
@@ -29,12 +30,10 @@ async function fetchData() {
   fetchingData.value = true;
   await Effect.runPromise(
     wails(() => ExecuteQuery(databaseId.value, query.value)).pipe(
+      Effect.andThen(formatQueryResult),
       Effect.tap((result) => {
         error.value = "";
-        data.value = {
-          ...result,
-          columns: formatColumns(result.columns, false),
-        };
+        data.value = result;
         fetchingData.value = false;
         fetchPastQueries();
       }),

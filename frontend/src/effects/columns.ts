@@ -3,10 +3,7 @@ import { client } from "../../wailsjs/go/models";
 import { cell } from "../components/database/table";
 import { TableColumn, TableData } from "@nuxt/ui/dist/module";
 
-export function formatColumns(
-  columns: client.ColumnMetadata[],
-  actions = true,
-) {
+function formatColumns(columns: client.ColumnMetadata[], actions = true) {
   const formatted = columns.map(
     ({ name, type, default_value: defaultValue, nullable }) =>
       ({
