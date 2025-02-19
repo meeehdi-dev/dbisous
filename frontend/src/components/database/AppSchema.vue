@@ -38,12 +38,12 @@ function navigateToTable(schemaId: string, tableId: string) {
       />
     </template>
     <template #info>
-      <AppRowsTab
+      <!-- <AppRowsTab
         :fetch-fn="
           (page, itemsPerPage) =>
             GetSchemaInfo(databaseId, page, itemsPerPage, schemaId)
         "
-      />
+      /> -->
     </template>
   </AppTabs>
 </template>

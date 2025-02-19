@@ -16,12 +16,12 @@ const { databaseId, schemaId, tableId } = useUrlParams();
       />
     </template>
     <template #info>
-      <AppRowsTab
+      <!-- <AppRowsTab
         :fetch-fn="
           (page, itemsPerPage) =>
             GetTableInfo(databaseId, page, itemsPerPage, schemaId, tableId)
         "
-      />
+      /> -->
     </template>
   </AppTabs>
 </template>

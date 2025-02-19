@@ -28,7 +28,7 @@ watch(
 const resetDisabled = computed(() => {
   return value.value === initialValue;
 });
-const defaultDisabled = computed(() => defaultValue === undefined);
+const defaultDisabled = computed(() => defaultValue === "NULL");
 
 const bool = ref(!!initialValue);
 const t = ref(initialValue as string);

@@ -35,12 +35,12 @@ function navigateToSchema(schemaId: string) {
       />
     </template>
     <template #info>
-      <AppRowsTab
+      <!-- <AppRowsTab
         :fetch-fn="
           (page, itemsPerPage) =>
             GetDatabaseInfo(databaseId, page, itemsPerPage)
         "
-      />
+      /> -->
     </template>
   </AppTabs>
 </template>
