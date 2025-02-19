@@ -1,7 +1,7 @@
 <script setup lang="ts">
-const emit = defineEmits<{ select: [string] }>();
+const emit = defineEmits<{ select: ["sqlite" | "mysql" | "postgresql"] }>();
 
-const { value } = defineProps<{ value: string }>();
+const { value } = defineProps<{ value: "sqlite" | "mysql" | "postgresql" }>();
 </script>
 
 <template>

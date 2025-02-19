@@ -24,7 +24,11 @@ const schema = v.object({
   created_at: v.string(),
   updated_at: v.string(),
   name: v.string(),
-  type: v.string(),
+  type: v.union([
+    v.literal("sqlite"),
+    v.literal("mysql"),
+    v.literal("postgresql"),
+  ]),
   connection_string: v.string(),
 });
 const parser = v.safeParser(schema);
@@ -80,7 +84,7 @@ function selectFile() {
   );
 }
 
-function selectType(type: string) {
+function selectType(type: "sqlite" | "mysql" | "postgresql") {
   state.type = type;
   active.value = 1;
 }
@@ -123,11 +127,11 @@ function selectType(type: string) {
             v-model="state.connection_string"
             class="w-full"
           >
-            <template #trailing>
+            <template #trailing v-if="state.type === 'sqlite'">
               <UButton
                 variant="link"
                 icon="lucide:upload"
-                aria-label="Upload file"
+                aria-label="Select SQLite file"
                 @click="selectFile"
               />
             </template>
