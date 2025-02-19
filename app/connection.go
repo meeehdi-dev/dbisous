@@ -109,15 +109,6 @@ func GetDatabaseSchemas(id string, limit int, offset int) (client.QueryResult, e
 	return dbClient.GetDatabaseSchemas(limit, offset)
 }
 
-func GetDatabaseInfo(id string, limit int, offset int) (client.QueryResult, error) {
-	dbClient, exists := dbClients[id]
-	if !exists {
-		return client.QueryResult{}, fmt.Errorf("no database client for database ID: %s", id)
-	}
-
-	return dbClient.GetDatabaseInfo(limit, offset)
-}
-
 func GetSchemaTables(id string, limit int, offset int, schema string) (client.QueryResult, error) {
 	dbClient, exists := dbClients[id]
 
@@ -128,16 +119,6 @@ func GetSchemaTables(id string, limit int, offset int, schema string) (client.Qu
 	return dbClient.GetSchemaTables(limit, offset, schema)
 }
 
-func GetSchemaInfo(id string, limit int, offset int, schema string) (client.QueryResult, error) {
-	dbClient, exists := dbClients[id]
-
-	if !exists {
-		return client.QueryResult{}, fmt.Errorf("no database client for database ID: %s", id)
-	}
-
-	return dbClient.GetSchemaInfo(limit, offset, schema)
-}
-
 func GetTableRows(id string, limit int, offset int, schema string, table string) (client.QueryResult, error) {
 	dbClient, exists := dbClients[id]
 	if !exists {
@@ -145,15 +126,6 @@ func GetTableRows(id string, limit int, offset int, schema string, table string)
 	}
 
 	return dbClient.GetTableRows(limit, offset, schema, table)
-}
-
-func GetTableInfo(id string, limit int, offset int, schema string, table string) (client.QueryResult, error) {
-	dbClient, exists := dbClients[id]
-	if !exists {
-		return client.QueryResult{}, fmt.Errorf("no database client for database ID: %s", id)
-	}
-
-	return dbClient.GetTableInfo(limit, offset, schema, table)
 }
 
 func ExecuteQuery(id string, query string) (client.QueryResult, error) {
