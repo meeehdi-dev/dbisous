@@ -69,13 +69,13 @@ func Connect(id string) error {
 
 	var db *sql.DB
 	switch dbType {
-	case "sqlite":
+	case string(SQLite):
 		db, err = sql.Open("sqlite3", connectionString)
 		dbClients[id] = &client.SqliteClient{Db: db}
-	case "mysql":
+	case string(MySQL):
 		db, err = sql.Open("mysql", connectionString)
 		dbClients[id] = &client.MysqlClient{Db: db}
-	case "postgresql":
+	case string(PostgreSQL):
 		db, err = sql.Open("postgres", connectionString)
 		dbClients[id] = &client.PostgresClient{Db: db}
 	default:
