@@ -2,11 +2,8 @@ package client
 
 type DatabaseClient interface {
 	GetDatabaseSchemas(int, int) (QueryResult, error)
-	GetDatabaseInfo(int, int) (QueryResult, error)
 	GetSchemaTables(int, int, string) (QueryResult, error)
-	GetSchemaInfo(int, int, string) (QueryResult, error)
 	GetTableRows(int, int, string, string) (QueryResult, error)
-	GetTableInfo(int, int, string, string) (QueryResult, error)
 	ExecuteQuery(string, ...interface{}) (QueryResult, error)
 }
 

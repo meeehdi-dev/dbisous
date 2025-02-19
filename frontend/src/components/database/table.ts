@@ -40,29 +40,6 @@ export const cell =
       disabled,
     });
 
-export function formatColumns(
-  columns: client.ColumnMetadata[],
-  actions = true,
-) {
-  const formatted = columns.map(
-    ({ name, type, default_value: defaultValue, nullable }) =>
-      ({
-        accessorKey: name,
-        header: name,
-        cell: cell({ type, defaultValue, nullable, disabled: !actions }),
-      }) as TableColumn<TableData>,
-  );
-
-  if (actions) {
-    formatted.push({
-      accessorKey: "action",
-      header: "Actions",
-    });
-  }
-
-  return formatted;
-}
-
 export const booleanTypes = ["BOOL", "BOOLEAN", "TINYINT"];
 export const textTypes = ["NAME", "TEXT", "VARCHAR"];
 export const dateTypes = ["TIMESTAMP", "DATETIME", "DATE"];
