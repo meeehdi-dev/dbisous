@@ -8,7 +8,7 @@ defineSlots<{
 
 const tabs = [
   {
-    label: "Schemas",
+    label: "Data",
     slot: "data",
     icon: "lucide:list",
   },

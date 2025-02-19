@@ -30,7 +30,6 @@ async function fetchData() {
   fetchingData.value = true;
   await Effect.runPromise(
     wails(() => ExecuteQuery(databaseId.value, query.value)).pipe(
-      Effect.tap(Effect.log),
       Effect.andThen(formatQueryResult),
       Effect.tap((result) => {
         error.value = "";

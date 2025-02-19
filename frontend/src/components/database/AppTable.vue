@@ -1,27 +1,55 @@
 <script setup lang="ts">
 import { useUrlParams } from "../../composables/useUrlParams";
-import { GetTableInfo, GetTableRows } from "../../../wailsjs/go/app/App";
+import { GetTableRows } from "../../../wailsjs/go/app/App";
+import { ref } from "vue";
+import { FormattedQueryResult } from "./table";
+import { client } from "../../../wailsjs/go/models";
+import { Effect } from "effect";
+import { useWails } from "../../wails";
+import { formatQueryResult } from "../../effects/columns";
 
 const { databaseId, schemaId, tableId } = useUrlParams();
+const wails = useWails();
+
+const data = ref<FormattedQueryResult>();
+const columns = ref<client.ColumnMetadata[]>();
+const fetchingData = ref(false);
+async function fetchData(page = 1, itemsPerPage = 10) {
+  fetchingData.value = true;
+  await Effect.runPromise(
+    wails(() =>
+      GetTableRows(
+        databaseId.value,
+        page,
+        itemsPerPage,
+        schemaId.value,
+        tableId.value,
+      ),
+    ).pipe(
+      Effect.tap((result) => {
+        columns.value = result.columns;
+      }),
+      Effect.andThen(formatQueryResult),
+      Effect.tap((result) => {
+        data.value = result;
+        fetchingData.value = false;
+      }),
+      Effect.catchTags({
+        WailsError: Effect.succeed,
+      }),
+    ),
+  );
+}
+fetchData();
 </script>
 
 <template>
   <AppTabs :default-query="`SELECT * FROM ${tableId};`">
     <template #data>
-      <AppRowsTab
-        :fetch-fn="
-          (page, itemsPerPage) =>
-            GetTableRows(databaseId, page, itemsPerPage, schemaId, tableId)
-        "
-      />
+      <AppRows :loading="fetchingData" :data="data" />
     </template>
     <template #info>
-      <!-- <AppRowsTab
-        :fetch-fn="
-          (page, itemsPerPage) =>
-            GetTableInfo(databaseId, page, itemsPerPage, schemaId, tableId)
-        "
-      /> -->
+      <AppColumns :loading="fetchingData" :data="columns" />
     </template>
   </AppTabs>
 </template>

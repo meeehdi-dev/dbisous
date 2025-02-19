@@ -1,11 +1,14 @@
 <script setup lang="ts">
 import { useRouter } from "vue-router";
-import {
-  GetDatabaseInfo,
-  GetDatabaseSchemas,
-} from "../../../wailsjs/go/app/App";
+import { GetDatabaseSchemas } from "../../../wailsjs/go/app/App";
 import { useUrlParams } from "../../composables/useUrlParams";
 import { RowAction } from "./table";
+import { useWails } from "../../wails";
+import { FormattedQueryResult } from "./table";
+import { formatQueryResult } from "../../effects/columns";
+import { ref } from "vue";
+import { Effect } from "effect";
+import { client } from "../../../wailsjs/go/models";
 
 const router = useRouter();
 const { databaseId } = useUrlParams();
@@ -13,16 +16,39 @@ const { databaseId } = useUrlParams();
 function navigateToSchema(schemaId: string) {
   router.push({ name: "schema", params: { schemaId } });
 }
+
+const wails = useWails();
+
+const data = ref<FormattedQueryResult>();
+const columns = ref<client.ColumnMetadata[]>();
+const fetchingData = ref(false);
+async function fetchData(page = 1, itemsPerPage = 10) {
+  fetchingData.value = true;
+  await Effect.runPromise(
+    wails(() => GetDatabaseSchemas(databaseId.value, page, itemsPerPage)).pipe(
+      Effect.tap((result) => {
+        columns.value = result.columns;
+      }),
+      Effect.andThen(formatQueryResult),
+      Effect.tap((result) => {
+        data.value = result;
+        fetchingData.value = false;
+      }),
+      Effect.catchTags({
+        WailsError: Effect.succeed,
+      }),
+    ),
+  );
+}
+fetchData();
 </script>
 
 <template>
   <AppTabs>
     <template #data>
-      <AppRowsTab
-        :fetch-fn="
-          (page, itemsPerPage) =>
-            GetDatabaseSchemas(databaseId, page, itemsPerPage)
-        "
+      <AppRows
+        :loading="fetchingData"
+        :data="data"
         :actions="[RowAction.View]"
         @view="
           (row) =>
@@ -32,15 +58,11 @@ function navigateToSchema(schemaId: string) {
                 row.original.name,
             )
         "
+        @pagination-change="fetchData"
       />
     </template>
     <template #info>
-      <!-- <AppRowsTab
-        :fetch-fn="
-          (page, itemsPerPage) =>
-            GetDatabaseInfo(databaseId, page, itemsPerPage)
-        "
-      /> -->
+      <AppColumns :loading="fetchingData" :data="columns" />
     </template>
   </AppTabs>
 </template>

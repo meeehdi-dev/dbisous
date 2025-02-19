@@ -22,7 +22,6 @@ async function fetchData(page = 1, itemsPerPage = 10) {
   fetchingData.value = true;
   await Effect.runPromise(
     wails(() => fetchFn(page, itemsPerPage)).pipe(
-      Effect.tap(Effect.log),
       Effect.andThen(formatQueryResult),
       Effect.tap((result) => {
         data.value = result;
