@@ -1,6 +1,11 @@
 <script setup lang="ts">
 import { ref, watch } from "vue";
-import { booleanTypes, dateTypes, numberTypes, textTypes } from "./table";
+import {
+  booleanTypes,
+  dateTypes,
+  numberTypes,
+  textTypes,
+} from "@/components/database/table/table";
 
 const {
   initialValue,

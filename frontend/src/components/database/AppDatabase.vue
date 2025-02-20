@@ -1,13 +1,16 @@
 <script setup lang="ts">
 import { useRouter } from "vue-router";
-import { GetDatabaseSchemas } from "../../../wailsjs/go/app/App";
-import { useUrlParams } from "../../composables/useUrlParams";
-import { FormattedQueryResult, RowAction } from "./table/table";
-import { useWails } from "../../wails";
-import { formatQueryResult } from "../../effects/columns";
+import { GetDatabaseSchemas } from "_/go/app/App";
+import { useUrlParams } from "@/composables/useUrlParams";
+import {
+  FormattedQueryResult,
+  RowAction,
+} from "@/components/database/table/table";
+import { useWails } from "@/composables/useWails";
+import { formatQueryResult } from "@/effects/columns";
 import { ref } from "vue";
 import { Effect } from "effect";
-import { client } from "../../../wailsjs/go/models";
+import { client } from "_/go/models";
 
 const router = useRouter();
 const { databaseId } = useUrlParams();

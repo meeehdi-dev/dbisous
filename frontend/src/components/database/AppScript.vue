@@ -1,16 +1,12 @@
 <script setup lang="ts">
 import { ref, watch } from "vue";
-import { useUrlParams } from "../../composables/useUrlParams";
+import { useUrlParams } from "@/composables/useUrlParams";
 import { Effect } from "effect";
-import { FormattedQueryResult } from "./table/table";
-import { useWails } from "../../wails";
-import {
-  DeletePastQuery,
-  ExecuteQuery,
-  GetPastQueries,
-} from "../../../wailsjs/go/app/App";
-import { app } from "../../../wailsjs/go/models";
-import { formatQueryResult } from "../../effects/columns";
+import { FormattedQueryResult } from "@/components/database/table/table";
+import { useWails } from "@/composables/useWails";
+import { DeletePastQuery, ExecuteQuery, GetPastQueries } from "_/go/app/App";
+import { app } from "_/go/models";
+import { formatQueryResult } from "@/effects/columns";
 
 const defaultQuery = defineModel<string>("defaultQuery");
 

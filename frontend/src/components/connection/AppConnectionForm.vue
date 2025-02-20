@@ -2,16 +2,11 @@
 import { Effect } from "effect";
 import * as v from "valibot";
 import { reactive, ref } from "vue";
-import { useWails } from "../../wails";
-import {
-  CreateConnection,
-  SelectFile,
-  UpdateConnection,
-} from "../../../wailsjs/go/app/App";
+import { useWails } from "@/composables/useWails";
+import { CreateConnection, SelectFile, UpdateConnection } from "_/go/app/App";
 import { FormSubmitEvent } from "@nuxt/ui/dist/module";
-
-import { useConnections } from "../../composables/useConnections";
-import { app } from "../../../wailsjs/go/models";
+import { useConnections } from "@/composables/useConnections";
+import { app } from "_/go/models";
 
 const emit = defineEmits<{ connectionAdded: [] }>();
 const connection = defineModel<app.Connection>();

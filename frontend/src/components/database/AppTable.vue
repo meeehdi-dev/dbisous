@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { useUrlParams } from "../../composables/useUrlParams";
-import { GetTableRows } from "../../../wailsjs/go/app/App";
+import { useUrlParams } from "@/composables/useUrlParams";
+import { GetTableRows } from "_/go/app/App";
 import { ref } from "vue";
-import { FormattedQueryResult } from "./table/table";
-import { client } from "../../../wailsjs/go/models";
+import { FormattedQueryResult } from "@/components/database/table/table";
+import { client } from "_/go/models";
 import { Effect } from "effect";
-import { useWails } from "../../wails";
-import { formatQueryResult } from "../../effects/columns";
+import { useWails } from "@/composables/useWails";
+import { formatQueryResult } from "@/effects/columns";
 
 const { databaseId, schemaId, tableId } = useUrlParams();
 const wails = useWails();

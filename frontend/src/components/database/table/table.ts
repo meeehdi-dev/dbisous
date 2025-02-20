@@ -1,7 +1,7 @@
 import { h } from "vue";
-import AppCell from "./AppCell.vue";
+import AppCell from "@/components/database/table/cell/AppCell.vue";
 import type { TableColumn, TableData } from "@nuxt/ui/dist/module";
-import { client } from "../../../../wailsjs/go/models";
+import { client } from "_/go/models";
 
 export enum RowAction {
   View = "view",

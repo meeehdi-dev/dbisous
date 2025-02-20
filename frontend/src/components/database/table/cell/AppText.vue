@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import { useCopy } from "../../../composables/useCopy";
+import { useCopy } from "@/composables/useCopy";
 
 const value = defineModel<string>();
 

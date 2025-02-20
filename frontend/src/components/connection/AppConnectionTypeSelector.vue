@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { app } from "../../../wailsjs/go/models";
+import { app } from "_/go/models";
 
 const emit = defineEmits<{ select: [app.ConnectionType] }>();
 

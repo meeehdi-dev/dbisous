@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import { useConnections } from "../../composables/useConnections";
-import { useUrlParams } from "../../composables/useUrlParams";
-import { app } from "../../../wailsjs/go/models";
+import { useConnections } from "@/composables/useConnections";
+import { useUrlParams } from "@/composables/useUrlParams";
+import { app } from "_/go/models";
 import { Effect } from "effect";
-import { useWails } from "../../wails";
-import { DeleteConnection } from "../../../wailsjs/go/app/App";
+import { useWails } from "@/composables/useWails";
+import { DeleteConnection } from "_/go/app/App";
 import { useRouter } from "vue-router";
 
 const { connection } = defineProps<{ connection: app.Connection }>();

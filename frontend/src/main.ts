@@ -1,12 +1,12 @@
 import { createApp } from "vue";
 import { createRouter, createWebHistory } from "vue-router";
 import ui from "@nuxt/ui/vue-plugin";
-import App from "./App.vue";
-import AppWelcome from "./components/AppWelcome.vue";
-import AppDatabase from "./components/database/AppDatabase.vue";
-import AppSchema from "./components/database/AppSchema.vue";
-import AppTable from "./components/database/AppTable.vue";
-import "./style.css";
+import App from "@/App.vue";
+import AppWelcome from "@/components/AppWelcome.vue";
+import AppDatabase from "@/components/database/AppDatabase.vue";
+import AppSchema from "@/components/database/AppSchema.vue";
+import AppTable from "@/components/database/AppTable.vue";
+import "@/style.css";
 
 const app = createApp(App);
 

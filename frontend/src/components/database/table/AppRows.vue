@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { TableColumn, TableData } from "@nuxt/ui/dist/module";
 import { ref, watch } from "vue";
-import { RowEmits, RowAction } from "./table";
+import { RowEmits, RowAction } from "@/components/database/table/table";
 
 const emit = defineEmits<RowEmits>();
 

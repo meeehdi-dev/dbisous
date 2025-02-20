@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import type { TableColumn } from "@nuxt/ui/dist/module";
 import { ref, watch } from "vue";
-import { RowEmits, RowAction, cell } from "./table";
-import { client } from "../../../../wailsjs/go/models";
+import { RowEmits, RowAction, cell } from "@/components/database/table/table";
+import { client } from "_/go/models";
 
 const emit = defineEmits<RowEmits>();
 
