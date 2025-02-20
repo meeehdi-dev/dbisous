@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import type { TableColumn } from "@nuxt/ui/dist/module";
 import { ref, watch } from "vue";
-import { RowEmits, RowAction } from "./table";
-import { client } from "../../../wailsjs/go/models";
+import { RowEmits, RowAction, cell } from "./table";
+import { client } from "../../../../wailsjs/go/models";
 
 const emit = defineEmits<RowEmits>();
 
@@ -39,18 +39,22 @@ const columns: TableColumn<client.ColumnMetadata>[] = [
   {
     accessorKey: "name",
     header: "Name",
+    cell: cell({ type: "TEXT", disabled: true }),
   },
   {
     accessorKey: "type",
     header: "Type",
+    cell: cell({ type: "TEXT", disabled: true }),
   },
   {
     accessorKey: "default_value",
     header: "Default value",
+    cell: cell({ type: "TEXT", disabled: true }),
   },
   {
     accessorKey: "nullable",
     header: "Nullable",
+    cell: cell({ type: "BOOL", disabled: true }),
   },
 ];
 

@@ -2,9 +2,8 @@
 import { useRouter } from "vue-router";
 import { GetDatabaseSchemas } from "../../../wailsjs/go/app/App";
 import { useUrlParams } from "../../composables/useUrlParams";
-import { RowAction } from "./table";
+import { FormattedQueryResult, RowAction } from "./table/table";
 import { useWails } from "../../wails";
-import { FormattedQueryResult } from "./table";
 import { formatQueryResult } from "../../effects/columns";
 import { ref } from "vue";
 import { Effect } from "effect";

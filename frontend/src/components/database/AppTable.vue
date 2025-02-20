@@ -2,7 +2,7 @@
 import { useUrlParams } from "../../composables/useUrlParams";
 import { GetTableRows } from "../../../wailsjs/go/app/App";
 import { ref } from "vue";
-import { FormattedQueryResult } from "./table";
+import { FormattedQueryResult } from "./table/table";
 import { client } from "../../../wailsjs/go/models";
 import { Effect } from "effect";
 import { useWails } from "../../wails";
