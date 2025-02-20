@@ -47,12 +47,12 @@ func CloseMetadataDB() {
 }
 
 type Connection struct {
-	ID               string `json:"id"`
-	CreatedAt        string `json:"created_at"`
-	UpdatedAt        string `json:"updated_at"`
-	Name             string `json:"name"`
-	Type             string `json:"type"`
-	ConnectionString string `json:"connection_string"`
+	ID               string         `json:"id"`
+	CreatedAt        string         `json:"created_at"`
+	UpdatedAt        string         `json:"updated_at"`
+	Name             string         `json:"name"`
+	Type             ConnectionType `json:"type"`
+	ConnectionString string         `json:"connection_string"`
 }
 
 func createConnectionTable() error {

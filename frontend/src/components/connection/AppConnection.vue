@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import { useConnections } from "../../composables/useConnections";
-import { useUrlParams } from "../../composables/useUrlParams";
-import { app } from "../../../wailsjs/go/models";
+import { useConnections } from "@/composables/useConnections";
+import { useUrlParams } from "@/composables/useUrlParams";
+import { app } from "_/go/models";
 import { Effect } from "effect";
-import { useWails } from "../../wails";
-import { DeleteConnection } from "../../../wailsjs/go/app/App";
+import { useWails } from "@/composables/useWails";
+import { DeleteConnection } from "_/go/app/App";
 import { useRouter } from "vue-router";
 
 const { connection } = defineProps<{ connection: app.Connection }>();
@@ -14,7 +14,6 @@ const emit = defineEmits<{ connectionEdit: [app.Connection] }>();
 const { isConnected, connect, disconnect, select, fetchConnections } =
   useConnections();
 const { databaseId } = useUrlParams();
-const toast = useToast();
 const wails = useWails();
 const router = useRouter();
 
@@ -26,14 +25,6 @@ function getConnectionName(connection: app.Connection) {
   }
   const parts = connection.connection_string.replace(/\\/g, "/").split("/");
   return parts[parts.length - 1];
-}
-
-function copyToClipboard(text: string) {
-  navigator.clipboard.writeText(text);
-  toast.add({
-    title: "Successfully copied to clipboard!",
-    description: text,
-  });
 }
 
 function removeConnection(connection: app.Connection) {
@@ -75,57 +66,7 @@ function removeConnection(connection: app.Connection) {
             {{ getConnectionName(connection) }}
           </span>
         </UTooltip>
-        <UPopover mode="hover" :content="{ side: 'right' }">
-          <div class="flex">
-            <UIcon
-              name="lucide:info"
-              class="size-6 text-secondary-400/50 hover:text-secondary-400 transition-colors"
-            />
-          </div>
-          <template #content>
-            <div class="p-2 flex flex-col gap-2 text-gray-400">
-              <UTooltip text="Connection string" :content="{ side: 'left' }">
-                <div class="flex flex-row gap-2 items-center">
-                  <UIcon name="lucide:link" class="text-secondary-400" />
-                  <UButton
-                    color="neutral"
-                    variant="ghost"
-                    trailing-icon="lucide:copy"
-                    :ui="{ base: 'px-1' }"
-                    :label="connection.connection_string"
-                    @click="copyToClipboard(connection.connection_string)"
-                  />
-                </div>
-              </UTooltip>
-              <UTooltip text="Creation date" :content="{ side: 'left' }">
-                <div class="flex flex-row gap-2 items-center">
-                  <UIcon
-                    name="lucide:calendar"
-                    :class="
-                      connection.created_at !== connection.updated_at
-                        ? 'text-primary-400/50'
-                        : 'text-primary-400'
-                    "
-                  />
-                  <span class="text-sm">
-                    {{ new Date(connection.created_at).toLocaleString() }}
-                  </span>
-                </div>
-              </UTooltip>
-              <UTooltip text="Last update" :content="{ side: 'left' }">
-                <div
-                  v-if="connection.created_at !== connection.updated_at"
-                  class="flex flex-row gap-2 items-center"
-                >
-                  <UIcon name="lucide:calendar-sync" class="text-primary-400" />
-                  <span class="text-sm">
-                    {{ new Date(connection.updated_at).toLocaleString() }}
-                  </span>
-                </div>
-              </UTooltip>
-            </div>
-          </template>
-        </UPopover>
+        <AppConnectionInfo :connection="connection" />
       </div>
     </div>
 

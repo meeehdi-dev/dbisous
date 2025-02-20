@@ -1,12 +1,17 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import { useConnections } from "../composables/useConnections";
-import { app } from "../../wailsjs/go/models";
+import { useConnections } from "@/composables/useConnections";
+import { app } from "_/go/models";
 
 const { connections } = useConnections();
 
 const slideoverOpen = ref(false);
 const editedConnection = ref<app.Connection>();
+
+function onConnectionAdd() {
+  editedConnection.value = undefined;
+  slideoverOpen.value = true;
+}
 
 function onConnectionAdded() {
   slideoverOpen.value = false;
@@ -17,8 +22,6 @@ function onConnectionEdit(connection: app.Connection) {
   editedConnection.value = connection;
   slideoverOpen.value = true;
 }
-
-const packageVersion = import.meta.env.PACKAGE_VERSION;
 </script>
 
 <template>
@@ -37,7 +40,7 @@ const packageVersion = import.meta.env.PACKAGE_VERSION;
 
       <UButton
         icon="lucide:plus"
-        @click="slideoverOpen = true"
+        @click="onConnectionAdd"
         label="Add connection"
         class="flex flex-initial"
       />
@@ -56,22 +59,6 @@ const packageVersion = import.meta.env.PACKAGE_VERSION;
         </template>
       </USlideover>
     </div>
-    <div class="flex flex-initial">
-      <div class="p-4 flex flex-auto justify-center items-center">
-        <UModal>
-          <UButton
-            icon="simple-icons:git"
-            color="neutral"
-            variant="soft"
-            size="sm"
-            :label="packageVersion"
-          />
-
-          <template #content>
-            <Placeholder class="h-48 m-4" />
-          </template>
-        </UModal>
-      </div>
-    </div>
+    <AppVersion />
   </div>
 </template>

@@ -2,16 +2,11 @@
 import { Effect } from "effect";
 import * as v from "valibot";
 import { reactive, ref } from "vue";
-import { useWails } from "../../wails";
-import {
-  CreateConnection,
-  SelectFile,
-  UpdateConnection,
-} from "../../../wailsjs/go/app/App";
+import { useWails } from "@/composables/useWails";
+import { CreateConnection, SelectFile, UpdateConnection } from "_/go/app/App";
 import { FormSubmitEvent } from "@nuxt/ui/dist/module";
-
-import { useConnections } from "../../composables/useConnections";
-import { app } from "../../../wailsjs/go/models";
+import { useConnections } from "@/composables/useConnections";
+import { app } from "_/go/models";
 
 const emit = defineEmits<{ connectionAdded: [] }>();
 const connection = defineModel<app.Connection>();
@@ -24,19 +19,15 @@ const schema = v.object({
   created_at: v.string(),
   updated_at: v.string(),
   name: v.string(),
-  type: v.string(),
+  type: v.enum(app.ConnectionType),
   connection_string: v.string(),
 });
 const parser = v.safeParser(schema);
 type Schema = v.InferOutput<typeof schema>;
 
-const state = reactive<Schema>(
+const state = reactive<Partial<Schema>>(
   connection.value ?? {
-    id: "",
-    created_at: "",
-    updated_at: "",
     name: "",
-    type: "",
     connection_string: "",
   },
 );
@@ -80,7 +71,7 @@ function selectFile() {
   );
 }
 
-function selectType(type: string) {
+function selectType(type: app.ConnectionType) {
   state.type = type;
   active.value = 1;
 }
@@ -101,13 +92,9 @@ function selectType(type: string) {
             variant="outline"
             icon="lucide:arrow-left"
             @click="active = 0"
-            v-if="state.id === ''"
+            v-if="!state.id"
           />
         </div>
-
-        <UFormField name="id" hidden>
-          <UInput v-model="state.id" />
-        </UFormField>
 
         <UFormField label="Name" name="name">
           <UInput
@@ -123,11 +110,11 @@ function selectType(type: string) {
             v-model="state.connection_string"
             class="w-full"
           >
-            <template #trailing>
+            <template #trailing v-if="state.type === app.ConnectionType.SQLite">
               <UButton
                 variant="link"
                 icon="lucide:upload"
-                aria-label="Upload file"
+                aria-label="Select SQLite file"
                 @click="selectFile"
               />
             </template>

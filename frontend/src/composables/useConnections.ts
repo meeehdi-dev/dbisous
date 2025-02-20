@@ -1,10 +1,10 @@
 import { onMounted, ref } from "vue";
 import { createSharedComposable } from "@vueuse/core";
-import { useWails } from "../wails";
+import { useWails } from "@/composables/useWails";
 import { Effect } from "effect";
 import { useRouter } from "vue-router";
-import { useUrlParams } from "./useUrlParams";
-import { app } from "../../wailsjs/go/models";
+import { useUrlParams } from "@/composables/useUrlParams";
+import { app } from "_/go/models";
 import {
   Connect,
   CreateConnection,
@@ -12,7 +12,7 @@ import {
   Disconnect,
   GetConnections,
   UpdateConnection,
-} from "../../wailsjs/go/app/App";
+} from "_/go/app/App";
 
 export const useConnections = createSharedComposable(() => {
   const wails = useWails();

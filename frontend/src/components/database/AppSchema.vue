@@ -1,35 +1,30 @@
 <script setup lang="ts">
 import { useRouter } from "vue-router";
-import { ref } from "vue";
-import { useUrlParams } from "../../composables/useUrlParams";
-import { useWails } from "../../wails";
+import { useUrlParams } from "@/composables/useUrlParams";
+import {
+  FormattedQueryResult,
+  RowAction,
+} from "@/components/database/table/table";
+import { useWails } from "@/composables/useWails";
+import { GetSchemaTables } from "_/go/app/App";
 import { Effect } from "effect";
-import { formatColumns, FormattedQueryResult, RowAction } from "./table";
-import { GetSchemaInfo, GetSchemaTables } from "../../../wailsjs/go/app/App";
+import { ref } from "vue";
+import { client } from "_/go/models";
+import { formatQueryResult } from "@/effects/columns";
 
-const wails = useWails();
 const router = useRouter();
 const { databaseId, schemaId } = useUrlParams();
+const wails = useWails();
 
-const tabs = [
-  {
-    label: "Tables",
-    slot: "data",
-    icon: "lucide:list",
-  },
-  {
-    label: "Info",
-    slot: "info",
-    icon: "lucide:info",
-  },
-  {
-    label: "Script",
-    slot: "script",
-    icon: "lucide:square-terminal",
-  },
-];
+function navigateToTable(schemaId: string, tableId: string) {
+  router.push({
+    name: "table",
+    params: { schemaId, tableId },
+  });
+}
 
 const data = ref<FormattedQueryResult>();
+const columns = ref<client.ColumnMetadata[]>();
 const fetchingData = ref(false);
 async function fetchData(page = 1, itemsPerPage = 10) {
   fetchingData.value = true;
@@ -38,10 +33,11 @@ async function fetchData(page = 1, itemsPerPage = 10) {
       GetSchemaTables(databaseId.value, page, itemsPerPage, schemaId.value),
     ).pipe(
       Effect.tap((result) => {
-        data.value = {
-          ...result,
-          columns: formatColumns(result.columns),
-        };
+        columns.value = result.columns;
+      }),
+      Effect.andThen(formatQueryResult),
+      Effect.tap((result) => {
+        data.value = result;
         fetchingData.value = false;
       }),
       Effect.catchTags({
@@ -51,47 +47,10 @@ async function fetchData(page = 1, itemsPerPage = 10) {
   );
 }
 fetchData();
-
-const info = ref<FormattedQueryResult>();
-const fetchingInfo = ref(false);
-async function fetchInfo(page = 1, itemsPerPage = 10) {
-  fetchingInfo.value = true;
-  await Effect.runPromise(
-    wails(() =>
-      GetSchemaInfo(databaseId.value, page, itemsPerPage, schemaId.value),
-    ).pipe(
-      Effect.tap((result) => {
-        info.value = {
-          ...result,
-          columns: formatColumns(result.columns, false),
-        };
-        fetchingInfo.value = false;
-      }),
-      Effect.catchTags({
-        WailsError: Effect.succeed,
-      }),
-    ),
-  );
-}
-fetchInfo();
-
-function navigateToTable(schemaId: string, tableId: string) {
-  router.push({
-    name: "table",
-    params: { schemaId, tableId },
-  });
-}
 </script>
 
 <template>
-  <UTabs
-    :items="tabs"
-    variant="link"
-    :ui="{
-      root: 'flex flex-auto overflow-hidden',
-      content: 'flex flex-auto flex-col gap-2 overflow-hidden',
-    }"
-  >
+  <AppTabs>
     <template #data>
       <AppRows
         :loading="fetchingData"
@@ -108,18 +67,10 @@ function navigateToTable(schemaId: string, tableId: string) {
                 row.original.name,
             )
         "
-        @pagination-change="fetchData"
       />
     </template>
     <template #info>
-      <AppRows
-        :loading="fetchingInfo"
-        :data="info"
-        @pagination-change="fetchInfo"
-      />
+      <AppColumns :loading="fetchingData" :data="columns" />
     </template>
-    <template #script>
-      <AppScript />
-    </template>
-  </UTabs>
+  </AppTabs>
 </template>

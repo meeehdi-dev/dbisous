@@ -1,7 +1,9 @@
 <script setup lang="ts">
-const emit = defineEmits<{ select: [string] }>();
+import { app } from "_/go/models";
 
-const { value } = defineProps<{ value: string }>();
+const emit = defineEmits<{ select: [app.ConnectionType] }>();
+
+const { value } = defineProps<{ value?: app.ConnectionType }>();
 </script>
 
 <template>
@@ -9,21 +11,21 @@ const { value } = defineProps<{ value: string }>();
     <div class="flex flex-col gap-4">
       <AppConnectionTypeButton
         label="SQLite"
-        value="sqlite"
-        :active="value === 'sqlite'"
-        @click="emit('select', 'sqlite')"
+        :value="app.ConnectionType.SQLite"
+        :active="value === app.ConnectionType.SQLite"
+        @click="emit('select', app.ConnectionType.SQLite)"
       />
       <AppConnectionTypeButton
         label="PostgreSQL"
-        value="postgresql"
-        :active="value === 'postgresql'"
-        @click="emit('select', 'postgresql')"
+        :value="app.ConnectionType.PostgreSQL"
+        :active="value === app.ConnectionType.PostgreSQL"
+        @click="emit('select', app.ConnectionType.PostgreSQL)"
       />
       <AppConnectionTypeButton
         label="MySQL / MariaDB"
-        value="mysql"
-        :active="value === 'mysql'"
-        @click="emit('select', 'mysql')"
+        :value="app.ConnectionType.MySQL"
+        :active="value === app.ConnectionType.MySQL"
+        @click="emit('select', app.ConnectionType.MySQL)"
       />
     </div>
   </div>

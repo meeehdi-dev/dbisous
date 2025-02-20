@@ -6,30 +6,42 @@ import (
 	"time"
 )
 
+func fetchColumns(rows *sql.Rows) ([]ColumnMetadata, error) {
+	var columns []ColumnMetadata
+
+	for rows.Next() {
+		var column ColumnMetadata
+		err := rows.Scan(&column.Name, &column.Type, &column.DefaultValue, &column.Nullable)
+		if err != nil {
+			return columns, err
+		}
+		columns = append(columns, column)
+	}
+
+	return columns, nil
+}
+
 func fetchRows(rows *sql.Rows) (QueryResult, error) {
 	columns, err := rows.Columns()
 	if err != nil {
 		return QueryResult{}, err
 	}
 
+	columnsMetadata := []ColumnMetadata{}
 	columnTypes, err := rows.ColumnTypes()
 	if err != nil {
 		return QueryResult{}, err
 	}
 
-	var columnMetadata []ColumnMetadata
-	for i := range columns {
-		nullable, ok := columnTypes[i].Nullable()
-		if !ok {
-			nullable = false
+	for i, col := range columns {
+		columnType := columnTypes[i]
+		columnMetadata := ColumnMetadata{
+			Name:         col,
+			Type:         columnType.DatabaseTypeName(),
+			DefaultValue: "",
+			Nullable:     false,
 		}
-		// NOTE: sqlite driver considers everything nullable...
-		columnMetadata = append(columnMetadata, ColumnMetadata{
-			Name:         columnTypes[i].Name(),
-			Type:         columnTypes[i].DatabaseTypeName(),
-			DefaultValue: "", // FIXME: handle NULL values in the future...
-			Nullable:     nullable,
-		})
+		columnsMetadata = append(columnsMetadata, columnMetadata)
 	}
 
 	var results []Row
@@ -48,6 +60,8 @@ func fetchRows(rows *sql.Rows) (QueryResult, error) {
 		for i, col := range columns {
 			value := values[i]
 			switch v := value.(type) {
+			case nil:
+				value = "NULL"
 			case []byte:
 				value = string(v)
 			default:
@@ -60,7 +74,7 @@ func fetchRows(rows *sql.Rows) (QueryResult, error) {
 
 	return QueryResult{
 		Rows:    results,
-		Columns: columnMetadata,
+		Columns: columnsMetadata,
 		Total:   len(results),
 	}, nil
 }

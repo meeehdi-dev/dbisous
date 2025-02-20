@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, useTemplateRef, watch } from "vue";
-import { useMonaco } from "./monaco";
+import { useMonaco } from "@/composables/useMonaco";
 import { editor } from "monaco-editor";
 
 const { defaultValue = "" } = defineProps<{ defaultValue?: string }>();

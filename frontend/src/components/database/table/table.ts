@@ -1,7 +1,7 @@
 import { h } from "vue";
-import AppCell from "./AppCell.vue";
+import AppCell from "@/components/database/table/cell/AppCell.vue";
 import type { TableColumn, TableData } from "@nuxt/ui/dist/module";
-import { client } from "../../../wailsjs/go/models";
+import { client } from "_/go/models";
 
 export enum RowAction {
   View = "view",
@@ -39,29 +39,6 @@ export const cell =
       nullable,
       disabled,
     });
-
-export function formatColumns(
-  columns: client.ColumnMetadata[],
-  actions = true,
-) {
-  const formatted = columns.map(
-    ({ name, type, default_value: defaultValue, nullable }) =>
-      ({
-        accessorKey: name,
-        header: name,
-        cell: cell({ type, defaultValue, nullable, disabled: !actions }),
-      }) as TableColumn<TableData>,
-  );
-
-  if (actions) {
-    formatted.push({
-      accessorKey: "action",
-      header: "Actions",
-    });
-  }
-
-  return formatted;
-}
 
 export const booleanTypes = ["BOOL", "BOOLEAN", "TINYINT"];
 export const textTypes = ["NAME", "TEXT", "VARCHAR"];
