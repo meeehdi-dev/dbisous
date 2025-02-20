@@ -111,6 +111,10 @@ inputs:
     description: "Use provided wails"
     required: false
     default: "false"
+  prerelease:
+    description: "Set github release as prerelease"
+    required: false
+    default: "false"
 runs:
   using: "composite"
   steps:
