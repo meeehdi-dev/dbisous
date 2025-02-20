@@ -31,37 +31,58 @@ watch(
 </script>
 
 <template>
-  <AppTypeSelect v-if="type === 'TYPE'" v-model="value as string" />
-  <UCheckbox
-    v-else-if="booleanTypes.includes(type)"
-    v-model="value as boolean"
-    :disabled="disabled"
-  />
-  <AppText
-    v-else-if="textTypes.includes(type)"
-    variant="ghost"
-    v-model="value as string"
-    :disabled="disabled"
-    :initial-value="initialValue as string"
-    :default-value="defaultValue as string"
-    :nullable="nullable"
-  />
-  <UInput
-    v-else-if="dateTypes.includes(type)"
-    variant="ghost"
-    :value="initialValue"
-    :disabled="disabled"
-    class="w-full"
-  />
-  <UInputNumber
-    v-else-if="numberTypes.includes(type)"
-    variant="ghost"
-    :value="initialValue"
-    :disabled="disabled"
-    class="w-full"
-  />
-  <span v-else-if="type === ''" class="italic px-2.5">{{ initialValue }}</span>
-  <span v-else class="font-bold text-red-400"
-    >{{ initialValue }} ({{ type }})</span
-  >
+  <div class="flex gap-1 group">
+    <AppTypeSelect
+      v-if="type === 'TYPE'"
+      v-model="value as string"
+      :initial-value="initialValue as boolean"
+      :default-value="defaultValue as boolean"
+      :nullable="nullable"
+      :disabled="disabled"
+    />
+    <AppCheckbox
+      v-else-if="booleanTypes.includes(type)"
+      v-model="value as boolean"
+      :initial-value="initialValue as boolean"
+      :default-value="defaultValue as boolean"
+      :nullable="nullable"
+      :disabled="disabled"
+    />
+    <AppText
+      v-else-if="textTypes.includes(type)"
+      v-model="value as string"
+      :initial-value="initialValue as string"
+      :default-value="defaultValue as string"
+      :nullable="nullable"
+      :disabled="disabled"
+    />
+    <AppDatePicker
+      v-else-if="dateTypes.includes(type)"
+      v-model="value as string"
+      :initial-value="initialValue as string"
+      :default-value="defaultValue as string"
+      :nullable="nullable"
+      :disabled="disabled"
+    />
+    <AppInputNumber
+      v-else-if="numberTypes.includes(type)"
+      :initial-value="initialValue as number"
+      :default-value="defaultValue as number"
+      :nullable="nullable"
+      :disabled="disabled"
+    />
+    <span v-else-if="type === ''" class="italic px-2.5">{{
+      initialValue
+    }}</span>
+    <span v-else class="font-bold text-red-400"
+      >{{ initialValue }} ({{ type }})</span
+    >
+    <AppCellActions
+      v-model="value"
+      :initial-value="initialValue"
+      :default-value="defaultValue"
+      :nullable="nullable"
+      :disabled="disabled"
+    />
+  </div>
 </template>
