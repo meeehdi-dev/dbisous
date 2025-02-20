@@ -1,6 +1,6 @@
 import { editor, languages } from "monaco-editor";
 import { Ref } from "vue";
-import { getSQLiteKeywords } from "./keywords";
+import { getSQLiteKeywords } from "@/utils/keywords";
 
 const keywords = getSQLiteKeywords();
 languages.registerCompletionItemProvider("sql", {

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import { useConnections } from "../composables/useConnections";
-import { app } from "../../wailsjs/go/models";
+import { useConnections } from "@/composables/useConnections";
+import { app } from "_/go/models";
 
 const { connections } = useConnections();
 

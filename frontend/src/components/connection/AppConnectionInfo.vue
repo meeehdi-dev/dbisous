@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { app } from "../../../wailsjs/go/models";
-import { useCopy } from "../../composables/useCopy";
+import { app } from "_/go/models";
+import { useCopy } from "@/composables/useCopy";
 
 const { connection } = defineProps<{ connection: app.Connection }>();
 

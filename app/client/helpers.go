@@ -27,6 +27,23 @@ func fetchRows(rows *sql.Rows) (QueryResult, error) {
 		return QueryResult{}, err
 	}
 
+	columnsMetadata := []ColumnMetadata{}
+	columnTypes, err := rows.ColumnTypes()
+	if err != nil {
+		return QueryResult{}, err
+	}
+
+	for i, col := range columns {
+		columnType := columnTypes[i]
+		columnMetadata := ColumnMetadata{
+			Name:         col,
+			Type:         columnType.DatabaseTypeName(),
+			DefaultValue: "",
+			Nullable:     false,
+		}
+		columnsMetadata = append(columnsMetadata, columnMetadata)
+	}
+
 	var results []Row
 	for rows.Next() {
 		values := make([]interface{}, len(columns))
@@ -57,7 +74,7 @@ func fetchRows(rows *sql.Rows) (QueryResult, error) {
 
 	return QueryResult{
 		Rows:    results,
-		Columns: []ColumnMetadata{},
+		Columns: columnsMetadata,
 		Total:   len(results),
 	}, nil
 }

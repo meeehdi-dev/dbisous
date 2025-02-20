@@ -1,6 +1,6 @@
 import { Effect } from "effect";
-import { client } from "../../wailsjs/go/models";
-import { cell } from "../components/database/table";
+import { client } from "_/go/models";
+import { cell } from "@/components/database/table/table";
 import { TableColumn, TableData } from "@nuxt/ui/dist/module";
 
 function formatColumns(columns: client.ColumnMetadata[], actions = true) {
