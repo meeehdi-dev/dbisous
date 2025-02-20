@@ -67,6 +67,7 @@ fetchData();
                 row.original.name,
             )
         "
+        @pagination-change="fetchData"
       />
     </template>
     <template #info>
