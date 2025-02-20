@@ -31,18 +31,9 @@ watch(itemsPerPage, () => {
 });
 
 const key = ref(0);
-watch(
-  () => data?.rows,
-  () => {
-    key.value++;
-  },
-);
-watch(
-  () => data?.columns,
-  () => {
-    key.value++;
-  },
-);
+watch([() => data?.rows, () => data?.columns, () => loading], () => {
+  key.value++;
+});
 
 const columnPinning = ref({ right: ["action"] });
 </script>

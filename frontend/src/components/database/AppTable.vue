@@ -46,7 +46,11 @@ fetchData();
 <template>
   <AppTabs :default-query="`SELECT * FROM ${tableId};`">
     <template #data>
-      <AppRows :loading="fetchingData" :data="data" />
+      <AppRows
+        :loading="fetchingData"
+        :data="data"
+        @pagination-change="fetchData"
+      />
     </template>
     <template #info>
       <AppColumns :loading="fetchingData" :data="columns" />
