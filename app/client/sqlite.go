@@ -39,6 +39,9 @@ func (c *SqliteClient) executeSelectQuery(query string, limit int, offset int, a
 	}
 	result.Columns = columnsMetadata
 
+	result.Table = table
+	result.PrimaryKey = "id" // FIXME: dynamically find primary key via columnsMetadata
+
 	return result, err
 }
 
