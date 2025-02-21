@@ -1,19 +1,28 @@
 <script setup lang="ts">
-import { ref, watch } from "vue";
+import { onUnmounted, ref, watch } from "vue";
 import {
   booleanTypes,
   dateTypes,
   numberTypes,
   textTypes,
 } from "@/components/database/table/table";
+import { useTransaction } from "@/composables/useTransaction";
 
 const {
+  table,
+  primaryKey,
+  column,
+  row,
   initialValue,
   type = "",
   defaultValue = undefined,
   nullable = false,
   disabled,
 } = defineProps<{
+  table?: string;
+  primaryKey?: string;
+  column?: string;
+  row?: unknown;
   initialValue: unknown;
   type?: string;
   defaultValue?: unknown;
@@ -28,6 +37,27 @@ watch(
     value.value = initialValue;
   },
 );
+
+const tx = useTransaction();
+const abortListener = tx.addAbortListener(() => {
+  value.value = initialValue;
+});
+onUnmounted(() => {
+  tx.removeAbortListener(abortListener);
+});
+
+watch(value, () => {
+  if (!table || !column || !primaryKey) {
+    return;
+  }
+  // @ts-expect-error itsokmyfren
+  const rowKey = row[primaryKey] as unknown;
+  if (value.value === initialValue) {
+    tx.removeUpdate(table, primaryKey, rowKey, column);
+  } else {
+    tx.addUpdate(table, primaryKey, rowKey, column, value.value);
+  }
+});
 </script>
 
 <template>

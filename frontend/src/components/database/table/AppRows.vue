@@ -2,8 +2,10 @@
 import type { TableColumn, TableData } from "@nuxt/ui/dist/module";
 import { ref, watch } from "vue";
 import { RowEmits, RowAction } from "@/components/database/table/table";
+import { useTransaction } from "@/composables/useTransaction";
 
 const emit = defineEmits<RowEmits>();
+const tx = useTransaction();
 
 const {
   loading,
@@ -36,10 +38,16 @@ watch([() => data?.rows, () => data?.columns, () => loading], () => {
 });
 
 const columnPinning = ref({ right: ["action"] });
+
+function commit() {
+  const sql = tx.commit();
+  console.log(sql);
+  // TODO: show script modal
+}
 </script>
 
 <template>
-  <div class="flex flex-auto flex-col gap-4 justify-between overflow-hidden">
+  <div class="flex flex-auto flex-col justify-between overflow-hidden">
     <div class="flex flex-auto flex-col gap-4 overflow-auto">
       <UTable
         :data="data?.rows"
@@ -85,5 +93,35 @@ const columnPinning = ref({ right: ["action"] });
       v-model:items-per-page="itemsPerPage"
       :total="data?.total"
     />
+    <div
+      class="px-2 pb-2"
+      :class="`${tx.changes.value.length > 0 ? 'h-18 opacity-100' : 'h-0 opacity-0'} transition-all`"
+    >
+      <UAlert
+        color="neutral"
+        variant="soft"
+        icon="lucide:triangle-alert"
+        :title="`${tx.changes.value.length} pending change${tx.changes.value.length > 1 ? 's' : ''}...`"
+        orientation="horizontal"
+        :actions="[
+          {
+            size: 'md',
+            label: 'Apply',
+            color: 'warning',
+            variant: 'soft',
+            icon: 'lucide:check',
+            onClick: commit,
+          },
+          {
+            size: 'md',
+            label: 'Cancel',
+            color: 'secondary',
+            variant: 'soft',
+            icon: 'lucide:x',
+            onClick: tx.abort,
+          },
+        ]"
+      />
+    </div>
   </div>
 </template>

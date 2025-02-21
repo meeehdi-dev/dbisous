@@ -24,15 +24,31 @@ export type FormattedQueryResult = Omit<
 };
 
 export type CellProps = {
+  table?: string;
+  primaryKey?: string;
+  column?: string;
+  row?: unknown;
   type?: string;
   defaultValue?: unknown;
   nullable?: boolean;
   disabled: boolean;
 };
 export const cell =
-  ({ type, defaultValue, nullable, disabled }: CellProps) =>
+  ({
+    table,
+    primaryKey,
+    column,
+    type,
+    defaultValue,
+    nullable,
+    disabled,
+  }: CellProps) =>
   (ctx: CellContext<unknown, unknown>) =>
     h(AppCell, {
+      table,
+      primaryKey,
+      column,
+      row: ctx.row.original,
       initialValue: ctx.getValue(),
       type,
       defaultValue,

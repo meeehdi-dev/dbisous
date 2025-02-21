@@ -16,10 +16,12 @@ type ColumnMetadata struct {
 
 type Row map[string]interface{}
 
+// NOTE: Rows should be []Row (fixed in wails v3?)
 type QueryResult struct {
-	// NOTE: Rows should be []Row (fixed in wails v3?)
-	Rows     interface{}      `json:"rows"`
-	Columns  []ColumnMetadata `json:"columns"`
-	Total    int              `json:"total"`
-	Duration string           `json:"duration"`
+	Table      string           `json:"table"`
+	PrimaryKey string           `json:"primary_key"`
+	Rows       interface{}      `json:"rows"`
+	Columns    []ColumnMetadata `json:"columns"`
+	Total      int              `json:"total"`
+	Duration   string           `json:"duration"`
 }
