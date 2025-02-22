@@ -34,26 +34,45 @@ interface DeleteChange extends ChangeId {
 
 type Change = InsertChange | UpdateChange | DeleteChange;
 
-function formatValue(v: unknown): string {
-  return typeof v === "string"
-    ? `'${v.replaceAll("'", "\\'")}'`
-    : (v as string);
+function toSqlValue(value: unknown): string {
+  if (value === null) {
+    return "NULL";
+  }
+
+  switch (typeof value) {
+    case "boolean":
+      return value ? "TRUE" : "FALSE";
+    case "number":
+      return value.toString();
+    case "string":
+      return `'${value.replace(/'/g, "''")}'`; // Escape single quotes
+    case "object":
+      if (Array.isArray(value)) {
+        return `(${value.map(toSqlValue).join(", ")})`;
+      } else if (value instanceof Date) {
+        return `'${value.toISOString()}'`;
+      } else {
+        throw new Error("Unsupported object type");
+      }
+    default:
+      throw new Error("Unsupported data type");
+  }
 }
 
 function formatInsertChangeToSql(change: InsertChange) {
   return `INSERT INTO ${change.table} (${Object.keys(change.values).join(", ")}) VALUES (${Object.values(
     change.values,
   )
-    .map(formatValue)
+    .map(toSqlValue)
     .join(", ")});`;
 }
 function formatUpdateChangeToSql(change: UpdateChange) {
   return `UPDATE ${change.table} SET ${Object.entries(change.values)
-    .map(([key, value]) => `${key} = ${formatValue(value)}`)
-    .join(", ")} WHERE ${change.primaryKey} = ${formatValue(change.rowKey)};`;
+    .map(([key, value]) => `${key} = ${toSqlValue(value)}`)
+    .join(", ")} WHERE ${change.primaryKey} = ${toSqlValue(change.rowKey)};`;
 }
 function formatDeleteChangeToSql(change: DeleteChange) {
-  return `DELETE FROM ${change.table} WHERE ${change.primaryKey} = ${formatValue(change.rowKey)};`;
+  return `DELETE FROM ${change.table} WHERE ${change.primaryKey} = ${toSqlValue(change.rowKey)};`;
 }
 
 export const useTransaction = createSharedComposable(() => {
