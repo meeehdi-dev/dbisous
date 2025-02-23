@@ -97,8 +97,19 @@ export const useTransaction = createSharedComposable(() => {
       }
     });
 
-    const insertsStr = inserts.map(formatInsertChangeToSql).join("\n");
-    const updatesStr = updates.map(formatUpdateChangeToSql).join("\n");
+    const insertsStr = inserts
+      .filter(
+        (c) => !deletes.find((d) => d.table === c.table && d.rowKey === c.id),
+      )
+      .map(formatInsertChangeToSql)
+      .join("\n");
+    const updatesStr = updates
+      .filter(
+        (c) =>
+          !deletes.find((d) => d.table === c.table && d.rowKey === c.rowKey),
+      )
+      .map(formatUpdateChangeToSql)
+      .join("\n");
     const deletesStr = deletes.map(formatDeleteChangeToSql).join("\n");
 
     const fullInsertStr =
