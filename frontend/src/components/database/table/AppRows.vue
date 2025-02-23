@@ -39,10 +39,12 @@ watch([() => data?.rows, () => data?.columns, () => loading], () => {
 
 const columnPinning = ref({ right: ["action"] });
 
+const open = ref(false);
+const query = ref("");
 function commit() {
   const sql = tx.commit();
-  console.log(sql);
-  // TODO: show script modal
+  query.value = sql;
+  open.value = true;
 }
 </script>
 
@@ -106,22 +108,43 @@ function commit() {
         :actions="[
           {
             size: 'md',
-            label: 'Apply',
-            color: 'warning',
-            variant: 'soft',
-            icon: 'lucide:check',
-            onClick: commit,
-          },
-          {
-            size: 'md',
             label: 'Cancel',
             color: 'secondary',
             variant: 'soft',
             icon: 'lucide:x',
             onClick: tx.abort,
           },
+          {
+            size: 'md',
+            label: 'Apply',
+            color: 'warning',
+            variant: 'soft',
+            icon: 'lucide:check',
+            onClick: commit,
+          },
         ]"
       />
     </div>
+    <UModal
+      v-model:open="open"
+      :title="`Apply ${tx.changes.value.length} change${tx.changes.value.length > 1 ? 's' : ''}`"
+      description="Check the content of the SQL query before executing"
+      :ui="{ footer: 'justify-end' }"
+    >
+      <template #body>
+        <AppEditor v-model="query" />
+      </template>
+
+      <template #footer>
+        <UButton
+          label="Cancel"
+          variant="soft"
+          color="neutral"
+          icon="lucide:x"
+          @click="open = false"
+        />
+        <UButton icon="lucide:check" label="Apply" />
+      </template>
+    </UModal>
   </div>
 </template>

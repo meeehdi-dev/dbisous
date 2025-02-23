@@ -52,10 +52,10 @@ function toSqlValue(value: unknown): string {
       } else if (value instanceof Date) {
         return `'${value.toISOString()}'`;
       } else {
-        throw new Error("Unsupported object type");
+        throw new Error(`Unsupported object type: ${typeof value}`);
       }
     default:
-      throw new Error("Unsupported data type");
+      throw new Error(`Unsupported data type: ${typeof value}`);
   }
 }
 
@@ -185,12 +185,55 @@ export const useTransaction = createSharedComposable(() => {
     }
   }
 
+  // TODO:
+  // function addInsert() {}
+  // function removeInsert() {}
+
+  function addDelete(table: string, primaryKey: string, rowKey: unknown) {
+    let delete_ = changes.value.find(
+      (c) =>
+        c.type === ChangeType.Delete &&
+        c.table === table &&
+        c.primaryKey === primaryKey &&
+        c.rowKey === rowKey,
+    );
+    if (delete_) {
+      return;
+    }
+    if (!delete_) {
+      delete_ = {
+        id: changeId.value++,
+        type: ChangeType.Delete,
+        table,
+        primaryKey,
+        rowKey,
+      };
+      changes.value.push(delete_);
+    }
+  }
+
+  function removeDelete(table: string, primaryKey: string, rowKey: unknown) {
+    const delete_ = changes.value.find(
+      (c) =>
+        c.type === ChangeType.Delete &&
+        c.table === table &&
+        c.primaryKey === primaryKey &&
+        c.rowKey === rowKey,
+    );
+    if (!delete_) {
+      return;
+    }
+    changes.value = changes.value.filter((v) => v.id !== delete_.id);
+  }
+
   return {
     changes,
     commit,
     abort,
     addUpdate,
     removeUpdate,
+    addDelete,
+    removeDelete,
     addAbortListener,
     removeAbortListener,
   };
