@@ -80,7 +80,7 @@ const isDeleted = computed(() => {
       :initial-value="initialValue as boolean"
       :default-value="defaultValue as boolean"
       :nullable="nullable"
-      :disabled="disabled"
+      :disabled="disabled || isDeleted"
     />
     <AppCheckbox
       v-else-if="booleanTypes.includes(type)"
@@ -88,7 +88,7 @@ const isDeleted = computed(() => {
       :initial-value="initialValue as boolean"
       :default-value="defaultValue as boolean"
       :nullable="nullable"
-      :disabled="disabled"
+      :disabled="disabled || isDeleted"
     />
     <AppText
       v-else-if="textTypes.includes(type)"
@@ -96,7 +96,7 @@ const isDeleted = computed(() => {
       :initial-value="initialValue as string"
       :default-value="defaultValue as string"
       :nullable="nullable"
-      :disabled="disabled"
+      :disabled="disabled || isDeleted"
     />
     <AppDatePicker
       v-else-if="dateTypes.includes(type)"
@@ -104,14 +104,14 @@ const isDeleted = computed(() => {
       :initial-value="initialValue as string"
       :default-value="defaultValue as string"
       :nullable="nullable"
-      :disabled="disabled"
+      :disabled="disabled || isDeleted"
     />
     <AppInputNumber
       v-else-if="numberTypes.includes(type)"
       :initial-value="initialValue as number"
       :default-value="defaultValue as number"
       :nullable="nullable"
-      :disabled="disabled"
+      :disabled="disabled || isDeleted"
     />
     <span v-else-if="type === ''" class="italic px-2.5">{{
       initialValue
@@ -124,7 +124,7 @@ const isDeleted = computed(() => {
       :initial-value="initialValue"
       :default-value="defaultValue"
       :nullable="nullable"
-      :disabled="disabled"
+      :disabled="disabled || isDeleted"
     />
   </div>
 </template>
