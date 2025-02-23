@@ -50,9 +50,28 @@ fetchData();
 
 const tx = useTransaction();
 
+function duplicateRow(row: unknown) {
+  // @ts-expect-error tkt
+  const dup = { ...row };
+  delete dup[primaryKey.value];
+  const key = tx.addInsert(tableId.value, dup);
+  dup.__key = key;
+  data.value!.rows.push(dup);
+}
+
 function deleteRow(row: unknown) {
   // @ts-expect-error tkt
-  const rowKey = row[primaryKey.value] as unknown;
+  const rowKey = row[primaryKey.value] as unknown | undefined;
+  if (rowKey === undefined) {
+    // @ts-expect-error tkt
+    const key = row.__key as number;
+    if (key !== undefined) {
+      tx.removeInsert(tableId.value, key);
+      // @ts-expect-error tkt
+      data.value.rows = data.value.rows.filter((row) => row.__key !== key);
+      return;
+    }
+  }
   tx.toggleDelete(tableId.value, primaryKey.value, rowKey);
 }
 </script>
@@ -64,7 +83,7 @@ function deleteRow(row: unknown) {
         :loading="fetchingData"
         :data="data"
         :actions="[RowAction.Duplicate, RowAction.Delete]"
-        @duplicate="(row) => console.log('duplicate', row)"
+        @duplicate="duplicateRow"
         @delete="deleteRow"
         @pagination-change="fetchData"
       />

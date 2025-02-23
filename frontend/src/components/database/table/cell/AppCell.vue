@@ -65,7 +65,11 @@ watch(value, () => {
 
 const isDeleted = computed(() => {
   // @ts-expect-error tkt
-  const rowKey = row[primaryKey] as unknown;
+  let rowKey = row[primaryKey] as unknown;
+  if (!rowKey) {
+    // @ts-expect-error tkt
+    rowKey = row.__key;
+  }
   return tx.changes.value.some(
     (c) => isDeleteChange(c) && c.table === table && c.rowKey === rowKey,
   );

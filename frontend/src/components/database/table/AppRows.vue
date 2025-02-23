@@ -72,7 +72,12 @@ function commit() {
             icon="lucide:copy"
             color="secondary"
             variant="ghost"
-            @click="emit(RowAction.Duplicate, row.original)"
+            @click="
+              () => {
+                emit(RowAction.Duplicate, row.original);
+                key++;
+              }
+            "
           />
           <UButton
             v-if="actions.includes(RowAction.Delete)"
