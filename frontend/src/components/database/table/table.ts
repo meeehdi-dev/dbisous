@@ -5,14 +5,14 @@ import { client } from "_/go/models";
 
 export enum RowAction {
   View = "view",
-  Copy = "copy",
-  Remove = "remove",
+  Duplicate = "duplicate",
+  Delete = "delete",
 }
 
 export type RowEmits = {
   view: [TableData];
-  copy: [TableData];
-  remove: [TableData];
+  duplicate: [TableData];
+  delete: [TableData];
   paginationChange: [number, number];
 };
 

@@ -35,7 +35,7 @@ async function fetchData(page = 1, itemsPerPage = 10) {
       Effect.tap((result) => {
         columns.value = result.columns;
       }),
-      Effect.andThen(formatQueryResult),
+      Effect.andThen((result) => formatQueryResult(result, true)),
       Effect.tap((result) => {
         data.value = result;
         fetchingData.value = false;
@@ -59,12 +59,10 @@ fetchData();
         @view="
           (row) =>
             navigateToTable(
-              row.original.TABLE_SCHEMA ||
-                row.original.table_schema ||
-                row.original.schema,
-              row.original.TABLE_NAME ||
-                row.original.table_name ||
-                row.original.name,
+              // @ts-expect-error tkt
+              row.TABLE_SCHEMA || row.table_schema || row.schema,
+              // @ts-expect-error tkt
+              row.TABLE_NAME || row.table_name || row.name,
             )
         "
         @pagination-change="fetchData"

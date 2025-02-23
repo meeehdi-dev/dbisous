@@ -31,7 +31,7 @@ async function fetchData(page = 1, itemsPerPage = 10) {
       Effect.tap((result) => {
         columns.value = result.columns;
       }),
-      Effect.andThen(formatQueryResult),
+      Effect.andThen((result) => formatQueryResult(result, true)),
       Effect.tap((result) => {
         data.value = result;
         fetchingData.value = false;
@@ -54,11 +54,8 @@ fetchData();
         :actions="[RowAction.View]"
         @view="
           (row) =>
-            navigateToSchema(
-              row.original.SCHEMA_NAME ||
-                row.original.schema_name ||
-                row.original.name,
-            )
+            // @ts-expect-error tkt
+            navigateToSchema(row.SCHEMA_NAME || row.schema_name || row.name)
         "
         @pagination-change="fetchData"
       />

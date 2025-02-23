@@ -65,21 +65,21 @@ function commit() {
             icon="lucide:eye"
             color="primary"
             variant="ghost"
-            @click="emit(RowAction.View, row)"
+            @click="emit(RowAction.View, row.original)"
           />
           <UButton
-            v-if="actions.includes(RowAction.Copy)"
+            v-if="actions.includes(RowAction.Duplicate)"
             icon="lucide:copy"
             color="secondary"
             variant="ghost"
-            @click="emit(RowAction.Copy, row)"
+            @click="emit(RowAction.Duplicate, row.original)"
           />
           <UButton
-            v-if="actions.includes(RowAction.Remove)"
-            icon="lucide:trash"
+            v-if="actions.includes(RowAction.Delete)"
+            :icon="`lucide:${/* TODO: handle icon toggle */ 'trash'}`"
             color="error"
             variant="ghost"
-            @click="emit(RowAction.Remove, row)"
+            @click="emit(RowAction.Delete, row.original)"
           />
         </template>
       </UTable>

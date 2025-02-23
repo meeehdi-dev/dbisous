@@ -26,7 +26,7 @@ async function fetchData() {
   fetchingData.value = true;
   await Effect.runPromise(
     wails(() => ExecuteQuery(databaseId.value, query.value)).pipe(
-      Effect.andThen(formatQueryResult),
+      Effect.andThen((result) => formatQueryResult(result, true)),
       Effect.tap((result) => {
         error.value = "";
         data.value = result;

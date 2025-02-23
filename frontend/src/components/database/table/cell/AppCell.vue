@@ -1,12 +1,16 @@
 <script setup lang="ts">
-import { onUnmounted, ref, watch } from "vue";
+import { computed, onUnmounted, ref, watch } from "vue";
 import {
   booleanTypes,
   dateTypes,
   numberTypes,
   textTypes,
 } from "@/components/database/table/table";
-import { useTransaction } from "@/composables/useTransaction";
+import {
+  ChangeType,
+  isDeleteChange,
+  useTransaction,
+} from "@/composables/useTransaction";
 
 const {
   table,
@@ -50,7 +54,7 @@ watch(value, () => {
   if (!table || !column || !primaryKey) {
     return;
   }
-  // @ts-expect-error itsokmyfren
+  // @ts-expect-error tkt
   const rowKey = row[primaryKey] as unknown;
   if (value.value === initialValue) {
     tx.removeUpdate(table, primaryKey, rowKey, column);
@@ -58,10 +62,18 @@ watch(value, () => {
     tx.addUpdate(table, primaryKey, rowKey, column, value.value);
   }
 });
+
+const isDeleted = computed(() => {
+  // @ts-expect-error tkt
+  const rowKey = row[primaryKey] as unknown;
+  return tx.changes.value.some(
+    (c) => isDeleteChange(c) && c.table === table && c.rowKey === rowKey,
+  );
+});
 </script>
 
 <template>
-  <div class="flex gap-1 group">
+  <div :class="`flex gap-1 group${isDeleted ? ' opacity-50' : ''}`">
     <AppTypeSelect
       v-if="type === 'TYPE'"
       v-model="value as string"

@@ -81,18 +81,18 @@ const columnPinning = ref({ right: ["action"] });
             @click="emit(RowAction.View, row)"
           />
           <UButton
-            v-if="actions.includes(RowAction.Copy)"
+            v-if="actions.includes(RowAction.Duplicate)"
             icon="lucide:copy"
             color="secondary"
             variant="ghost"
-            @click="emit(RowAction.Copy, row)"
+            @click="emit(RowAction.Duplicate, row)"
           />
           <UButton
-            v-if="actions.includes(RowAction.Remove)"
+            v-if="actions.includes(RowAction.Delete)"
             icon="lucide:trash"
             color="error"
             variant="ghost"
-            @click="emit(RowAction.Remove, row)"
+            @click="emit(RowAction.Delete, row)"
           />
         </template>
       </UTable>

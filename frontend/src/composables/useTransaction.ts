@@ -146,14 +146,11 @@ export const useTransaction = createSharedComposable(() => {
   ) {
     let update = changes.value.find(
       (c) =>
-        c.type === ChangeType.Update &&
+        isUpdateChange(c) &&
         c.table === table &&
         c.primaryKey === primaryKey &&
         c.rowKey === rowKey,
-    );
-    if (update && !isUpdateChange(update)) {
-      return;
-    }
+    ) as UpdateChange | undefined;
     if (!update) {
       update = {
         id: changeId.value++,
@@ -176,12 +173,12 @@ export const useTransaction = createSharedComposable(() => {
   ) {
     const update = changes.value.find(
       (c) =>
-        c.type === ChangeType.Update &&
+        isUpdateChange(c) &&
         c.table === table &&
         c.primaryKey === primaryKey &&
         c.rowKey === rowKey,
-    );
-    if (!update || !isUpdateChange(update)) {
+    ) as UpdateChange | undefined;
+    if (!update) {
       return;
     }
     delete update.values[key];
@@ -194,15 +191,17 @@ export const useTransaction = createSharedComposable(() => {
   // function addInsert() {}
   // function removeInsert() {}
 
-  function addDelete(table: string, primaryKey: string, rowKey: unknown) {
+  function toggleDelete(table: string, primaryKey: string, rowKey: unknown) {
     let delete_ = changes.value.find(
       (c) =>
-        c.type === ChangeType.Delete &&
+        isDeleteChange(c) &&
         c.table === table &&
         c.primaryKey === primaryKey &&
         c.rowKey === rowKey,
-    );
+    ) as DeleteChange | undefined;
     if (delete_) {
+      // @ts-expect-error wtf ts?
+      changes.value = changes.value.filter((v) => v.id !== delete_.id);
       return;
     }
     if (!delete_) {
@@ -217,41 +216,26 @@ export const useTransaction = createSharedComposable(() => {
     }
   }
 
-  function removeDelete(table: string, primaryKey: string, rowKey: unknown) {
-    const delete_ = changes.value.find(
-      (c) =>
-        c.type === ChangeType.Delete &&
-        c.table === table &&
-        c.primaryKey === primaryKey &&
-        c.rowKey === rowKey,
-    );
-    if (!delete_) {
-      return;
-    }
-    changes.value = changes.value.filter((v) => v.id !== delete_.id);
-  }
-
   return {
     changes,
     commit,
     abort,
     addUpdate,
     removeUpdate,
-    addDelete,
-    removeDelete,
+    toggleDelete,
     addAbortListener,
     removeAbortListener,
   };
 });
 
-function isInsertChange(change: Change): change is InsertChange {
+export function isInsertChange(change: Change): change is InsertChange {
   return change.type === ChangeType.Insert;
 }
 
-function isUpdateChange(change: Change): change is UpdateChange {
+export function isUpdateChange(change: Change): change is UpdateChange {
   return change.type === ChangeType.Update;
 }
 
-function isDeleteChange(change: Change): change is DeleteChange {
+export function isDeleteChange(change: Change): change is DeleteChange {
   return change.type === ChangeType.Delete;
 }
