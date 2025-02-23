@@ -114,7 +114,12 @@ export const useTransaction = createSharedComposable(() => {
         ? `-- ${deletes.length} delete${deletes.length > 1 ? "s" : ""}\n${deletesStr}\n`
         : "";
 
-    const sql = fullInsertStr + fullUpdateStr + fullDeleteStr;
+    const sql =
+      "START TRANSACTION;\n" +
+      fullInsertStr +
+      fullUpdateStr +
+      fullDeleteStr +
+      "COMMIT;\n";
 
     return sql;
   }
