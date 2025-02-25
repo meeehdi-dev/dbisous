@@ -57,6 +57,7 @@ function duplicateRow(row: unknown) {
   const key = tx.addInsert(tableId.value, dup);
   dup.__key = key;
   data.value!.rows.push(dup);
+  data.value!.rows = [...data.value!.rows];
 }
 
 function deleteRow(row: unknown) {

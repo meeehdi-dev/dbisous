@@ -6,11 +6,7 @@ import {
   numberTypes,
   textTypes,
 } from "@/components/database/table/table";
-import {
-  ChangeType,
-  isDeleteChange,
-  useTransaction,
-} from "@/composables/useTransaction";
+import { isDeleteChange, useTransaction } from "@/composables/useTransaction";
 
 const {
   table,
@@ -56,6 +52,11 @@ watch(value, () => {
   }
   // @ts-expect-error tkt
   const rowKey = row[primaryKey] as unknown;
+  if (!rowKey) {
+    // @ts-expect-error tkt
+    tx.updateInsert(table, row.__key, column, value.value);
+    return;
+  }
   if (value.value === initialValue) {
     tx.removeUpdate(table, primaryKey, rowKey, column);
   } else {
@@ -74,6 +75,9 @@ const isDeleted = computed(() => {
     (c) => isDeleteChange(c) && c.table === table && c.rowKey === rowKey,
   );
 });
+
+// @ts-expect-error tkt
+const rowKey = row.__key;
 </script>
 
 <template>
@@ -97,6 +101,7 @@ const isDeleted = computed(() => {
     <AppText
       v-else-if="textTypes.includes(type)"
       v-model="value as string"
+      :isNew="rowKey !== undefined"
       :initial-value="initialValue as string"
       :default-value="defaultValue as string"
       :nullable="nullable"

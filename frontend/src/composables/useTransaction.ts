@@ -190,10 +190,7 @@ export const useTransaction = createSharedComposable(() => {
         c.table === table &&
         c.primaryKey === primaryKey &&
         c.rowKey === rowKey,
-    ) as UpdateChange | undefined;
-    if (update === undefined) {
-      return;
-    }
+    ) as UpdateChange;
     delete update.values[key];
     if (Object.keys(update.values).length === 0) {
       changes.value = changes.value.filter((v) => v.id !== update.id);
@@ -212,13 +209,25 @@ export const useTransaction = createSharedComposable(() => {
     return id;
   }
 
+  function updateInsert(
+    table: string,
+    key: number,
+    column: string,
+    value: unknown,
+  ) {
+    const insert = changes.value.find(
+      (change) =>
+        isInsertChange(change) &&
+        change.table === table &&
+        change.__key === key,
+    ) as InsertChange;
+    insert.values[column] = value;
+  }
+
   function removeInsert(table: string, key: number) {
     const insert = changes.value.find(
       (c) => isInsertChange(c) && c.table === table && c.__key === key,
-    ) as InsertChange | undefined;
-    if (insert === undefined) {
-      return;
-    }
+    ) as InsertChange;
     changes.value = changes.value.filter((v) => v.id !== insert.id);
   }
 
@@ -254,6 +263,7 @@ export const useTransaction = createSharedComposable(() => {
     addUpdate,
     removeUpdate,
     addInsert,
+    updateInsert,
     removeInsert,
     toggleDelete,
     addAbortListener,
