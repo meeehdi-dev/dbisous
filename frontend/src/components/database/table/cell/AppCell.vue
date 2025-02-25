@@ -83,7 +83,7 @@ const rowKey = row.__key;
 <template>
   <div :class="`flex gap-1 group${isDeleted ? ' opacity-50' : ''}`">
     <AppTypeSelect
-      v-if="type === 'TYPE'"
+      v-if="type.toLowerCase() === 'type'"
       v-model="value as string"
       :initial-value="initialValue as boolean"
       :default-value="defaultValue as boolean"
@@ -91,7 +91,7 @@ const rowKey = row.__key;
       :disabled="disabled || isDeleted"
     />
     <AppCheckbox
-      v-else-if="booleanTypes.includes(type)"
+      v-else-if="booleanTypes.includes(type.toLowerCase())"
       v-model="value as boolean"
       :initial-value="initialValue as boolean"
       :default-value="defaultValue as boolean"
@@ -99,7 +99,7 @@ const rowKey = row.__key;
       :disabled="disabled || isDeleted"
     />
     <AppText
-      v-else-if="textTypes.includes(type)"
+      v-else-if="textTypes.includes(type.toLowerCase())"
       v-model="value as string"
       :isNew="rowKey !== undefined"
       :initial-value="initialValue as string"
@@ -108,7 +108,7 @@ const rowKey = row.__key;
       :disabled="disabled || isDeleted"
     />
     <AppDatePicker
-      v-else-if="dateTypes.includes(type)"
+      v-else-if="dateTypes.includes(type.toLowerCase())"
       v-model="value as string"
       :initial-value="initialValue as string"
       :default-value="defaultValue as string"
@@ -116,7 +116,8 @@ const rowKey = row.__key;
       :disabled="disabled || isDeleted"
     />
     <AppInputNumber
-      v-else-if="numberTypes.includes(type)"
+      v-else-if="numberTypes.includes(type.toLowerCase())"
+      v-model="value as number"
       :initial-value="initialValue as number"
       :default-value="defaultValue as number"
       :nullable="nullable"

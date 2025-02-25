@@ -56,10 +56,25 @@ export const cell =
       disabled,
     });
 
-export const booleanTypes = ["BOOL", "BOOLEAN", "TINYINT"];
-export const textTypes = ["NAME", "TEXT", "VARCHAR"];
-export const dateTypes = ["TIMESTAMP", "DATETIME", "DATE"];
-export const numberTypes = ["UNSIGNED BIGINT", "INT", "INT4", "FLOAT8"];
+export const booleanTypes = ["bool", "boolean"];
+export const textTypes = ["name", "text", "varchar", "character varying"];
+export const dateTypes = [
+  "timestamp",
+  "datetime",
+  "date",
+  "timestamp without time zone",
+];
+export const numberTypes = [
+  "integer",
+  "tinyint",
+  "unsigned bigint",
+  "int",
+  "int4",
+  "float8",
+  "bigint",
+  "double precision",
+  "double",
+];
 
 export function formatColumns(
   columns: client.ColumnMetadata[],

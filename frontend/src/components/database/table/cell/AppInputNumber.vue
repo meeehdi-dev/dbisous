@@ -12,10 +12,5 @@ const { defaultValue, nullable, initialValue, disabled } = defineProps<{
 </script>
 
 <template>
-  <UInputNumber
-    variant="ghost"
-    :value="value"
-    :disabled="disabled"
-    class="w-full"
-  />
+  <UInputNumber variant="ghost" :value="value" :disabled="disabled" />
 </template>

@@ -60,7 +60,8 @@ function commit() {
         v-model:column-pinning="columnPinning"
         :loading="loading"
         :key="key"
-        :ui="{ td: 'p-1' }"
+        :ui="{ td: 'p-1 min-w-max', tbody: '[&>tr]:odd:bg-neutral-800' }"
+        sticky
       >
         <template #action-cell="{ row: { original: row } }">
           <AppActionsColumn

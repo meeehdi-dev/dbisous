@@ -14,7 +14,7 @@ const packageVersion = import.meta.env.PACKAGE_VERSION;
         />
 
         <template #content>
-          <Placeholder class="h-48 m-4" />
+          <USkeleton class="h-48 m-4" />
         </template>
       </UModal>
     </div>

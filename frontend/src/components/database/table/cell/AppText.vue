@@ -18,7 +18,6 @@ const { isNew, initialValue, disabled } = defineProps<{
     :highlight="isNew || value !== initialValue"
     :color="isNew ? 'primary' : value !== initialValue ? 'warning' : undefined"
     :ui="{
-      root: 'w-full',
       base: 'pr-8 w-full overflow-ellipsis',
       trailing: 'pr-1',
     }"
