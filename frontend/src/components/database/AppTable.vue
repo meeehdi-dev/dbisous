@@ -3,13 +3,12 @@ import { useUrlParams } from "@/composables/useUrlParams";
 import { GetTableRows } from "_/go/app/App";
 import { ref } from "vue";
 import {
+  formatColumns,
   FormattedQueryResult,
   RowAction,
 } from "@/components/database/table/table";
 import { client } from "_/go/models";
-import { Effect } from "effect";
 import { useWails } from "@/composables/useWails";
-import { formatQueryResult } from "@/effects/columns";
 import { useTransaction } from "@/composables/useTransaction";
 
 const { databaseId, schemaId, tableId } = useUrlParams();
@@ -19,35 +18,33 @@ const data = ref<FormattedQueryResult>();
 const columns = ref<client.ColumnMetadata[]>();
 const primaryKey = ref<string>();
 const fetchingData = ref(false);
-const ErrorLess = <T,>(res: T): Effect.Effect<T, never> => Effect.succeed(res);
 async function fetchData(page = 1, itemsPerPage = 10) {
   fetchingData.value = true;
-  await Effect.runPromise(
-    wails(() =>
-      GetTableRows(
-        databaseId.value,
-        page,
-        itemsPerPage,
-        schemaId.value,
-        tableId.value,
-      ),
-    ).pipe(
-      Effect.tap((result) => {
-        columns.value = result.columns;
-        primaryKey.value = result.columns.find((c) => c.primary_key)?.name;
-      }),
-      Effect.andThen((result) =>
-        formatQueryResult(result, false, tableId.value, primaryKey.value),
-      ),
-      Effect.tap((result) => {
-        data.value = result;
-        fetchingData.value = false;
-      }),
-      Effect.catchTags({
-        WailsError: Effect.succeed,
-      }),
+  const result = await wails(() =>
+    GetTableRows(
+      databaseId.value,
+      page,
+      itemsPerPage,
+      schemaId.value,
+      tableId.value,
     ),
   );
+  if (result instanceof Error) {
+    // TODO: specific error handling
+  } else {
+    columns.value = result.columns;
+    primaryKey.value = result.columns.find((c) => c.primary_key)?.name;
+    data.value = {
+      ...result,
+      columns: formatColumns(
+        result.columns,
+        tableId.value,
+        primaryKey.value,
+        false,
+      ),
+    };
+  }
+  fetchingData.value = false;
 }
 fetchData();
 

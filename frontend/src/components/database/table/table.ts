@@ -60,3 +60,34 @@ export const booleanTypes = ["BOOL", "BOOLEAN", "TINYINT"];
 export const textTypes = ["NAME", "TEXT", "VARCHAR"];
 export const dateTypes = ["TIMESTAMP", "DATETIME", "DATE"];
 export const numberTypes = ["UNSIGNED BIGINT", "INT", "INT4", "FLOAT8"];
+
+export function formatColumns(
+  columns: client.ColumnMetadata[],
+  table?: string,
+  primaryKey?: string,
+  disabled = false,
+) {
+  const formatted = columns.map(
+    ({ name, type, default_value: defaultValue, nullable }) =>
+      ({
+        accessorKey: name,
+        header: name,
+        cell: cell({
+          table,
+          primaryKey,
+          column: name,
+          type,
+          defaultValue,
+          nullable,
+          disabled,
+        }),
+      }) as TableColumn<TableData>,
+  );
+
+  formatted.push({
+    accessorKey: "action",
+    header: "Actions",
+  });
+
+  return formatted;
+}

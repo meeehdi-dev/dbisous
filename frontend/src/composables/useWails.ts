@@ -1,24 +1,22 @@
-import { Effect } from "effect";
-import { TaggedError } from "effect/Data";
-
-class WailsError extends TaggedError("WailsError")<{ message: string }> {}
+class WailsError extends Error {}
 
 export const useWails = () => {
   const toast = useToast();
 
-  const wails = <T>(fn: () => PromiseLike<T>) =>
-    Effect.tryPromise({
-      try: fn,
-      catch: (err: unknown) => {
-        const message = typeof err === "string" ? err : (err as Error).message;
-        toast.add({
-          title: fn.name,
-          description: message,
-          color: "error",
-        });
-        return new WailsError({ message });
-      },
-    });
+  async function wails<T>(fn: () => PromiseLike<T>) {
+    try {
+      const res = await fn();
+      return res;
+    } catch (err) {
+      const message = typeof err === "string" ? err : (err as Error).message;
+      toast.add({
+        title: fn.name,
+        description: message,
+        color: "error",
+      });
+      return new WailsError(message);
+    }
+  }
 
   return wails;
 };

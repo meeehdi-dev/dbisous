@@ -2,15 +2,14 @@
 import { useRouter } from "vue-router";
 import { useUrlParams } from "@/composables/useUrlParams";
 import {
+  formatColumns,
   FormattedQueryResult,
   RowAction,
 } from "@/components/database/table/table";
 import { useWails } from "@/composables/useWails";
 import { GetSchemaTables } from "_/go/app/App";
-import { Effect } from "effect";
 import { ref } from "vue";
 import { client } from "_/go/models";
-import { formatQueryResult } from "@/effects/columns";
 
 const router = useRouter();
 const { databaseId, schemaId } = useUrlParams();
@@ -28,23 +27,19 @@ const columns = ref<client.ColumnMetadata[]>();
 const fetchingData = ref(false);
 async function fetchData(page = 1, itemsPerPage = 10) {
   fetchingData.value = true;
-  await Effect.runPromise(
-    wails(() =>
-      GetSchemaTables(databaseId.value, page, itemsPerPage, schemaId.value),
-    ).pipe(
-      Effect.tap((result) => {
-        columns.value = result.columns;
-      }),
-      Effect.andThen((result) => formatQueryResult(result, true)),
-      Effect.tap((result) => {
-        data.value = result;
-        fetchingData.value = false;
-      }),
-      Effect.catchTags({
-        WailsError: Effect.succeed,
-      }),
-    ),
+  const result = await wails(() =>
+    GetSchemaTables(databaseId.value, page, itemsPerPage, schemaId.value),
   );
+  if (result instanceof Error) {
+    // TODO: specific error handling
+  } else {
+    columns.value = result.columns;
+    data.value = {
+      ...result,
+      columns: formatColumns(result.columns, undefined, undefined, true),
+    };
+  }
+  fetchingData.value = false;
 }
 fetchData();
 </script>
