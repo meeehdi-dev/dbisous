@@ -1,8 +1,7 @@
 import { Effect } from "effect";
+import { TaggedError } from "effect/Data";
 
-class WailsError extends Error {
-  readonly _tag = "WailsError";
-}
+class WailsError extends TaggedError("WailsError")<{ message: string }> {}
 
 export const useWails = () => {
   const toast = useToast();
@@ -11,13 +10,13 @@ export const useWails = () => {
     Effect.tryPromise({
       try: fn,
       catch: (err: unknown) => {
-        const error = typeof err === "string" ? err : (err as Error).message;
+        const message = typeof err === "string" ? err : (err as Error).message;
         toast.add({
           title: fn.name,
-          description: error,
+          description: message,
           color: "error",
         });
-        return new WailsError(error);
+        return new WailsError({ message });
       },
     });
 

@@ -4,9 +4,9 @@ import { cell } from "@/components/database/table/table";
 import { TableColumn, TableData } from "@nuxt/ui/dist/module";
 
 function formatColumns(
-  table: string,
-  primaryKey: string,
   columns: client.ColumnMetadata[],
+  table?: string,
+  primaryKey?: string,
   disabled = false,
 ) {
   const formatted = columns.map(
@@ -37,14 +37,11 @@ function formatColumns(
 export function formatQueryResult(
   result: client.QueryResult,
   disabled?: boolean,
+  table?: string,
+  primaryKey?: string,
 ) {
   return Effect.succeed({
     ...result,
-    columns: formatColumns(
-      result.table,
-      result.primary_key,
-      result.columns,
-      disabled,
-    ),
+    columns: formatColumns(result.columns, table, primaryKey, disabled),
   });
 }

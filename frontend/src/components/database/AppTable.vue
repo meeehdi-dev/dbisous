@@ -19,6 +19,7 @@ const data = ref<FormattedQueryResult>();
 const columns = ref<client.ColumnMetadata[]>();
 const primaryKey = ref<string>();
 const fetchingData = ref(false);
+const ErrorLess = <T,>(res: T): Effect.Effect<T, never> => Effect.succeed(res);
 async function fetchData(page = 1, itemsPerPage = 10) {
   fetchingData.value = true;
   await Effect.runPromise(
@@ -31,12 +32,13 @@ async function fetchData(page = 1, itemsPerPage = 10) {
         tableId.value,
       ),
     ).pipe(
-      Effect.tap(Effect.log),
       Effect.tap((result) => {
         columns.value = result.columns;
         primaryKey.value = result.columns.find((c) => c.primary_key)?.name;
       }),
-      Effect.andThen(formatQueryResult),
+      Effect.andThen((result) =>
+        formatQueryResult(result, false, tableId.value, primaryKey.value),
+      ),
       Effect.tap((result) => {
         data.value = result;
         fetchingData.value = false;
