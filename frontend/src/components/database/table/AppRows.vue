@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Ref, ref, watch } from "vue";
+import { ref, watch } from "vue";
 import {
   RowEmits,
   RowAction,
@@ -13,10 +13,14 @@ const tx = useTransaction();
 const {
   loading,
   data,
+  table,
+  primaryKey,
   actions = [],
 } = defineProps<{
   loading: boolean;
   data?: FormattedQueryResult;
+  table?: string;
+  primaryKey?: string;
   actions?: RowAction[];
 }>();
 
@@ -62,8 +66,8 @@ function commit() {
           <AppActionsColumn
             :row="row"
             :actions="actions"
-            :table="data?.table"
-            :primary-key="data?.primary_key"
+            :table="table"
+            :primary-key="primaryKey"
             @view="emit(RowAction.View, row)"
             @duplicate="emit(RowAction.Duplicate, row)"
             @delete="emit(RowAction.Delete, row)"

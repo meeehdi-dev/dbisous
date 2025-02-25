@@ -84,6 +84,8 @@ function deleteRow(row: unknown) {
       <AppRows
         :loading="fetchingData"
         :data="data"
+        :table="tableId"
+        :primary-key="primaryKey"
         :actions="
           primaryKey ? [RowAction.Duplicate, RowAction.Delete] : undefined
         "
