@@ -1,7 +1,10 @@
 <script setup lang="ts">
-import type { TableColumn, TableData } from "@nuxt/ui/dist/module";
-import { ref, watch } from "vue";
-import { RowEmits, RowAction } from "@/components/database/table/table";
+import { Ref, ref, watch } from "vue";
+import {
+  RowEmits,
+  RowAction,
+  FormattedQueryResult,
+} from "@/components/database/table/table";
 import { useTransaction } from "@/composables/useTransaction";
 
 const emit = defineEmits<RowEmits>();
@@ -13,11 +16,7 @@ const {
   actions = [],
 } = defineProps<{
   loading: boolean;
-  data?: {
-    rows?: TableData[];
-    columns?: TableColumn<TableData>[];
-    total?: number;
-  };
+  data?: FormattedQueryResult;
   actions?: RowAction[];
 }>();
 
@@ -59,32 +58,15 @@ function commit() {
         :key="key"
         :ui="{ td: 'p-1' }"
       >
-        <template #action-cell="{ row }">
-          <UButton
-            v-if="actions.includes(RowAction.View)"
-            icon="lucide:eye"
-            color="primary"
-            variant="ghost"
-            @click="emit(RowAction.View, row.original)"
-          />
-          <UButton
-            v-if="actions.includes(RowAction.Duplicate)"
-            icon="lucide:copy"
-            color="secondary"
-            variant="ghost"
-            @click="
-              () => {
-                emit(RowAction.Duplicate, row.original);
-                key++;
-              }
-            "
-          />
-          <UButton
-            v-if="actions.includes(RowAction.Delete)"
-            :icon="`lucide:${/* TODO: handle icon toggle */ 'trash'}`"
-            color="error"
-            variant="ghost"
-            @click="emit(RowAction.Delete, row.original)"
+        <template #action-cell="{ row: { original: row } }">
+          <AppActionsColumn
+            :row="row"
+            :actions="actions"
+            :table="data?.table"
+            :primary-key="data?.primary_key"
+            @view="emit(RowAction.View, row)"
+            @duplicate="emit(RowAction.Duplicate, row)"
+            @delete="emit(RowAction.Delete, row)"
           />
         </template>
       </UTable>

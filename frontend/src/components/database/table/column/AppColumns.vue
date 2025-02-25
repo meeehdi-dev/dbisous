@@ -9,10 +9,14 @@ const emit = defineEmits<RowEmits>();
 const {
   loading,
   data,
+  table,
+  primaryKey,
   actions = [],
 } = defineProps<{
   loading: boolean;
   data?: client.ColumnMetadata[];
+  table?: string;
+  primaryKey?: string;
   actions?: RowAction[];
 }>();
 
@@ -72,27 +76,15 @@ const columnPinning = ref({ right: ["action"] });
         :key="key"
         :ui="{ td: 'p-1' }"
       >
-        <template #action-cell="{ row }">
-          <UButton
-            v-if="actions.includes(RowAction.View)"
-            icon="lucide:eye"
-            color="primary"
-            variant="ghost"
-            @click="emit(RowAction.View, row)"
-          />
-          <UButton
-            v-if="actions.includes(RowAction.Duplicate)"
-            icon="lucide:copy"
-            color="secondary"
-            variant="ghost"
-            @click="emit(RowAction.Duplicate, row)"
-          />
-          <UButton
-            v-if="actions.includes(RowAction.Delete)"
-            icon="lucide:trash"
-            color="error"
-            variant="ghost"
-            @click="emit(RowAction.Delete, row)"
+        <template #action-cell="{ row: { original: row } }">
+          <AppActionsColumn
+            :row="row"
+            :actions="actions"
+            :table="table"
+            :primary-key="primaryKey"
+            @view="emit(RowAction.View, row)"
+            @duplicate="emit(RowAction.Duplicate, row)"
+            @delete="emit(RowAction.Delete, row)"
           />
         </template>
       </UTable>

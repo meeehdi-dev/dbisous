@@ -89,7 +89,12 @@ function deleteRow(row: unknown) {
       />
     </template>
     <template #info>
-      <AppColumns :loading="fetchingData" :data="columns" />
+      <AppColumns
+        :loading="fetchingData"
+        :data="columns"
+        :table="data?.table"
+        :primary-key="data?.primary_key"
+      />
     </template>
   </AppTabs>
 </template>

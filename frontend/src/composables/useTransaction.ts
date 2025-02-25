@@ -213,7 +213,6 @@ export const useTransaction = createSharedComposable(() => {
   }
 
   function removeInsert(table: string, key: number) {
-    console.log(changes.value);
     const insert = changes.value.find(
       (c) => isInsertChange(c) && c.table === table && c.__key === key,
     ) as InsertChange | undefined;
