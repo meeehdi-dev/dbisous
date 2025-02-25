@@ -17,7 +17,7 @@ const wails = useWails();
 
 const data = ref<FormattedQueryResult>();
 const columns = ref<client.ColumnMetadata[]>();
-const primaryKey = ref("");
+const primaryKey = ref<string>();
 const fetchingData = ref(false);
 async function fetchData(page = 1, itemsPerPage = 10) {
   fetchingData.value = true;
@@ -31,9 +31,10 @@ async function fetchData(page = 1, itemsPerPage = 10) {
         tableId.value,
       ),
     ).pipe(
+      Effect.tap(Effect.log),
       Effect.tap((result) => {
         columns.value = result.columns;
-        primaryKey.value = result.primary_key;
+        primaryKey.value = result.columns.find((c) => c.primary_key)?.name;
       }),
       Effect.andThen(formatQueryResult),
       Effect.tap((result) => {
@@ -73,7 +74,7 @@ function deleteRow(row: unknown) {
       return;
     }
   }
-  tx.toggleDelete(tableId.value, primaryKey.value, rowKey);
+  tx.toggleDelete(tableId.value, primaryKey.value!, rowKey);
 }
 </script>
 
@@ -83,7 +84,9 @@ function deleteRow(row: unknown) {
       <AppRows
         :loading="fetchingData"
         :data="data"
-        :actions="[RowAction.Duplicate, RowAction.Delete]"
+        :actions="
+          primaryKey ? [RowAction.Duplicate, RowAction.Delete] : undefined
+        "
         @duplicate="duplicateRow"
         @delete="deleteRow"
         @pagination-change="fetchData"
@@ -93,8 +96,8 @@ function deleteRow(row: unknown) {
       <AppColumns
         :loading="fetchingData"
         :data="columns"
-        :table="data?.table"
-        :primary-key="data?.primary_key"
+        :table="tableId"
+        :primary-key="primaryKey"
       />
     </template>
   </AppTabs>

@@ -33,7 +33,6 @@ watch(itemsPerPage, () => {
 
 const key = ref(0);
 watch([() => data?.rows, () => data?.columns, () => loading], () => {
-  console.log(key.value);
   key.value++;
 });
 

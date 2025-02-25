@@ -13,7 +13,7 @@ type PostgresClient struct {
 func (c *PostgresClient) fetchColumnsMetadata(schema string, table string) ([]ColumnMetadata, error) {
 	var columnsMetadata []ColumnMetadata
 
-	columns, err := c.Db.Query("SELECT column_name AS name, data_type AS type, COALESCE(column_default, 'NULL') AS default_value, CASE \"is_nullable\" WHEN 'YES' THEN true ELSE false END nullable FROM information_schema.columns WHERE table_schema = $1 AND table_name = $2", schema, table)
+	columns, err := c.Db.Query("SELECT c.column_name AS name, c.data_type AS type, COALESCE(c.column_default, 'NULL') AS default_value, CASE c.is_nullable WHEN 'YES' THEN true ELSE false END nullable, COALESCE((SELECT TRUE FROM information_schema.table_constraints tc LEFT JOIN information_schema.key_column_usage kcu ON tc.constraint_name = kcu.constraint_name WHERE tc.table_schema = $1 AND tc.table_name = $2 AND tc.constraint_type = 'PRIMARY KEY' AND kcu.COLUMN_NAME = c.COLUMN_NAME GROUP BY tc.TABLE_SCHEMA, tc.TABLE_NAME, kcu.COLUMN_NAME), FALSE) AS primary_key FROM information_schema.columns c WHERE c.table_schema = $1 AND c.table_name = $2", schema, table)
 	if err != nil {
 		return columnsMetadata, err
 	}
@@ -32,8 +32,8 @@ func (c *PostgresClient) executeSelectQuery(query string, limit int, offset int,
 	schema := "public"
 	tableName := tableParts[0]
 	if len(tableParts) > 1 {
-		schema = tableParts[0]
-		tableName = tableParts[1]
+		schema = strings.ReplaceAll(tableParts[0], "`", "")
+		tableName = strings.ReplaceAll(tableParts[1], "`", "")
 	}
 
 	result, err := executeSelectQuery(c.Db, query, limit, offset, args...)

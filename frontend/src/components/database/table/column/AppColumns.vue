@@ -60,6 +60,11 @@ const columns: TableColumn<client.ColumnMetadata>[] = [
     header: "Nullable",
     cell: cell({ type: "BOOL", disabled: true }),
   },
+  {
+    accessorKey: "primary_key",
+    header: "Primary key",
+    cell: cell({ type: "BOOL", disabled: true }),
+  },
 ];
 
 const columnPinning = ref({ right: ["action"] });

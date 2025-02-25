@@ -11,7 +11,7 @@ func fetchColumns(rows *sql.Rows) ([]ColumnMetadata, error) {
 
 	for rows.Next() {
 		var column ColumnMetadata
-		err := rows.Scan(&column.Name, &column.Type, &column.DefaultValue, &column.Nullable)
+		err := rows.Scan(&column.Name, &column.Type, &column.DefaultValue, &column.Nullable, &column.PrimaryKey)
 		if err != nil {
 			return columns, err
 		}
