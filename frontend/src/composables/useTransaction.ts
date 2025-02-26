@@ -11,14 +11,14 @@ interface ChangeId {
   id: number;
 }
 
-interface InsertChange extends ChangeId {
+export interface InsertChange extends ChangeId {
   type: ChangeType.Insert;
   table: string;
   values: Record<string, unknown>;
   __key: number; // used as temporary row key
 }
 
-interface UpdateChange extends ChangeId {
+export interface UpdateChange extends ChangeId {
   type: ChangeType.Update;
   table: string;
   values: Record<string, unknown>;
@@ -26,7 +26,7 @@ interface UpdateChange extends ChangeId {
   rowKey: unknown;
 }
 
-interface DeleteChange extends ChangeId {
+export interface DeleteChange extends ChangeId {
   type: ChangeType.Delete;
   table: string;
   primaryKey: string;
@@ -61,7 +61,7 @@ function toSqlValue(value: unknown | undefined): string {
 }
 
 function formatInsertChangeToSql(change: InsertChange) {
-  return `INSERT INTO ${change.table} (${Object.keys(change.values)
+  return `INSERT OR ROLLBACK INTO ${change.table} (${Object.keys(change.values)
     .filter((key) => key !== "__key")
     .join(", ")}) VALUES (${Object.entries(change.values)
     .filter(([key]) => key !== "__key")
@@ -69,7 +69,7 @@ function formatInsertChangeToSql(change: InsertChange) {
     .join(", ")});`;
 }
 function formatUpdateChangeToSql(change: UpdateChange) {
-  return `UPDATE ${change.table} SET ${Object.entries(change.values)
+  return `UPDATE OR ROLLBACK ${change.table} SET ${Object.entries(change.values)
     .map(([key, value]) => `${key} = ${toSqlValue(value)}`)
     .join(", ")} WHERE ${change.primaryKey} = ${toSqlValue(change.rowKey)};`;
 }
@@ -80,9 +80,6 @@ function formatDeleteChangeToSql(change: DeleteChange) {
 export const useTransaction = createSharedComposable(() => {
   const changeId = ref(0);
   const changes = ref<Array<Change>>([]);
-
-  const abortListenerKey = ref(0);
-  const abortListeners = ref<Record<number, () => void>>({});
 
   function commit() {
     const inserts: Array<InsertChange> = [];
@@ -128,26 +125,13 @@ export const useTransaction = createSharedComposable(() => {
         : "";
 
     const sql =
-      "START TRANSACTION;\n" +
-      fullInsertStr +
-      fullUpdateStr +
-      fullDeleteStr +
-      "COMMIT;\n";
+      "BEGIN;\n" + fullInsertStr + fullUpdateStr + fullDeleteStr + "COMMIT;\n";
 
     return sql;
   }
 
-  function addAbortListener(cb: () => void) {
-    abortListeners.value[abortListenerKey.value] = cb;
-    return abortListenerKey.value++;
-  }
-  function removeAbortListener(key: number) {
-    delete abortListeners.value[key];
-  }
-
   function abort() {
     changes.value = [];
-    Object.values(abortListeners.value).forEach((cb) => cb());
   }
 
   function addUpdate(
@@ -266,8 +250,6 @@ export const useTransaction = createSharedComposable(() => {
     updateInsert,
     removeInsert,
     toggleDelete,
-    addAbortListener,
-    removeAbortListener,
   };
 });
 

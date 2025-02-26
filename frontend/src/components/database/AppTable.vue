@@ -14,7 +14,8 @@ import { useTransaction } from "@/composables/useTransaction";
 const { databaseId, schemaId, tableId } = useUrlParams();
 const wails = useWails();
 
-const data = ref<FormattedQueryResult>();
+const data = ref<FormattedQueryResult & { key: number }>();
+const dataKey = ref(0);
 const columns = ref<client.ColumnMetadata[]>();
 const primaryKey = ref<string>();
 const fetchingData = ref(false);
@@ -35,6 +36,7 @@ async function fetchData(page = 1, itemsPerPage = 10) {
     columns.value = result.columns;
     primaryKey.value = result.columns.find((c) => c.primary_key)?.name;
     data.value = {
+      key: dataKey.value++,
       ...result,
       columns: formatColumns(
         result.columns,
@@ -57,7 +59,7 @@ function duplicateRow(row: unknown) {
   const key = tx.addInsert(tableId.value, dup);
   dup.__key = key;
   data.value!.rows.push(dup);
-  data.value!.rows = [...data.value!.rows];
+  data.value!.key++;
 }
 
 function deleteRow(row: unknown) {
@@ -68,8 +70,12 @@ function deleteRow(row: unknown) {
     const key = row.__key as number;
     if (key !== undefined) {
       tx.removeInsert(tableId.value, key);
-      // @ts-expect-error tkt
-      data.value.rows = data.value.rows.filter((row) => row.__key !== key);
+      data.value!.rows.splice(
+        // @ts-expect-error tkt
+        data.value!.rows.findIndex((r: unknown) => r.__key === key),
+        1,
+      );
+      data.value!.key++;
       return;
     }
   }

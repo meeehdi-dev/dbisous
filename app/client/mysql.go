@@ -65,3 +65,7 @@ func (c *MysqlClient) GetTableRows(limit int, offset int, schema string, table s
 func (c *MysqlClient) ExecuteQuery(query string, args ...interface{}) (QueryResult, error) {
 	return executeQuery(c.Db, query, args...)
 }
+
+func (c *MysqlClient) Execute(query string) error {
+	return execute(c.Db, query)
+}

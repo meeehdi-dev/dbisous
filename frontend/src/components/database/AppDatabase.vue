@@ -20,7 +20,8 @@ function navigateToSchema(schemaId: string) {
 
 const wails = useWails();
 
-const data = ref<FormattedQueryResult>();
+const data = ref<FormattedQueryResult & { key: number }>();
+const dataKey = ref(0);
 const columns = ref<client.ColumnMetadata[]>();
 const fetchingData = ref(false);
 async function fetchData(page = 1, itemsPerPage = 10) {
@@ -33,6 +34,7 @@ async function fetchData(page = 1, itemsPerPage = 10) {
   } else {
     columns.value = result.columns;
     data.value = {
+      key: dataKey.value++,
       ...result,
       columns: formatColumns(result.columns, undefined, undefined, true),
     };

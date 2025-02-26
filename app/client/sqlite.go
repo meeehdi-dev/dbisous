@@ -57,3 +57,7 @@ func (c *SqliteClient) GetTableRows(limit int, offset int, schema string, table 
 func (c *SqliteClient) ExecuteQuery(query string, args ...interface{}) (QueryResult, error) {
 	return executeQuery(c.Db, query, args...)
 }
+
+func (c *SqliteClient) Execute(query string) error {
+	return execute(c.Db, query)
+}

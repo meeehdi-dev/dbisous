@@ -5,7 +5,14 @@ import {
   RowAction,
   FormattedQueryResult,
 } from "@/components/database/table/table";
-import { useTransaction } from "@/composables/useTransaction";
+import {
+  InsertChange,
+  isInsertChange,
+  useTransaction,
+} from "@/composables/useTransaction";
+import { useWails } from "@/composables/useWails";
+import { Execute } from "_/go/app/App";
+import { useUrlParams } from "@/composables/useUrlParams";
 
 const emit = defineEmits<RowEmits>();
 const tx = useTransaction();
@@ -18,7 +25,7 @@ const {
   actions = [],
 } = defineProps<{
   loading: boolean;
-  data?: FormattedQueryResult;
+  data?: FormattedQueryResult & { key: number };
   table?: string;
   primaryKey?: string;
   actions?: RowAction[];
@@ -35,11 +42,6 @@ watch(itemsPerPage, () => {
   emit("paginationChange", page.value, itemsPerPage.value);
 });
 
-const key = ref(0);
-watch([() => data?.rows, () => data?.columns, () => loading], () => {
-  key.value++;
-});
-
 const columnPinning = ref({ right: ["action"] });
 
 const open = ref(false);
@@ -48,6 +50,32 @@ function commit() {
   const sql = tx.commit();
   query.value = sql;
   open.value = true;
+}
+
+const wails = useWails();
+const { databaseId } = useUrlParams();
+async function execute() {
+  const result = await wails(() => Execute(databaseId.value, query.value));
+  if (result instanceof Error) {
+    // TODO: specific error handling
+  } else {
+    open.value = false;
+    tx.abort();
+    emit("paginationChange", page.value, itemsPerPage.value);
+  }
+}
+
+function abort() {
+  if (data) {
+    const inserted = tx.changes.value.filter((c) =>
+      isInsertChange(c),
+    ) as InsertChange[];
+    if (inserted.length > 0) {
+      console.log(inserted);
+      // TODO: emit for apptable to remove inserted rows
+    }
+  }
+  tx.abort();
 }
 </script>
 
@@ -59,9 +87,8 @@ function commit() {
         :columns="data?.columns"
         v-model:column-pinning="columnPinning"
         :loading="loading"
-        :key="key"
-        :ui="{ td: 'p-1 min-w-max', tbody: '[&>tr]:odd:bg-neutral-800' }"
-        sticky
+        :key="data?.key"
+        :ui="{ td: 'p-0 min-w-max', tbody: '[&>tr]:odd:bg-neutral-800' }"
       >
         <template #action-cell="{ row: { original: row } }">
           <AppActionsColumn
@@ -104,7 +131,7 @@ function commit() {
             color: 'secondary',
             variant: 'soft',
             icon: 'lucide:x',
-            onClick: tx.abort,
+            onClick: abort,
           },
           {
             size: 'md',
@@ -121,10 +148,14 @@ function commit() {
       v-model:open="open"
       :title="`Apply ${tx.changes.value.length} change${tx.changes.value.length > 1 ? 's' : ''}`"
       description="Check the content of the SQL query before executing"
-      :ui="{ footer: 'justify-end' }"
+      :ui="{
+        content: 'max-w-none w-[80%] h-[80%]',
+        body: 'sm:p-0 p-0',
+        footer: 'justify-end',
+      }"
     >
       <template #body>
-        <AppEditor v-model="query" />
+        <AppEditor v-model="query" full />
       </template>
 
       <template #footer>
@@ -135,7 +166,7 @@ function commit() {
           icon="lucide:x"
           @click="open = false"
         />
-        <UButton icon="lucide:check" label="Apply" />
+        <UButton icon="lucide:check" label="Apply" @click="execute" />
       </template>
     </UModal>
   </div>

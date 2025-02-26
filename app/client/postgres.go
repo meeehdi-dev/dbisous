@@ -65,3 +65,7 @@ func (c *PostgresClient) GetTableRows(limit int, offset int, schema string, tabl
 func (c *PostgresClient) ExecuteQuery(query string, args ...interface{}) (QueryResult, error) {
 	return executeQuery(c.Db, query, args...)
 }
+
+func (c *PostgresClient) Execute(query string) error {
+	return execute(c.Db, query)
+}

@@ -177,6 +177,20 @@ func DeletePastQuery(id string) error {
 	return err
 }
 
+func Execute(id string, query string) error {
+	dbClient, exists := dbClients[id]
+	if !exists {
+		return fmt.Errorf("no database client for database ID: %s", id)
+	}
+
+	err := dbClient.Execute(query)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 type ConnectionType string
 
 const (

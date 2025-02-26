@@ -22,7 +22,7 @@ const tx = useTransaction();
 const isDeleted = computed(() => {
   // @ts-expect-error tkt
   let rowKey = row[primaryKey] as unknown;
-  if (!rowKey) {
+  if (rowKey === undefined) {
     // @ts-expect-error tkt
     rowKey = row.__key;
   }
@@ -49,7 +49,7 @@ const isDeleted = computed(() => {
   />
   <UButton
     v-if="actions.includes(RowAction.Delete)"
-    :icon="`lucide:${isDeleted ? 'circle-plus' : 'trash'}`"
+    :icon="`lucide:${isDeleted ? 'step-back' : 'trash'}`"
     :color="isDeleted ? 'warning' : 'error'"
     variant="ghost"
     @click="emit(RowAction.Delete, row)"
