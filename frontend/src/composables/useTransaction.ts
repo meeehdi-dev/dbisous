@@ -7,18 +7,19 @@ export enum ChangeType {
   Delete = "DELETE",
 }
 
-interface ChangeId {
+interface IChange {
   id: number;
+  type: ChangeType;
 }
 
-export interface InsertChange extends ChangeId {
+export interface InsertChange extends IChange {
   type: ChangeType.Insert;
   table: string;
   values: Record<string, unknown>;
   __key: number; // used as temporary row key
 }
 
-export interface UpdateChange extends ChangeId {
+export interface UpdateChange extends IChange {
   type: ChangeType.Update;
   table: string;
   values: Record<string, unknown>;
@@ -26,14 +27,12 @@ export interface UpdateChange extends ChangeId {
   rowKey: unknown;
 }
 
-export interface DeleteChange extends ChangeId {
+export interface DeleteChange extends IChange {
   type: ChangeType.Delete;
   table: string;
   primaryKey: string;
   rowKey: unknown;
 }
-
-type Change = InsertChange | UpdateChange | DeleteChange;
 
 function toSqlValue(value: unknown | undefined): string {
   if (value === null) {
@@ -79,49 +78,44 @@ function formatDeleteChangeToSql(change: DeleteChange) {
 
 export const useTransaction = createSharedComposable(() => {
   const changeId = ref(0);
-  const changes = ref<Array<Change>>([]);
+  const insertChanges = ref<Array<InsertChange>>([]);
+  const updateChanges = ref<Array<UpdateChange>>([]);
+  const deleteChanges = ref<Array<DeleteChange>>([]);
 
   function commit() {
-    const inserts: Array<InsertChange> = [];
-    const updates: Array<UpdateChange> = [];
-    const deletes: Array<DeleteChange> = [];
-
-    changes.value.forEach((change) => {
-      if (isInsertChange(change)) {
-        inserts.push(change);
-      } else if (isUpdateChange(change)) {
-        updates.push(change);
-      } else if (isDeleteChange(change)) {
-        deletes.push(change);
-      }
-    });
-
-    const insertsStr = inserts
+    const insertsStr = insertChanges.value
       .filter(
-        (c) => !deletes.find((d) => d.table === c.table && d.rowKey === c.id),
+        (c) =>
+          !deleteChanges.value.find(
+            (d) => d.table === c.table && d.rowKey === c.id,
+          ),
       )
       .map(formatInsertChangeToSql)
       .join("\n");
-    const updatesStr = updates
+    const updatesStr = updateChanges.value
       .filter(
         (c) =>
-          !deletes.find((d) => d.table === c.table && d.rowKey === c.rowKey),
+          !deleteChanges.value.find(
+            (d) => d.table === c.table && d.rowKey === c.rowKey,
+          ),
       )
       .map(formatUpdateChangeToSql)
       .join("\n");
-    const deletesStr = deletes.map(formatDeleteChangeToSql).join("\n");
+    const deletesStr = deleteChanges.value
+      .map(formatDeleteChangeToSql)
+      .join("\n");
 
     const fullInsertStr =
-      inserts.length > 0
-        ? `-- ${inserts.length} insert${inserts.length > 1 ? "s" : ""}\n${insertsStr}\n`
+      insertChanges.value.length > 0
+        ? `-- ${insertChanges.value.length} insert${insertChanges.value.length > 1 ? "s" : ""}\n${insertsStr}\n`
         : "";
     const fullUpdateStr =
-      updates.length > 0
-        ? `-- ${updates.length} update${updates.length > 1 ? "s" : ""}\n${updatesStr}\n`
+      updateChanges.value.length > 0
+        ? `-- ${updateChanges.value.length} update${updateChanges.value.length > 1 ? "s" : ""}\n${updatesStr}\n`
         : "";
     const fullDeleteStr =
-      deletes.length > 0
-        ? `-- ${deletes.length} delete${deletes.length > 1 ? "s" : ""}\n${deletesStr}\n`
+      deleteChanges.value.length > 0
+        ? `-- ${deleteChanges.value.length} delete${deleteChanges.value.length > 1 ? "s" : ""}\n${deletesStr}\n`
         : "";
 
     const sql =
@@ -131,7 +125,9 @@ export const useTransaction = createSharedComposable(() => {
   }
 
   function abort() {
-    changes.value = [];
+    insertChanges.value = [];
+    updateChanges.value = [];
+    deleteChanges.value = [];
   }
 
   function addUpdate(
@@ -141,14 +137,11 @@ export const useTransaction = createSharedComposable(() => {
     key: string,
     value: unknown,
   ) {
-    let update = changes.value.find(
+    let update = updateChanges.value.find(
       (c) =>
-        isUpdateChange(c) &&
-        c.table === table &&
-        c.primaryKey === primaryKey &&
-        c.rowKey === rowKey,
+        c.table === table && c.primaryKey === primaryKey && c.rowKey === rowKey,
     ) as UpdateChange | undefined;
-    if (update === undefined) {
+    if (!update) {
       update = {
         id: changeId.value++,
         type: ChangeType.Update,
@@ -157,7 +150,7 @@ export const useTransaction = createSharedComposable(() => {
         rowKey,
         values: {},
       };
-      changes.value.push(update);
+      updateChanges.value.push(update);
     }
     update.values[key] = value;
   }
@@ -168,22 +161,22 @@ export const useTransaction = createSharedComposable(() => {
     rowKey: unknown,
     key: string,
   ) {
-    const update = changes.value.find(
+    const update = updateChanges.value.find(
       (c) =>
-        isUpdateChange(c) &&
-        c.table === table &&
-        c.primaryKey === primaryKey &&
-        c.rowKey === rowKey,
+        c.table === table && c.primaryKey === primaryKey && c.rowKey === rowKey,
     ) as UpdateChange;
     delete update.values[key];
     if (Object.keys(update.values).length === 0) {
-      changes.value = changes.value.filter((v) => v.id !== update.id);
+      updateChanges.value.splice(
+        updateChanges.value.findIndex((c) => c.id === update.id),
+        1,
+      );
     }
   }
 
   function addInsert(table: string, values: Record<string, unknown>) {
     const id = changeId.value++;
-    changes.value.push({
+    insertChanges.value.push({
       id,
       type: ChangeType.Insert,
       table,
@@ -199,36 +192,34 @@ export const useTransaction = createSharedComposable(() => {
     column: string,
     value: unknown,
   ) {
-    const insert = changes.value.find(
-      (change) =>
-        isInsertChange(change) &&
-        change.table === table &&
-        change.__key === key,
-    ) as InsertChange;
+    const insert = insertChanges.value.find(
+      (change) => change.table === table && change.__key === key,
+    );
+    if (!insert) {
+      return;
+    }
     insert.values[column] = value;
   }
 
   function removeInsert(table: string, key: number) {
-    const insert = changes.value.find(
-      (c) => isInsertChange(c) && c.table === table && c.__key === key,
-    ) as InsertChange;
-    changes.value = changes.value.filter((v) => v.id !== insert.id);
+    const insert = insertChanges.value.find(
+      (c) => c.table === table && c.__key === key,
+    );
+    if (!insert) {
+      return;
+    }
+    insertChanges.value.splice(
+      insertChanges.value.findIndex((c) => c.id === insert.id),
+      1,
+    );
   }
 
   function toggleDelete(table: string, primaryKey: string, rowKey: unknown) {
-    let delete_ = changes.value.find(
+    let delete_ = deleteChanges.value.find(
       (c) =>
-        isDeleteChange(c) &&
-        c.table === table &&
-        c.primaryKey === primaryKey &&
-        c.rowKey === rowKey,
-    ) as DeleteChange | undefined;
-    if (delete_ !== undefined) {
-      // @ts-expect-error wtf ts?
-      changes.value = changes.value.filter((v) => v.id !== delete_.id);
-      return;
-    }
-    if (delete_ === undefined) {
+        c.table === table && c.primaryKey === primaryKey && c.rowKey === rowKey,
+    );
+    if (!delete_) {
       delete_ = {
         id: changeId.value++,
         type: ChangeType.Delete,
@@ -236,12 +227,18 @@ export const useTransaction = createSharedComposable(() => {
         primaryKey,
         rowKey,
       };
-      changes.value.push(delete_);
+      deleteChanges.value.push(delete_);
+      return;
     }
+    deleteChanges.value.splice(
+      deleteChanges.value.findIndex((c) => c.id === delete_.id, 1),
+    );
   }
 
   return {
-    changes,
+    insertChanges,
+    updateChanges,
+    deleteChanges,
     commit,
     abort,
     addUpdate,
@@ -252,15 +249,3 @@ export const useTransaction = createSharedComposable(() => {
     toggleDelete,
   };
 });
-
-export function isInsertChange(change: Change): change is InsertChange {
-  return change.type === ChangeType.Insert;
-}
-
-export function isUpdateChange(change: Change): change is UpdateChange {
-  return change.type === ChangeType.Update;
-}
-
-export function isDeleteChange(change: Change): change is DeleteChange {
-  return change.type === ChangeType.Delete;
-}

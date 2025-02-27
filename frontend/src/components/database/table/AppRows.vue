@@ -1,15 +1,11 @@
 <script setup lang="ts">
-import { ref, watch } from "vue";
+import { computed, ref, watch } from "vue";
 import {
   RowEmits,
   RowAction,
   FormattedQueryResult,
 } from "@/components/database/table/table";
-import {
-  InsertChange,
-  isInsertChange,
-  useTransaction,
-} from "@/composables/useTransaction";
+import { useTransaction } from "@/composables/useTransaction";
 import { useWails } from "@/composables/useWails";
 import { Execute } from "_/go/app/App";
 import { useUrlParams } from "@/composables/useUrlParams";
@@ -66,17 +62,18 @@ async function execute() {
 }
 
 function abort() {
-  if (data) {
-    const inserted = tx.changes.value.filter((c) =>
-      isInsertChange(c),
-    ) as InsertChange[];
-    if (inserted.length > 0) {
-      console.log(inserted);
-      // TODO: emit for apptable to remove inserted rows
-    }
+  if (data && tx.insertChanges.value.length > 0) {
+    // TODO: emit for apptable to remove inserted rows
   }
   tx.abort();
 }
+
+const changesCount = computed(
+  () =>
+    tx.insertChanges.value.length +
+    tx.updateChanges.value.length +
+    tx.deleteChanges.value.length,
+);
 </script>
 
 <template>
@@ -91,7 +88,7 @@ function abort() {
         :ui="{ td: 'p-0 min-w-max', tbody: '[&>tr]:odd:bg-neutral-800' }"
       >
         <template #action-cell="{ row: { original: row } }">
-          <AppActionsColumn
+          <AppColumnActions
             :row="row"
             :actions="actions"
             :table="table"
@@ -121,13 +118,13 @@ function abort() {
     />
     <div
       class="px-2 pb-2"
-      :class="`${tx.changes.value.length > 0 ? 'h-18 opacity-100' : 'h-0 opacity-0'} transition-all`"
+      :class="`${changesCount ? 'h-18 opacity-100' : 'h-0 opacity-0'} transition-all`"
     >
       <UAlert
         color="neutral"
         variant="soft"
         icon="lucide:triangle-alert"
-        :title="`${tx.changes.value.length} pending change${tx.changes.value.length > 1 ? 's' : ''}...`"
+        :title="`${changesCount} pending change${changesCount > 1 ? 's' : ''}...`"
         orientation="horizontal"
         :actions="[
           {
@@ -151,7 +148,7 @@ function abort() {
     </div>
     <UModal
       v-model:open="open"
-      :title="`Apply ${tx.changes.value.length} change${tx.changes.value.length > 1 ? 's' : ''}`"
+      :title="`Apply ${changesCount} change${changesCount > 1 ? 's' : ''}`"
       description="Check the content of the SQL query before executing"
       :ui="{
         content: 'max-w-none w-[80%] h-[80%]',

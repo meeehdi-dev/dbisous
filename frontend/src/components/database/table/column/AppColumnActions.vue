@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { RowAction, RowEmits } from "@/components/database/table/table";
 import { computed } from "vue";
-import { isDeleteChange, useTransaction } from "@/composables/useTransaction";
+import { useTransaction } from "@/composables/useTransaction";
 
 const emit = defineEmits<RowEmits>();
 
@@ -26,8 +26,8 @@ const isDeleted = computed(() => {
     // @ts-expect-error tkt
     rowKey = row.__key;
   }
-  return tx.changes.value.some(
-    (c) => isDeleteChange(c) && c.table === table && c.rowKey === rowKey,
+  return tx.deleteChanges.value.some(
+    (c) => c.table === table && c.rowKey === rowKey,
   );
 });
 </script>

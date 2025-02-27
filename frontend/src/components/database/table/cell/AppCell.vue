@@ -1,19 +1,12 @@
 <script setup lang="ts">
-import { computed, ref, watch } from "vue";
+import { computed, ref } from "vue";
 import {
   booleanTypes,
   dateTypes,
   numberTypes,
   textTypes,
 } from "@/components/database/table/table";
-import {
-  InsertChange,
-  isDeleteChange,
-  isInsertChange,
-  isUpdateChange,
-  UpdateChange,
-  useTransaction,
-} from "@/composables/useTransaction";
+import { useTransaction } from "@/composables/useTransaction";
 
 const {
   table,
@@ -47,18 +40,18 @@ const value = computed({
     if (rowKey === "") {
       // @ts-expect-error tkt
       rowKey = row.__key;
-      const change = tx.changes.value.find(
-        (c) => isInsertChange(c) && c.table === table && c.__key === rowKey,
-      ) as InsertChange | undefined;
+      const change = tx.insertChanges.value.find(
+        (c) => c.table === table && c.__key === rowKey,
+      );
       if (change && column && change.values[column] !== undefined) {
         return change.values[column];
       } else {
         return initialValue;
       }
     } else {
-      const change = tx.changes.value.find(
-        (c) => isUpdateChange(c) && c.table === table && c.rowKey === rowKey,
-      ) as UpdateChange | undefined;
+      const change = tx.updateChanges.value.find(
+        (c) => c.table === table && c.rowKey === rowKey,
+      );
       if (change && column && change.values[column] !== undefined) {
         return change.values[column];
       } else {
@@ -94,8 +87,8 @@ const isDeleted = computed(() => {
     // @ts-expect-error tkt
     rowKey = row.__key;
   }
-  return tx.changes.value.some(
-    (c) => isDeleteChange(c) && c.table === table && c.rowKey === rowKey,
+  return tx.deleteChanges.value.some(
+    (c) => c.table === table && c.rowKey === rowKey,
   );
 });
 
