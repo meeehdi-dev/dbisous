@@ -9,7 +9,7 @@
     "preview": "vite preview",
     "lint": "eslint",
     "lint-staged": "lint-staged",
-    "prepare": "husky"
+    "prepare": "cd .. && husky ./frontend/.husky"
   },
   "dependencies": {
     "@babel/types": "^7.26.9",
