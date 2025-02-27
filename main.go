@@ -41,13 +41,13 @@ func main() {
 		Bind: []interface{}{
 			dbisous,
 		},
-    EnumBind: []interface{}{
-      app.AllConnectionTypes,
-    },
+		EnumBind: []interface{}{
+			app.AllConnectionTypes,
+		},
 		StartHidden: startHidden,
 	})
 
 	if err != nil {
-		runtime.MessageDialog(dbisous.Ctx, runtime.MessageDialogOptions{Title: err.Error()})
+		runtime.MessageDialog(dbisous.Ctx, runtime.MessageDialogOptions{Title: "Error!", Message: err.Error()})
 	}
 }
