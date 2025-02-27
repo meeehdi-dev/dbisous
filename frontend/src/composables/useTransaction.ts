@@ -60,10 +60,15 @@ function toSqlValue(value: unknown | undefined): string {
 }
 
 function formatInsertChangeToSql(change: InsertChange) {
-  return `INSERT OR ROLLBACK INTO ${change.table} (${Object.keys(change.values)
-    .filter((key) => key !== "__key")
-    .join(", ")}) VALUES (${Object.entries(change.values)
-    .filter(([key]) => key !== "__key")
+  // NOTE: filter out __key and NULL values
+  const values = Object.fromEntries(
+    Object.entries(change.values).filter(
+      ([key, value]) => key !== "__key" && value !== "NULL",
+    ),
+  );
+  return `INSERT OR ROLLBACK INTO ${change.table} (${Object.keys(values).join(
+    ", ",
+  )}) VALUES (${Object.entries(values)
     .map(([, value]) => toSqlValue(value))
     .join(", ")});`;
 }
