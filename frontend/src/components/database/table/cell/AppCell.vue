@@ -22,7 +22,7 @@ const {
   table?: string;
   primaryKey?: string;
   column?: string;
-  row?: unknown;
+  row?: Record<string, unknown>;
   initialValue: unknown;
   type?: string;
   defaultValue?: unknown;
@@ -35,11 +35,12 @@ const tx = useTransaction();
 const valueRef = ref<unknown>(initialValue);
 const value = computed({
   get: () => {
-    // @ts-expect-error tkt
-    let rowKey = row[primaryKey] as unknown;
-    if (rowKey === "") {
-      // @ts-expect-error tkt
-      rowKey = row.__key;
+    if (!row) {
+      return initialValue;
+    }
+
+    let rowKey = row.__key;
+    if (rowKey !== undefined) {
       const change = tx.insertChanges.value.find(
         (c) => c.table === table && c.__key === rowKey,
       );
@@ -48,7 +49,8 @@ const value = computed({
       } else {
         return initialValue;
       }
-    } else {
+    } else if (primaryKey) {
+      rowKey = row[primaryKey];
       const change = tx.updateChanges.value.find(
         (c) => c.table === table && c.rowKey === rowKey,
       );
@@ -57,19 +59,20 @@ const value = computed({
       } else {
         return initialValue;
       }
+    } else {
+      return initialValue;
     }
   },
   set: (v) => {
-    if (!table || !column || !primaryKey) {
+    if (!table || !column || !primaryKey || !row) {
       return;
     }
-    // @ts-expect-error tkt
-    const rowKey = row[primaryKey] as unknown;
-    if (rowKey === "") {
-      // @ts-expect-error tkt
-      tx.updateInsert(table, row.__key, column, v);
+    let rowKey = row.__key;
+    if (rowKey !== undefined) {
+      tx.updateInsert(table, rowKey as number, column, v);
       return;
     }
+    rowKey = row[primaryKey];
     if (v === initialValue) {
       tx.removeUpdate(table, primaryKey, rowKey, column);
     } else {
@@ -103,9 +106,6 @@ const rowKey = row.__key;
     <AppTypeSelect
       v-if="type.toLowerCase() === 'type'"
       v-model="value as string"
-      :initial-value="initialValue as boolean"
-      :default-value="defaultValue as boolean"
-      :nullable="nullable"
       :disabled="disabled || isDeleted"
     />
     <AppCheckbox
@@ -129,9 +129,6 @@ const rowKey = row.__key;
     <AppInputNumber
       v-else-if="numberTypes.includes(type.toLowerCase())"
       v-model="value as number"
-      :initial-value="initialValue as number"
-      :default-value="defaultValue as number"
-      :nullable="nullable"
       :disabled="disabled || isDeleted"
     />
     <span v-else-if="type === ''" class="italic px-2.5">{{

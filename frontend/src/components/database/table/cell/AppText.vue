@@ -9,7 +9,7 @@ const { disabled } = defineProps<{
 <template>
   <UInput
     variant="ghost"
-    v-model="value as string"
+    v-model="value"
     :disabled="disabled"
     :ui="{
       base: 'pr-8 w-full overflow-ellipsis',
