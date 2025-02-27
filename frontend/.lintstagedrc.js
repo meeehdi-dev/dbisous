@@ -1,6 +1,8 @@
 import path from "path";
 import process from "process";
 
+console.log("yo");
+
 /**
  * @param {string[]} filenames
  */
