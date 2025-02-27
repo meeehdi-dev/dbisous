@@ -2,7 +2,7 @@
 import * as v from "valibot";
 import { reactive, ref } from "vue";
 import { useWails } from "@/composables/useWails";
-import { CreateConnection, SelectFile, UpdateConnection } from "_/go/app/App";
+import { SelectFile } from "_/go/app/App";
 import { FormSubmitEvent } from "@nuxt/ui/dist/module";
 import { useConnections } from "@/composables/useConnections";
 import { app } from "_/go/models";
@@ -11,14 +11,14 @@ const emit = defineEmits<{ connectionAdded: [] }>();
 const connection = defineModel<app.Connection>();
 
 const wails = useWails();
-const { fetchConnections } = useConnections();
+const { fetchConnections, addConnection, updateConnection } = useConnections();
 
 const schema = v.object({
-  id: v.string(),
-  created_at: v.string(),
-  updated_at: v.string(),
-  name: v.string(),
+  id: v.optional(v.string()),
+  created_at: v.optional(v.string()),
+  updated_at: v.optional(v.string()),
   type: v.enum(app.ConnectionType),
+  name: v.string(),
   connection_string: v.string(),
 });
 const parser = v.safeParser(schema);
@@ -46,11 +46,10 @@ const items = [
 const active = ref(state.id ? 1 : 0);
 
 async function submitConnection(event: FormSubmitEvent<Schema>) {
-  const result = await wails(() =>
-    event.data.id ? UpdateConnection(event.data) : CreateConnection(event.data),
-  );
-  if (result instanceof Error) {
-    return;
+  if (event.data.id) {
+    await updateConnection(event.data as app.Connection);
+  } else {
+    await addConnection(event.data as app.Connection);
   }
   await fetchConnections();
   emit("connectionAdded");

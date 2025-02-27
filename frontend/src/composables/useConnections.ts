@@ -37,7 +37,7 @@ export const useConnections = createSharedComposable(() => {
     await fetchConnections();
   }
 
-  async function updateConnectionInfo(connection: app.Connection) {
+  async function updateConnection(connection: app.Connection) {
     const result = await wails(() => UpdateConnection(connection));
     if (result instanceof Error) {
       return;
