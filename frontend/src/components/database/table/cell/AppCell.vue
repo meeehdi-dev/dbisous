@@ -84,12 +84,16 @@ const value = computed({
 });
 
 const isDeleted = computed(() => {
-  // @ts-expect-error tkt
-  let rowKey = row[primaryKey] as unknown;
-  if (rowKey === "") {
-    // @ts-expect-error tkt
-    rowKey = row.__key;
+  if (!row) {
+    return;
   }
+
+  let rowKey = row.__key;
+  if (rowKey !== undefined || primaryKey === undefined) {
+    return;
+  }
+
+  rowKey = row[primaryKey];
   return tx.deleteChanges.value.some(
     (c) => c.table === table && c.rowKey === rowKey,
   );
