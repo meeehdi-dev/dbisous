@@ -231,7 +231,8 @@ export const useTransaction = createSharedComposable(() => {
       return;
     }
     deleteChanges.value.splice(
-      deleteChanges.value.findIndex((c) => c.id === delete_.id, 1),
+      deleteChanges.value.findIndex((c) => c.id === delete_.id),
+      1,
     );
   }
 

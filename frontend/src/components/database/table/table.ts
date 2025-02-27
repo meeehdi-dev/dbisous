@@ -10,11 +10,13 @@ export enum RowAction {
   Delete = "delete",
 }
 
+type Row = Record<string, unknown>;
+
 export type RowEmits = {
-  view: [TableData];
+  view: [Row];
   insert: [];
-  duplicate: [TableData];
-  delete: [TableData];
+  duplicate: [Row];
+  delete: [Row];
   paginationChange: [number, number];
 };
 

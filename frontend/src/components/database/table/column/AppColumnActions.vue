@@ -11,7 +11,7 @@ const {
   primaryKey,
   actions = [],
 } = defineProps<{
-  row: unknown;
+  row: Record<string, unknown>;
   table?: string;
   primaryKey?: string;
   actions?: RowAction[];
@@ -20,11 +20,9 @@ const {
 const tx = useTransaction();
 
 const isDeleted = computed(() => {
-  // @ts-expect-error tkt
-  let rowKey = row[primaryKey] as unknown;
-  if (rowKey === "") {
-    // @ts-expect-error tkt
-    rowKey = row.__key;
+  let rowKey = row.__key;
+  if (rowKey === undefined && primaryKey) {
+    rowKey = row[primaryKey];
   }
   return tx.deleteChanges.value.some(
     (c) => c.table === table && c.rowKey === rowKey,

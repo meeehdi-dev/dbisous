@@ -53,8 +53,11 @@ fetchData();
 
 const tx = useTransaction();
 
-function duplicateRow(row: unknown) {
-  // @ts-expect-error tkt
+function duplicateRow(row: Record<string, unknown>) {
+  if (!primaryKey.value) {
+    return;
+  }
+
   const dup = { ...row, [primaryKey.value]: "NULL" };
   const key = tx.addInsert(tableId.value, dup);
   dup.__key = key;
@@ -73,24 +76,21 @@ function insertRow() {
   data.value!.key++;
 }
 
-function deleteRow(row: unknown) {
-  // @ts-expect-error tkt
-  const rowKey = row[primaryKey.value] as unknown;
-  if (rowKey === "") {
-    // @ts-expect-error tkt
-    const key = row.__key as number;
-    if (key !== undefined) {
-      tx.removeInsert(tableId.value, key);
-      data.value!.rows.splice(
-        // @ts-expect-error tkt
-        data.value!.rows.findIndex((r: unknown) => r.__key === key),
-        1,
-      );
-      data.value!.key++;
-      return;
-    }
+function deleteRow(row: Record<string, unknown>) {
+  let rowKey = row.__key;
+  if (rowKey === undefined && primaryKey.value) {
+    rowKey = row[primaryKey.value];
+    tx.toggleDelete(tableId.value, primaryKey.value!, rowKey);
+  } else if (rowKey !== undefined) {
+    tx.removeInsert(tableId.value, rowKey as number);
+    data.value!.rows.splice(
+      data.value!.rows.findIndex(
+        (r: Record<string, unknown>) => r.__key === rowKey,
+      ),
+      1,
+    );
+    data.value!.key++;
   }
-  tx.toggleDelete(tableId.value, primaryKey.value!, rowKey);
 }
 </script>
 
