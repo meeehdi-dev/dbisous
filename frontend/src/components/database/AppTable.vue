@@ -13,12 +13,14 @@ import { useTransaction } from "@/composables/useTransaction";
 
 const { databaseId, schemaId, tableId } = useUrlParams();
 const wails = useWails();
+const tx = useTransaction();
 
 const data = ref<FormattedQueryResult & { key: number }>();
 const dataKey = ref(0);
 const columns = ref<client.ColumnMetadata[]>();
 const primaryKey = ref<string>();
 const fetchingData = ref(false);
+
 async function fetchData(page = 1, itemsPerPage = 10) {
   fetchingData.value = true;
   const result = await wails(() =>
@@ -30,28 +32,36 @@ async function fetchData(page = 1, itemsPerPage = 10) {
       tableId.value,
     ),
   );
-  if (result instanceof Error) {
-    // TODO: specific error handling
-  } else {
-    columns.value = result.columns;
-    primaryKey.value = result.columns.find((c) => c.primary_key)?.name;
-    data.value = {
-      key: dataKey.value++,
-      ...result,
-      columns: formatColumns(
-        result.columns,
-        tableId.value,
-        primaryKey.value,
-        false,
-      ),
-    };
-  }
-  // TODO: push tx insert changes
   fetchingData.value = false;
+  if (result instanceof Error) {
+    return;
+  }
+  columns.value = result.columns;
+  primaryKey.value = result.columns.find((c) => c.primary_key)?.name;
+  data.value = {
+    key: dataKey.value++,
+    ...result,
+    columns: formatColumns(
+      result.columns,
+      tableId.value,
+      primaryKey.value,
+      false,
+    ),
+  };
+  // TODO: push tx insert changes
 }
 fetchData();
 
-const tx = useTransaction();
+function insertRow() {
+  const row: Record<string, unknown> = {};
+  columns.value?.forEach((c) => {
+    row[c.name] = c.default_value;
+  });
+  const key = tx.addInsert(tableId.value, row);
+  row.__key = key;
+  data.value!.rows.push(row);
+  data.value!.key++;
+}
 
 function duplicateRow(row: Record<string, unknown>) {
   if (!primaryKey.value) {
@@ -62,17 +72,6 @@ function duplicateRow(row: Record<string, unknown>) {
   const key = tx.addInsert(tableId.value, dup);
   dup.__key = key;
   data.value!.rows.push(dup);
-  data.value!.key++;
-}
-
-function insertRow() {
-  const row: Record<string, unknown> = {};
-  columns.value?.forEach((c) => {
-    row[c.name] = c.default_value;
-  });
-  const key = tx.addInsert(tableId.value, row);
-  row.__key = key;
-  data.value!.rows.push(row);
   data.value!.key++;
 }
 

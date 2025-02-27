@@ -26,15 +26,14 @@ const fetchingData = ref(false);
 async function fetchData() {
   fetchingData.value = true;
   const result = await wails(() => ExecuteQuery(databaseId.value, query.value));
-  if (result instanceof Error) {
-    // TODO: specific error handling
-  } else {
-    data.value = {
-      ...result,
-      columns: formatColumns(result.columns, undefined, undefined, true),
-    };
-  }
   fetchingData.value = false;
+  if (result instanceof Error) {
+    return;
+  }
+  data.value = {
+    ...result,
+    columns: formatColumns(result.columns, undefined, undefined, true),
+  };
 }
 
 const pastQueries = ref<app.PastQuery[]>([]);
@@ -43,21 +42,19 @@ async function fetchPastQueries() {
   fetchingPastQueries.value = true;
   const result = await wails(GetPastQueries);
   if (result instanceof Error) {
-    // TODO: specific error handling
-  } else {
-    pastQueries.value = result;
-    fetchingPastQueries.value = false;
+    return;
   }
+  pastQueries.value = result;
+  fetchingPastQueries.value = false;
 }
 fetchPastQueries();
 
 async function removePastQuery(pastQuery: app.PastQuery) {
   const result = await wails(() => DeletePastQuery(pastQuery.id));
   if (result instanceof Error) {
-    // TODO: specific error handling
-  } else {
-    fetchPastQueries();
+    return;
   }
+  fetchPastQueries();
 }
 
 function setQuery(q: string, execute = false) {

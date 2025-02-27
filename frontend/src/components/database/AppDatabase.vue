@@ -29,17 +29,16 @@ async function fetchData(page = 1, itemsPerPage = 10) {
   const result = await wails(() =>
     GetDatabaseSchemas(databaseId.value, page, itemsPerPage),
   );
-  if (result instanceof Error) {
-    // TODO: specific error handling
-  } else {
-    columns.value = result.columns;
-    data.value = {
-      key: dataKey.value++,
-      ...result,
-      columns: formatColumns(result.columns, undefined, undefined, true),
-    };
-  }
   fetchingData.value = false;
+  if (result instanceof Error) {
+    return;
+  }
+  columns.value = result.columns;
+  data.value = {
+    key: dataKey.value++,
+    ...result,
+    columns: formatColumns(result.columns, undefined, undefined, true),
+  };
 }
 fetchData();
 </script>

@@ -24,37 +24,33 @@ export const useConnections = createSharedComposable(() => {
   async function fetchConnections() {
     const result = await wails(GetConnections);
     if (result instanceof Error) {
-      // TODO: specific error handling
-    } else {
-      connections.value = result;
+      return;
     }
+    connections.value = result;
   }
 
   async function addConnection(connection: app.Connection) {
     const result = await wails(() => CreateConnection(connection));
     if (result instanceof Error) {
-      // TODO: specific error handling
-    } else {
-      await fetchConnections();
+      return;
     }
+    await fetchConnections();
   }
 
   async function updateConnectionInfo(connection: app.Connection) {
     const result = await wails(() => UpdateConnection(connection));
     if (result instanceof Error) {
-      // TODO: specific error handling
-    } else {
-      await fetchConnections();
+      return;
     }
+    await fetchConnections();
   }
 
   async function removeConnection(id: string) {
     const result = await wails(() => DeleteConnection(id));
     if (result instanceof Error) {
-      // TODO: specific error handling
-    } else {
-      await fetchConnections();
+      return;
     }
+    await fetchConnections();
   }
 
   function select(id: string) {
@@ -69,24 +65,22 @@ export const useConnections = createSharedComposable(() => {
   async function connect(id: string) {
     const result = await wails(() => Connect(id));
     if (result instanceof Error) {
-      // TODO: specific error handling
-    } else {
-      activeConnections.value.push(id);
-      select(id);
+      return;
     }
+    activeConnections.value.push(id);
+    select(id);
   }
 
   async function disconnect(id: string) {
     const result = await wails(() => Disconnect(id));
     if (result instanceof Error) {
-      // TODO: specific error handling
-    } else {
-      activeConnections.value = activeConnections.value.filter(
-        (connectionId) => connectionId !== id,
-      );
-      if (databaseId.value === id) {
-        router.push("/");
-      }
+      return;
+    }
+    activeConnections.value = activeConnections.value.filter(
+      (connectionId) => connectionId !== id,
+    );
+    if (databaseId.value === id) {
+      router.push("/");
     }
   }
 

@@ -29,12 +29,11 @@ function getConnectionName(connection: app.Connection) {
 async function removeConnection(connection: app.Connection) {
   const result = await wails(() => DeleteConnection(connection.id));
   if (result instanceof Error) {
-    // TODO: specific error handling
-  } else {
-    fetchConnections();
-    if (connection.id === databaseId.value) {
-      router.push("/");
-    }
+    return;
+  }
+  fetchConnections();
+  if (connection.id === databaseId.value) {
+    router.push("/");
   }
 }
 </script>

@@ -53,12 +53,11 @@ const { databaseId } = useUrlParams();
 async function execute() {
   const result = await wails(() => Execute(databaseId.value, query.value));
   if (result instanceof Error) {
-    // TODO: specific error handling
-  } else {
-    open.value = false;
-    tx.abort();
-    emit("paginationChange", page.value, itemsPerPage.value);
+    return;
   }
+  open.value = false;
+  tx.abort();
+  emit("paginationChange", page.value, itemsPerPage.value);
 }
 
 function abort() {

@@ -50,20 +50,18 @@ async function submitConnection(event: FormSubmitEvent<Schema>) {
     event.data.id ? UpdateConnection(event.data) : CreateConnection(event.data),
   );
   if (result instanceof Error) {
-    // TODO: specific error handling
-  } else {
-    fetchConnections();
-    emit("connectionAdded");
+    return;
   }
+  fetchConnections();
+  emit("connectionAdded");
 }
 
 async function selectFile() {
   const result = await wails(SelectFile);
   if (result instanceof Error) {
-    // TODO: specific error handling
-  } else {
-    state.connection_string = result;
+    return;
   }
+  state.connection_string = result;
 }
 
 function selectType(type: app.ConnectionType) {
