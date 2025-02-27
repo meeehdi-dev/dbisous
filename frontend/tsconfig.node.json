@@ -9,6 +9,7 @@
   "include": [
     "vite.config.ts",
     "eslint.config.js",
-    "tailwind.config.js"
+    "tailwind.config.js",
+    ".lintstagedrc.js"
   ]
 }
