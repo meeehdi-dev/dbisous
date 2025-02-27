@@ -11,7 +11,7 @@ func fetchColumns(rows *sql.Rows) ([]ColumnMetadata, error) {
 
 	for rows.Next() {
 		var column ColumnMetadata
-		err := rows.Scan(&column.Name, &column.Type, &column.DefaultValue, &column.Nullable)
+		err := rows.Scan(&column.Name, &column.Type, &column.DefaultValue, &column.Nullable, &column.PrimaryKey)
 		if err != nil {
 			return columns, err
 		}
@@ -110,4 +110,13 @@ func executeSelectQuery(db *sql.DB, query string, limit int, offset int, args ..
 	}
 
 	return result, nil
+}
+
+func execute(db *sql.DB, query string) error {
+	_, err := db.Exec(query)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

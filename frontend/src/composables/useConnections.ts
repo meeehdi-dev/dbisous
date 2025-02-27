@@ -1,7 +1,6 @@
 import { onMounted, ref } from "vue";
 import { createSharedComposable } from "@vueuse/core";
 import { useWails } from "@/composables/useWails";
-import { Effect } from "effect";
 import { useRouter } from "vue-router";
 import { useUrlParams } from "@/composables/useUrlParams";
 import { app } from "_/go/models";
@@ -22,84 +21,80 @@ export const useConnections = createSharedComposable(() => {
   const connections = ref<Array<app.Connection>>([]);
   const activeConnections = ref<Array<string>>([]);
 
-  const fetchConnections = async () => {
-    return Effect.runPromise(
-      wails(GetConnections).pipe(
-        Effect.tap((c) => {
-          connections.value = c;
-        }),
-      ),
-    );
-  };
+  async function fetchConnections() {
+    const result = await wails(GetConnections);
+    if (result instanceof Error) {
+      return;
+    }
+    connections.value = result;
+  }
 
-  const addConnection = async (connection: app.Connection) => {
-    return Effect.runPromise(
-      wails(() => CreateConnection(connection)).pipe(
-        Effect.tap(fetchConnections),
-      ),
-    );
-  };
+  async function addConnection(connection: app.Connection) {
+    const result = await wails(() => CreateConnection(connection));
+    if (result instanceof Error) {
+      return;
+    }
+    await fetchConnections();
+  }
 
-  const updateConnectionInfo = async (connection: app.Connection) => {
-    return Effect.runPromise(
-      wails(() => UpdateConnection(connection)).pipe(
-        Effect.tap(fetchConnections),
-      ),
-    );
-  };
+  async function updateConnectionInfo(connection: app.Connection) {
+    const result = await wails(() => UpdateConnection(connection));
+    if (result instanceof Error) {
+      return;
+    }
+    await fetchConnections();
+  }
 
-  const removeConnection = async (id: string) => {
-    return Effect.runPromise(
-      wails(() => DeleteConnection(id)).pipe(Effect.tap(fetchConnections)),
-    );
-  };
+  async function removeConnection(id: string) {
+    const result = await wails(() => DeleteConnection(id));
+    if (result instanceof Error) {
+      return;
+    }
+    await fetchConnections();
+  }
 
-  const select = async (id: string) => {
+  async function select(id: string) {
     if (
       activeConnections.value.some((c) => c === id) &&
       databaseId.value !== id
     ) {
-      router.push(`/database/${id}`);
+      await router.push(`/database/${id}`);
     }
-  };
+  }
 
-  const connect = async (id: string) => {
-    return Effect.runPromise(
-      wails(() => Connect(id)).pipe(
-        Effect.tap(() => {
-          activeConnections.value.push(id);
-          select(id);
-        }),
-      ),
+  async function connect(id: string) {
+    const result = await wails(() => Connect(id));
+    if (result instanceof Error) {
+      return;
+    }
+    activeConnections.value.push(id);
+    await select(id);
+  }
+
+  async function disconnect(id: string) {
+    const result = await wails(() => Disconnect(id));
+    if (result instanceof Error) {
+      return;
+    }
+    activeConnections.value = activeConnections.value.filter(
+      (connectionId) => connectionId !== id,
     );
-  };
+    if (databaseId.value === id) {
+      await router.push("/");
+    }
+  }
 
-  const disconnect = async (id: string) => {
-    return Effect.runPromise(
-      wails(() => Disconnect(id)).pipe(
-        Effect.tap(() => {
-          activeConnections.value = activeConnections.value.filter(
-            (connectionId) => connectionId !== id,
-          );
-          if (databaseId.value === id) {
-            router.push("/");
-          }
-        }),
-      ),
-    );
-  };
-
-  const getConnectionName = (connection: app.Connection) => {
+  function getConnectionName(connection: app.Connection) {
     if (connection.name) {
       return connection.name;
     }
     const parts = connection.connection_string.split("/");
     return parts[parts.length - 1];
-  };
+  }
 
-  const isConnected = (id: string) => {
+  function isConnected(id: string) {
     return activeConnections.value.includes(id);
-  };
+  }
 
   onMounted(fetchConnections);
 

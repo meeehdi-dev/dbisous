@@ -1,6 +1,7 @@
 <script setup lang="ts">
-const packageVersion = import.meta.env.PACKAGE_VERSION;
+const packageVersion = import.meta.env.PACKAGE_VERSION as string;
 </script>
+
 <template>
   <div class="flex flex-initial">
     <div class="p-4 flex flex-auto justify-center items-center">
@@ -14,7 +15,7 @@ const packageVersion = import.meta.env.PACKAGE_VERSION;
         />
 
         <template #content>
-          <Placeholder class="h-48 m-4" />
+          <USkeleton class="h-48 m-4" />
         </template>
       </UModal>
     </div>

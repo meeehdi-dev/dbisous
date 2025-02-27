@@ -1,4 +1,4 @@
-import { defineConfig } from "vite";
+import { defineConfig, PluginOption } from "vite";
 import vue from "@vitejs/plugin-vue";
 import tailwindcss from "@tailwindcss/vite";
 import ui from "@nuxt/ui/vite";
@@ -13,17 +13,20 @@ export default defineConfig({
     ],
   },
   define: {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     "import.meta.env.PACKAGE_VERSION": JSON.stringify(packageJson.version),
   },
   plugins: [
     vue(),
-    tailwindcss(),
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+    tailwindcss() as PluginOption,
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     ui({
       ui: {
         colors: {
           primary: "indigo",
         },
       },
-    }),
+    }) as PluginOption,
   ],
 });

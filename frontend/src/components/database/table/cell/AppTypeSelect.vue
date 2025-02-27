@@ -10,10 +10,9 @@ const types = ref<Array<string>>([]);
 
 <template>
   <USelect
+    v-model="value"
     variant="ghost"
     :items="types"
-    v-model="value"
     :disabled="disabled"
-    class="w-full"
   />
 </template>

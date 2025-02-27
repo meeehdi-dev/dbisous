@@ -9,10 +9,14 @@ const emit = defineEmits<RowEmits>();
 const {
   loading,
   data,
+  table,
+  primaryKey,
   actions = [],
 } = defineProps<{
   loading: boolean;
   data?: client.ColumnMetadata[];
+  table?: string;
+  primaryKey?: string;
   actions?: RowAction[];
 }>();
 
@@ -56,6 +60,11 @@ const columns: TableColumn<client.ColumnMetadata>[] = [
     header: "Nullable",
     cell: cell({ type: "BOOL", disabled: true }),
   },
+  {
+    accessorKey: "primary_key",
+    header: "Primary key",
+    cell: cell({ type: "BOOL", disabled: true }),
+  },
 ];
 
 const columnPinning = ref({ right: ["action"] });
@@ -65,34 +74,22 @@ const columnPinning = ref({ right: ["action"] });
   <div class="flex flex-auto flex-col gap-4 justify-between overflow-hidden">
     <div class="flex flex-auto flex-col gap-4 overflow-auto">
       <UTable
+        :key="key"
+        v-model:column-pinning="columnPinning"
         :data="data"
         :columns="columns"
-        v-model:column-pinning="columnPinning"
         :loading="loading"
-        :key="key"
-        :ui="{ td: 'p-1' }"
+        :ui="{ td: 'p-0' }"
       >
-        <template #action-cell="{ row }">
-          <UButton
-            v-if="actions.includes(RowAction.View)"
-            icon="lucide:eye"
-            color="primary"
-            variant="ghost"
-            @click="emit(RowAction.View, row)"
-          />
-          <UButton
-            v-if="actions.includes(RowAction.Copy)"
-            icon="lucide:copy"
-            color="secondary"
-            variant="ghost"
-            @click="emit(RowAction.Copy, row)"
-          />
-          <UButton
-            v-if="actions.includes(RowAction.Remove)"
-            icon="lucide:trash"
-            color="error"
-            variant="ghost"
-            @click="emit(RowAction.Remove, row)"
+        <template #action-cell="{ row: { original: row } }">
+          <AppColumnActions
+            :row="row"
+            :actions="actions"
+            :table="table"
+            :primary-key="primaryKey"
+            @view="emit(RowAction.View, row)"
+            @duplicate="emit(RowAction.Duplicate, row)"
+            @delete="emit(RowAction.Delete, row)"
           />
         </template>
       </UTable>

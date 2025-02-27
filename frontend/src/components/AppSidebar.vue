@@ -32,7 +32,7 @@ function onConnectionEdit(connection: app.Connection) {
       <div class="w-full flex flex-initial flex-col gap-2 overflow-auto">
         <AppConnection
           v-for="connection in connections"
-          v-bind:key="connection.id"
+          :key="connection.id"
           :connection="connection"
           @connection-edit="onConnectionEdit"
         />
@@ -40,9 +40,9 @@ function onConnectionEdit(connection: app.Connection) {
 
       <UButton
         icon="lucide:plus"
-        @click="onConnectionAdd"
         label="Add connection"
         class="flex flex-initial"
+        @click="onConnectionAdd"
       />
 
       <USlideover

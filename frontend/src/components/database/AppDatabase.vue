@@ -3,46 +3,45 @@ import { useRouter } from "vue-router";
 import { GetDatabaseSchemas } from "_/go/app/App";
 import { useUrlParams } from "@/composables/useUrlParams";
 import {
+  formatColumns,
   FormattedQueryResult,
   RowAction,
 } from "@/components/database/table/table";
 import { useWails } from "@/composables/useWails";
-import { formatQueryResult } from "@/effects/columns";
 import { ref } from "vue";
-import { Effect } from "effect";
 import { client } from "_/go/models";
 
 const router = useRouter();
 const { databaseId } = useUrlParams();
 
-function navigateToSchema(schemaId: string) {
-  router.push({ name: "schema", params: { schemaId } });
+async function navigateToSchema(schemaId: string) {
+  await router.push({ name: "schema", params: { schemaId } });
 }
 
 const wails = useWails();
 
-const data = ref<FormattedQueryResult>();
+const data = ref<FormattedQueryResult & { key: number }>();
+const dataKey = ref(0);
 const columns = ref<client.ColumnMetadata[]>();
 const fetchingData = ref(false);
 async function fetchData(page = 1, itemsPerPage = 10) {
   fetchingData.value = true;
-  await Effect.runPromise(
-    wails(() => GetDatabaseSchemas(databaseId.value, page, itemsPerPage)).pipe(
-      Effect.tap((result) => {
-        columns.value = result.columns;
-      }),
-      Effect.andThen(formatQueryResult),
-      Effect.tap((result) => {
-        data.value = result;
-        fetchingData.value = false;
-      }),
-      Effect.catchTags({
-        WailsError: Effect.succeed,
-      }),
-    ),
+  const result = await wails(() =>
+    GetDatabaseSchemas(databaseId.value, page, itemsPerPage),
   );
+  fetchingData.value = false;
+  if (result instanceof Error) {
+    return;
+  }
+  columns.value = result.columns;
+  data.value = {
+    key: dataKey.value++,
+    // eslint-disable-next-line @typescript-eslint/no-misused-spread
+    ...result,
+    columns: formatColumns(result.columns, undefined, undefined, true),
+  };
 }
-fetchData();
+await fetchData();
 </script>
 
 <template>
@@ -55,9 +54,7 @@ fetchData();
         @view="
           (row) =>
             navigateToSchema(
-              row.original.SCHEMA_NAME ||
-                row.original.schema_name ||
-                row.original.name,
+              (row.SCHEMA_NAME || row.schema_name || row.name) as string,
             )
         "
         @pagination-change="fetchData"

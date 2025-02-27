@@ -12,7 +12,7 @@ type SqliteClient struct {
 func (c *SqliteClient) fetchColumnsMetadata(table string) ([]ColumnMetadata, error) {
 	var columnsMetadata []ColumnMetadata
 
-	columns, err := c.Db.Query("SELECT name, type, COALESCE(dflt_value, 'NULL') AS default_value, CASE \"notnull\" WHEN 1 THEN false ELSE true END nullable FROM pragma_table_info(?)", table)
+	columns, err := c.Db.Query("SELECT name, type, COALESCE(dflt_value, 'NULL') AS default_value, CASE \"notnull\" WHEN 1 THEN false ELSE true END nullable, pk AS primary_key FROM pragma_table_info(?)", table)
 	if err != nil {
 		return columnsMetadata, err
 	}
@@ -56,4 +56,8 @@ func (c *SqliteClient) GetTableRows(limit int, offset int, schema string, table 
 
 func (c *SqliteClient) ExecuteQuery(query string, args ...interface{}) (QueryResult, error) {
 	return executeQuery(c.Db, query, args...)
+}
+
+func (c *SqliteClient) Execute(query string) error {
+	return execute(c.Db, query)
 }

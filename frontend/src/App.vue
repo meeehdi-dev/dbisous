@@ -4,8 +4,8 @@ import { useRouter } from "vue-router";
 
 const router = useRouter();
 
-onMounted(() => {
-  router.push({ name: "welcome" });
+onMounted(async () => {
+  await router.push({ name: "welcome" });
 });
 </script>
 
