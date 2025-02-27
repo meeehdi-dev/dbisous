@@ -7,19 +7,19 @@ export enum ChangeType {
   Delete = "DELETE",
 }
 
-interface IChange {
+interface Change {
   id: number;
   type: ChangeType;
 }
 
-export interface InsertChange extends IChange {
+export interface InsertChange extends Change {
   type: ChangeType.Insert;
   table: string;
   values: Record<string, unknown>;
   __key: number; // used as temporary row key
 }
 
-export interface UpdateChange extends IChange {
+export interface UpdateChange extends Change {
   type: ChangeType.Update;
   table: string;
   values: Record<string, unknown>;
@@ -27,7 +27,7 @@ export interface UpdateChange extends IChange {
   rowKey: unknown;
 }
 
-export interface DeleteChange extends IChange {
+export interface DeleteChange extends Change {
   type: ChangeType.Delete;
   table: string;
   primaryKey: string;
