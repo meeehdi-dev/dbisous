@@ -103,10 +103,15 @@ function abort() {
         </template>
       </UTable>
       <div
-        v-if="data?.columns && data.columns.some((c) => c.id === 'actions')"
         class="flex flex-initial justify-center"
+        v-if="actions.some((a) => a === RowAction.Insert)"
       >
-        <UButton icon="lucide:plus" variant="soft" label="Add row" />
+        <UButton
+          icon="lucide:plus"
+          variant="soft"
+          label="Add row"
+          @click="emit(RowAction.Insert)"
+        />
       </div>
     </div>
     <AppPagination

@@ -62,6 +62,17 @@ function duplicateRow(row: unknown) {
   data.value!.key++;
 }
 
+function insertRow() {
+  const row: Record<string, unknown> = {};
+  columns.value?.forEach((c) => {
+    row[c.name] = c.default_value === "NULL" ? undefined : c.default_value;
+  });
+  const key = tx.addInsert(tableId.value, row);
+  row.__key = key;
+  data.value!.rows.push(row);
+  data.value!.key++;
+}
+
 function deleteRow(row: unknown) {
   // @ts-expect-error tkt
   const rowKey = row[primaryKey.value] as unknown | undefined;
@@ -92,8 +103,11 @@ function deleteRow(row: unknown) {
         :table="tableId"
         :primary-key="primaryKey"
         :actions="
-          primaryKey ? [RowAction.Duplicate, RowAction.Delete] : undefined
+          primaryKey
+            ? [RowAction.Insert, RowAction.Duplicate, RowAction.Delete]
+            : undefined
         "
+        @insert="insertRow"
         @duplicate="duplicateRow"
         @delete="deleteRow"
         @pagination-change="fetchData"
