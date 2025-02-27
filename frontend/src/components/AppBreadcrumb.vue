@@ -2,6 +2,7 @@
 import { ref, watchEffect } from "vue";
 import { useUrlParams } from "@/composables/useUrlParams";
 import { useConnections } from "@/composables/useConnections";
+import { BreadcrumbItem } from "@nuxt/ui/dist/module";
 
 const { databaseId, schemaId, tableId } = useUrlParams();
 const { connections } = useConnections();
