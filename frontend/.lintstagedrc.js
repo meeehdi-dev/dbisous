@@ -1,8 +1,6 @@
 import path from "path";
 import process from "process";
 
-console.log("yo");
-
 /**
  * @param {string[]} filenames
  */
@@ -11,6 +9,9 @@ const buildEslintCommand = (filenames) =>
     .map((f) => path.relative(process.cwd(), f))
     .join(" --file ")}`;
 
+/**
+ * @type {import('lint-staged').Configuration}
+ */
 export default {
-  "*.{js,jsx,ts,tsx}": [buildEslintCommand],
+  "*.{js,ts,vue}": [buildEslintCommand],
 };
