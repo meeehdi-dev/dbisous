@@ -56,10 +56,8 @@ fetchData();
         @view="
           (row) =>
             navigateToTable(
-              // @ts-expect-error tkt
-              row.TABLE_SCHEMA || row.table_schema || row.schema,
-              // @ts-expect-error tkt
-              row.TABLE_NAME || row.table_name || row.name,
+              (row.TABLE_SCHEMA || row.table_schema || row.schema) as string,
+              (row.TABLE_NAME || row.table_name || row.name) as string,
             )
         "
         @pagination-change="fetchData"

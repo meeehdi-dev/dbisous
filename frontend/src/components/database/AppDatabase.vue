@@ -53,8 +53,9 @@ fetchData();
         :actions="[RowAction.View]"
         @view="
           (row) =>
-            // @ts-expect-error tkt
-            navigateToSchema(row.SCHEMA_NAME || row.schema_name || row.name)
+            navigateToSchema(
+              (row.SCHEMA_NAME || row.schema_name || row.name) as string,
+            )
         "
         @pagination-change="fetchData"
       />
