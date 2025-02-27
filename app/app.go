@@ -86,3 +86,7 @@ func (a *App) GetPastQueries() ([]PastQuery, error) {
 func (a *App) DeletePastQuery(id string) error {
 	return DeletePastQuery(id)
 }
+
+func (a *App) Execute(id string, query string) error {
+	return Execute(id, query)
+}

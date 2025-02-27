@@ -2,45 +2,96 @@
 import { useUrlParams } from "@/composables/useUrlParams";
 import { GetTableRows } from "_/go/app/App";
 import { ref } from "vue";
-import { FormattedQueryResult } from "@/components/database/table/table";
+import {
+  formatColumns,
+  FormattedQueryResult,
+  RowAction,
+} from "@/components/database/table/table";
 import { client } from "_/go/models";
-import { Effect } from "effect";
 import { useWails } from "@/composables/useWails";
-import { formatQueryResult } from "@/effects/columns";
+import { useTransaction } from "@/composables/useTransaction";
 
 const { databaseId, schemaId, tableId } = useUrlParams();
 const wails = useWails();
 
-const data = ref<FormattedQueryResult>();
+const data = ref<FormattedQueryResult & { key: number }>();
+const dataKey = ref(0);
 const columns = ref<client.ColumnMetadata[]>();
+const primaryKey = ref<string>();
 const fetchingData = ref(false);
 async function fetchData(page = 1, itemsPerPage = 10) {
   fetchingData.value = true;
-  await Effect.runPromise(
-    wails(() =>
-      GetTableRows(
-        databaseId.value,
-        page,
-        itemsPerPage,
-        schemaId.value,
-        tableId.value,
-      ),
-    ).pipe(
-      Effect.tap((result) => {
-        columns.value = result.columns;
-      }),
-      Effect.andThen(formatQueryResult),
-      Effect.tap((result) => {
-        data.value = result;
-        fetchingData.value = false;
-      }),
-      Effect.catchTags({
-        WailsError: Effect.succeed,
-      }),
+  const result = await wails(() =>
+    GetTableRows(
+      databaseId.value,
+      page,
+      itemsPerPage,
+      schemaId.value,
+      tableId.value,
     ),
   );
+  if (result instanceof Error) {
+    // TODO: specific error handling
+  } else {
+    columns.value = result.columns;
+    primaryKey.value = result.columns.find((c) => c.primary_key)?.name;
+    data.value = {
+      key: dataKey.value++,
+      ...result,
+      columns: formatColumns(
+        result.columns,
+        tableId.value,
+        primaryKey.value,
+        false,
+      ),
+    };
+  }
+  // TODO: push tx insert changes
+  fetchingData.value = false;
 }
 fetchData();
+
+const tx = useTransaction();
+
+function duplicateRow(row: Record<string, unknown>) {
+  if (!primaryKey.value) {
+    return;
+  }
+
+  const dup = { ...row, [primaryKey.value]: "NULL" };
+  const key = tx.addInsert(tableId.value, dup);
+  dup.__key = key;
+  data.value!.rows.push(dup);
+  data.value!.key++;
+}
+
+function insertRow() {
+  const row: Record<string, unknown> = {};
+  columns.value?.forEach((c) => {
+    row[c.name] = c.default_value;
+  });
+  const key = tx.addInsert(tableId.value, row);
+  row.__key = key;
+  data.value!.rows.push(row);
+  data.value!.key++;
+}
+
+function deleteRow(row: Record<string, unknown>) {
+  let rowKey = row.__key;
+  if (rowKey === undefined && primaryKey.value) {
+    rowKey = row[primaryKey.value];
+    tx.toggleDelete(tableId.value, primaryKey.value!, rowKey);
+  } else if (rowKey !== undefined) {
+    tx.removeInsert(tableId.value, rowKey as number);
+    data.value!.rows.splice(
+      data.value!.rows.findIndex(
+        (r: Record<string, unknown>) => r.__key === rowKey,
+      ),
+      1,
+    );
+    data.value!.key++;
+  }
+}
 </script>
 
 <template>
@@ -49,11 +100,26 @@ fetchData();
       <AppRows
         :loading="fetchingData"
         :data="data"
+        :table="tableId"
+        :primary-key="primaryKey"
+        :actions="
+          primaryKey
+            ? [RowAction.Insert, RowAction.Duplicate, RowAction.Delete]
+            : undefined
+        "
+        @insert="insertRow"
+        @duplicate="duplicateRow"
+        @delete="deleteRow"
         @pagination-change="fetchData"
       />
     </template>
     <template #info>
-      <AppColumns :loading="fetchingData" :data="columns" />
+      <AppColumns
+        :loading="fetchingData"
+        :data="columns"
+        :table="tableId"
+        :primary-key="primaryKey"
+      />
     </template>
   </AppTabs>
 </template>

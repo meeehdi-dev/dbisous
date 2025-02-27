@@ -14,6 +14,5 @@ const types = ref<Array<string>>([]);
     :items="types"
     v-model="value"
     :disabled="disabled"
-    class="w-full"
   />
 </template>

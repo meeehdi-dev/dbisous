@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { ref, watch } from "vue";
 import { useUrlParams } from "@/composables/useUrlParams";
-import { Effect } from "effect";
-import { FormattedQueryResult } from "@/components/database/table/table";
+import {
+  formatColumns,
+  FormattedQueryResult,
+} from "@/components/database/table/table";
 import { useWails } from "@/composables/useWails";
 import { DeletePastQuery, ExecuteQuery, GetPastQueries } from "_/go/app/App";
 import { app } from "_/go/models";
-import { formatQueryResult } from "@/effects/columns";
 
 const defaultQuery = defineModel<string>("defaultQuery");
 
@@ -24,50 +25,39 @@ const data = ref<FormattedQueryResult>();
 const fetchingData = ref(false);
 async function fetchData() {
   fetchingData.value = true;
-  await Effect.runPromise(
-    wails(() => ExecuteQuery(databaseId.value, query.value)).pipe(
-      Effect.andThen(formatQueryResult),
-      Effect.tap((result) => {
-        error.value = "";
-        data.value = result;
-        fetchingData.value = false;
-        fetchPastQueries();
-      }),
-      Effect.catchTags({
-        WailsError: (err) => {
-          error.value = err.message;
-          data.value = undefined;
-          return Effect.succeed(err);
-        },
-      }),
-    ),
-  );
+  const result = await wails(() => ExecuteQuery(databaseId.value, query.value));
+  if (result instanceof Error) {
+    // TODO: specific error handling
+  } else {
+    data.value = {
+      ...result,
+      columns: formatColumns(result.columns, undefined, undefined, true),
+    };
+  }
+  fetchingData.value = false;
 }
 
 const pastQueries = ref<app.PastQuery[]>([]);
 const fetchingPastQueries = ref(false);
 async function fetchPastQueries() {
   fetchingPastQueries.value = true;
-  await Effect.runPromise(
-    wails(GetPastQueries).pipe(
-      Effect.tap((result) => {
-        pastQueries.value = result;
-        fetchingPastQueries.value = false;
-      }),
-      Effect.catchTags({
-        WailsError: Effect.succeed,
-      }),
-    ),
-  );
+  const result = await wails(GetPastQueries);
+  if (result instanceof Error) {
+    // TODO: specific error handling
+  } else {
+    pastQueries.value = result;
+    fetchingPastQueries.value = false;
+  }
 }
 fetchPastQueries();
 
-function removePastQuery(pastQuery: app.PastQuery) {
-  Effect.runPromise(
-    wails(() => DeletePastQuery(pastQuery.id)).pipe(
-      Effect.tap(fetchPastQueries),
-    ),
-  );
+async function removePastQuery(pastQuery: app.PastQuery) {
+  const result = await wails(() => DeletePastQuery(pastQuery.id));
+  if (result instanceof Error) {
+    // TODO: specific error handling
+  } else {
+    fetchPastQueries();
+  }
 }
 
 function setQuery(q: string, execute = false) {

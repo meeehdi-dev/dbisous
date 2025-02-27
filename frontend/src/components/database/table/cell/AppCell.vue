@@ -1,19 +1,28 @@
 <script setup lang="ts">
-import { ref, watch } from "vue";
+import { computed, ref } from "vue";
 import {
   booleanTypes,
   dateTypes,
   numberTypes,
   textTypes,
 } from "@/components/database/table/table";
+import { useTransaction } from "@/composables/useTransaction";
 
 const {
+  table,
+  primaryKey,
+  column,
+  row,
   initialValue,
   type = "",
   defaultValue = undefined,
   nullable = false,
   disabled,
 } = defineProps<{
+  table?: string;
+  primaryKey?: string;
+  column?: string;
+  row?: Record<string, unknown>;
   initialValue: unknown;
   type?: string;
   defaultValue?: unknown;
@@ -21,55 +30,110 @@ const {
   disabled: boolean;
 }>();
 
-const value = ref(initialValue);
-watch(
-  () => initialValue,
-  () => {
-    value.value = initialValue;
+const tx = useTransaction();
+
+const valueRef = ref<unknown>(initialValue);
+const value = computed({
+  get: () => {
+    if (!row) {
+      return initialValue;
+    }
+
+    let rowKey = row.__key;
+    if (rowKey !== undefined) {
+      const change = tx.insertChanges.value.find(
+        (c) => c.table === table && c.__key === rowKey,
+      );
+      if (change && column && change.values[column] !== undefined) {
+        return change.values[column];
+      } else {
+        return initialValue;
+      }
+    } else if (primaryKey) {
+      rowKey = row[primaryKey];
+      const change = tx.updateChanges.value.find(
+        (c) => c.table === table && c.rowKey === rowKey,
+      );
+      if (change && column && change.values[column] !== undefined) {
+        return change.values[column];
+      } else {
+        return initialValue;
+      }
+    } else {
+      return initialValue;
+    }
   },
-);
+  set: (v) => {
+    if (!table || !column || !primaryKey || !row) {
+      return;
+    }
+    let rowKey = row.__key;
+    if (rowKey !== undefined) {
+      tx.updateInsert(table, rowKey as number, column, v);
+      return;
+    }
+    rowKey = row[primaryKey];
+    if (v === initialValue) {
+      tx.removeUpdate(table, primaryKey, rowKey, column);
+    } else {
+      tx.addUpdate(table, primaryKey, rowKey, column, v);
+    }
+
+    valueRef.value = v;
+  },
+});
+
+const isDeleted = computed(() => {
+  if (!row) {
+    return;
+  }
+
+  let rowKey = row.__key;
+  if (rowKey !== undefined || primaryKey === undefined) {
+    return;
+  }
+
+  rowKey = row[primaryKey];
+  return tx.deleteChanges.value.some(
+    (c) => c.table === table && c.rowKey === rowKey,
+  );
+});
+
+// @ts-expect-error tkt
+const rowKey = row.__key;
 </script>
 
 <template>
-  <div class="flex gap-1 group">
+  <div
+    :class="`p-1 flex gap-1 group transition-colors ${isDeleted ? 'opacity-20' : value === 'NULL' && !nullable ? 'bg-error-400/50' : rowKey !== undefined ? 'bg-warning-400/50' : value !== initialValue ? 'bg-primary-400/50' : ''}`"
+  >
     <AppTypeSelect
-      v-if="type === 'TYPE'"
+      v-if="type.toLowerCase() === 'type'"
       v-model="value as string"
-      :initial-value="initialValue as boolean"
-      :default-value="defaultValue as boolean"
-      :nullable="nullable"
-      :disabled="disabled"
+      :disabled="disabled || isDeleted"
     />
     <AppCheckbox
-      v-else-if="booleanTypes.includes(type)"
+      v-else-if="booleanTypes.includes(type.toLowerCase())"
       v-model="value as boolean"
-      :initial-value="initialValue as boolean"
-      :default-value="defaultValue as boolean"
-      :nullable="nullable"
-      :disabled="disabled"
+      :disabled="disabled || isDeleted"
     />
     <AppText
-      v-else-if="textTypes.includes(type)"
+      v-else-if="textTypes.includes(type.toLowerCase())"
       v-model="value as string"
-      :initial-value="initialValue as string"
-      :default-value="defaultValue as string"
-      :nullable="nullable"
-      :disabled="disabled"
+      :disabled="disabled || isDeleted"
     />
     <AppDatePicker
-      v-else-if="dateTypes.includes(type)"
+      v-else-if="dateTypes.includes(type.toLowerCase())"
       v-model="value as string"
       :initial-value="initialValue as string"
       :default-value="defaultValue as string"
       :nullable="nullable"
-      :disabled="disabled"
+      :disabled="disabled || isDeleted"
     />
     <AppInputNumber
-      v-else-if="numberTypes.includes(type)"
-      :initial-value="initialValue as number"
-      :default-value="defaultValue as number"
-      :nullable="nullable"
-      :disabled="disabled"
+      v-else-if="numberTypes.includes(type.toLowerCase())"
+      v-model="value as number"
+      :disabled="disabled || isDeleted"
     />
     <span v-else-if="type === ''" class="italic px-2.5">{{
       initialValue
@@ -82,7 +146,7 @@ watch(
       :initial-value="initialValue"
       :default-value="defaultValue"
       :nullable="nullable"
-      :disabled="disabled"
+      :disabled="disabled || isDeleted"
     />
   </div>
 </template>

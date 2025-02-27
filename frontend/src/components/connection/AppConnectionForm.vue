@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { Effect } from "effect";
 import * as v from "valibot";
 import { reactive, ref } from "vue";
 import { useWails } from "@/composables/useWails";
@@ -46,29 +45,25 @@ const items = [
 ];
 const active = ref(state.id ? 1 : 0);
 
-function submitConnection(event: FormSubmitEvent<Schema>) {
-  Effect.runPromise(
-    wails(() =>
-      event.data.id
-        ? UpdateConnection(event.data)
-        : CreateConnection(event.data),
-    ).pipe(
-      Effect.tap(() => {
-        emit("connectionAdded");
-      }),
-      Effect.tap(fetchConnections),
-    ),
+async function submitConnection(event: FormSubmitEvent<Schema>) {
+  const result = await wails(() =>
+    event.data.id ? UpdateConnection(event.data) : CreateConnection(event.data),
   );
+  if (result instanceof Error) {
+    // TODO: specific error handling
+  } else {
+    fetchConnections();
+    emit("connectionAdded");
+  }
 }
 
-function selectFile() {
-  Effect.runPromise(
-    wails(SelectFile).pipe(
-      Effect.tap((url) => {
-        state.connection_string = url;
-      }),
-    ),
-  );
+async function selectFile() {
+  const result = await wails(SelectFile);
+  if (result instanceof Error) {
+    // TODO: specific error handling
+  } else {
+    state.connection_string = result;
+  }
 }
 
 function selectType(type: app.ConnectionType) {

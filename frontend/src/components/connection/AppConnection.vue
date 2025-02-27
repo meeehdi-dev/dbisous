@@ -3,7 +3,6 @@ import { computed } from "vue";
 import { useConnections } from "@/composables/useConnections";
 import { useUrlParams } from "@/composables/useUrlParams";
 import { app } from "_/go/models";
-import { Effect } from "effect";
 import { useWails } from "@/composables/useWails";
 import { DeleteConnection } from "_/go/app/App";
 import { useRouter } from "vue-router";
@@ -27,17 +26,16 @@ function getConnectionName(connection: app.Connection) {
   return parts[parts.length - 1];
 }
 
-function removeConnection(connection: app.Connection) {
-  Effect.runPromise(
-    wails(() => DeleteConnection(connection.id)).pipe(
-      Effect.tap(() => {
-        if (connection.id === databaseId.value) {
-          router.push("/");
-        }
-      }),
-      Effect.tap(fetchConnections),
-    ),
-  );
+async function removeConnection(connection: app.Connection) {
+  const result = await wails(() => DeleteConnection(connection.id));
+  if (result instanceof Error) {
+    // TODO: specific error handling
+  } else {
+    fetchConnections();
+    if (connection.id === databaseId.value) {
+      router.push("/");
+    }
+  }
 }
 </script>
 
