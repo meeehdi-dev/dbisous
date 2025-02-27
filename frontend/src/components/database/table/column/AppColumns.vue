@@ -79,10 +79,10 @@ const columnPinning = ref({ right: ["action"] });
         v-model:column-pinning="columnPinning"
         :loading="loading"
         :key="key"
-        :ui="{ td: 'p-1' }"
+        :ui="{ td: 'p-0' }"
       >
         <template #action-cell="{ row: { original: row } }">
-          <AppActionsColumn
+          <AppColumnActions
             :row="row"
             :actions="actions"
             :table="table"

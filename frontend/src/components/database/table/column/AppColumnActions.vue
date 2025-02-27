@@ -22,7 +22,7 @@ const tx = useTransaction();
 const isDeleted = computed(() => {
   // @ts-expect-error tkt
   let rowKey = row[primaryKey] as unknown;
-  if (rowKey === undefined) {
+  if (rowKey === "") {
     // @ts-expect-error tkt
     rowKey = row.__key;
   }

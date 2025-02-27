@@ -46,6 +46,7 @@ async function fetchData(page = 1, itemsPerPage = 10) {
       ),
     };
   }
+  // TODO: push tx insert changes
   fetchingData.value = false;
 }
 fetchData();
@@ -54,8 +55,7 @@ const tx = useTransaction();
 
 function duplicateRow(row: unknown) {
   // @ts-expect-error tkt
-  const dup = { ...row };
-  delete dup[primaryKey.value];
+  const dup = { ...row, [primaryKey.value]: "NULL" };
   const key = tx.addInsert(tableId.value, dup);
   dup.__key = key;
   data.value!.rows.push(dup);
@@ -65,7 +65,7 @@ function duplicateRow(row: unknown) {
 function insertRow() {
   const row: Record<string, unknown> = {};
   columns.value?.forEach((c) => {
-    row[c.name] = c.default_value === "NULL" ? undefined : c.default_value;
+    row[c.name] = c.default_value;
   });
   const key = tx.addInsert(tableId.value, row);
   row.__key = key;
@@ -75,8 +75,8 @@ function insertRow() {
 
 function deleteRow(row: unknown) {
   // @ts-expect-error tkt
-  const rowKey = row[primaryKey.value] as unknown | undefined;
-  if (rowKey === undefined) {
+  const rowKey = row[primaryKey.value] as unknown;
+  if (rowKey === "") {
     // @ts-expect-error tkt
     const key = row.__key as number;
     if (key !== undefined) {

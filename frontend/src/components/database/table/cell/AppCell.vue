@@ -44,7 +44,7 @@ const value = computed({
   get: () => {
     // @ts-expect-error tkt
     let rowKey = row[primaryKey] as unknown;
-    if (rowKey === undefined) {
+    if (rowKey === "") {
       // @ts-expect-error tkt
       rowKey = row.__key;
       const change = tx.changes.value.find(
@@ -72,7 +72,7 @@ const value = computed({
     }
     // @ts-expect-error tkt
     const rowKey = row[primaryKey] as unknown;
-    if (rowKey === undefined) {
+    if (rowKey === "") {
       // @ts-expect-error tkt
       tx.updateInsert(table, row.__key, column, v);
       return;
@@ -90,7 +90,7 @@ const value = computed({
 const isDeleted = computed(() => {
   // @ts-expect-error tkt
   let rowKey = row[primaryKey] as unknown;
-  if (rowKey === undefined) {
+  if (rowKey === "") {
     // @ts-expect-error tkt
     rowKey = row.__key;
   }
@@ -105,7 +105,7 @@ const rowKey = row.__key;
 
 <template>
   <div
-    :class="`p-1 flex gap-1 group transition-colors ${isDeleted ? 'opacity-20' : !value && !nullable ? 'bg-error-400/50' : rowKey !== undefined ? 'bg-warning-400/50' : value !== initialValue ? 'bg-primary-400/50' : ''}`"
+    :class="`p-1 flex gap-1 group transition-colors ${isDeleted ? 'opacity-20' : value === 'NULL' && !nullable ? 'bg-error-400/50' : rowKey !== undefined ? 'bg-warning-400/50' : value !== initialValue ? 'bg-primary-400/50' : ''}`"
   >
     <AppTypeSelect
       v-if="type.toLowerCase() === 'type'"
