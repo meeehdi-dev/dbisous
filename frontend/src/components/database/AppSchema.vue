@@ -15,8 +15,8 @@ const router = useRouter();
 const { databaseId, schemaId } = useUrlParams();
 const wails = useWails();
 
-function navigateToTable(schemaId: string, tableId: string) {
-  router.push({
+async function navigateToTable(schemaId: string, tableId: string) {
+  await router.push({
     name: "table",
     params: { schemaId, tableId },
   });
@@ -38,11 +38,12 @@ async function fetchData(page = 1, itemsPerPage = 10) {
   columns.value = result.columns;
   data.value = {
     key: dataKey.value++,
+    // eslint-disable-next-line @typescript-eslint/no-misused-spread
     ...result,
     columns: formatColumns(result.columns, undefined, undefined, true),
   };
 }
-fetchData();
+await fetchData();
 </script>
 
 <template>

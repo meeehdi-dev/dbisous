@@ -53,12 +53,12 @@ export const useConnections = createSharedComposable(() => {
     await fetchConnections();
   }
 
-  function select(id: string) {
+  async function select(id: string) {
     if (
       activeConnections.value.some((c) => c === id) &&
       databaseId.value !== id
     ) {
-      router.push(`/database/${id}`);
+      await router.push(`/database/${id}`);
     }
   }
 
@@ -68,7 +68,7 @@ export const useConnections = createSharedComposable(() => {
       return;
     }
     activeConnections.value.push(id);
-    select(id);
+    await select(id);
   }
 
   async function disconnect(id: string) {
@@ -80,7 +80,7 @@ export const useConnections = createSharedComposable(() => {
       (connectionId) => connectionId !== id,
     );
     if (databaseId.value === id) {
-      router.push("/");
+      await router.push("/");
     }
   }
 

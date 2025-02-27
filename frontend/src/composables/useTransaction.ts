@@ -34,7 +34,7 @@ export interface DeleteChange extends Change {
   rowKey: unknown;
 }
 
-function toSqlValue(value: unknown | undefined): string {
+function toSqlValue(value: unknown): string {
   if (value === null) {
     return "NULL";
   }
@@ -112,15 +112,15 @@ export const useTransaction = createSharedComposable(() => {
 
     const fullInsertStr =
       insertChanges.value.length > 0
-        ? `-- ${insertChanges.value.length} insert${insertChanges.value.length > 1 ? "s" : ""}\n${insertsStr}\n`
+        ? `-- ${insertChanges.value.length.toString()} insert${insertChanges.value.length > 1 ? "s" : ""}\n${insertsStr}\n`
         : "";
     const fullUpdateStr =
       updateChanges.value.length > 0
-        ? `-- ${updateChanges.value.length} update${updateChanges.value.length > 1 ? "s" : ""}\n${updatesStr}\n`
+        ? `-- ${updateChanges.value.length.toString()} update${updateChanges.value.length > 1 ? "s" : ""}\n${updatesStr}\n`
         : "";
     const fullDeleteStr =
       deleteChanges.value.length > 0
-        ? `-- ${deleteChanges.value.length} delete${deleteChanges.value.length > 1 ? "s" : ""}\n${deletesStr}\n`
+        ? `-- ${deleteChanges.value.length.toString()} delete${deleteChanges.value.length > 1 ? "s" : ""}\n${deletesStr}\n`
         : "";
 
     const sql =
@@ -170,6 +170,7 @@ export const useTransaction = createSharedComposable(() => {
       (c) =>
         c.table === table && c.primaryKey === primaryKey && c.rowKey === rowKey,
     ) as UpdateChange;
+    // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
     delete update.values[key];
     if (Object.keys(update.values).length === 0) {
       updateChanges.value.splice(

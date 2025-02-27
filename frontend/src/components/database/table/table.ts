@@ -47,12 +47,15 @@ export const cell =
     nullable,
     disabled,
   }: CellProps) =>
+  // @ts-expect-error missing type
   (ctx: CellContext<unknown, unknown>) =>
     h(AppCell, {
       table,
       primaryKey,
       column,
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       row: ctx.row.original,
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
       initialValue: ctx.getValue(),
       type,
       defaultValue,
@@ -87,26 +90,26 @@ export function formatColumns(
   disabled = false,
 ) {
   const formatted = columns.map(
-    ({ name, type, default_value: defaultValue, nullable }) =>
-      ({
-        accessorKey: name,
-        header: name,
-        cell: cell({
-          table,
-          primaryKey,
-          column: name,
-          type,
-          defaultValue,
-          nullable,
-          disabled,
-        }),
-      }) as TableColumn<TableData>,
-  );
+    ({ name, type, default_value: defaultValue, nullable }) => ({
+      accessorKey: name,
+      header: name,
+      cell: cell({
+        table,
+        primaryKey,
+        column: name,
+        type,
+        defaultValue,
+        nullable,
+        disabled,
+      }),
+    }),
+  ) as TableColumn<TableData>[];
 
   formatted.push({
     accessorKey: "action",
     header: "Actions",
   });
 
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-return
   return formatted;
 }

@@ -13,7 +13,11 @@ const { create } = useMonaco();
 
 let e: editor.IStandaloneCodeEditor;
 onMounted(() => {
-  e = create(container.value!, value);
+  if (!container.value) {
+    return;
+  }
+
+  e = create(container.value, value);
 });
 onUnmounted(() => {
   e.dispose();

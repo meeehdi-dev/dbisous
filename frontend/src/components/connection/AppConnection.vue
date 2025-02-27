@@ -31,9 +31,9 @@ async function removeConnection(connection: app.Connection) {
   if (result instanceof Error) {
     return;
   }
-  fetchConnections();
+  await fetchConnections();
   if (connection.id === databaseId.value) {
-    router.push("/");
+    await router.push("/");
   }
 }
 </script>

@@ -40,6 +40,7 @@ async function fetchData(page = 1, itemsPerPage = 10) {
   primaryKey.value = result.columns.find((c) => c.primary_key)?.name;
   data.value = {
     key: dataKey.value++,
+    // eslint-disable-next-line @typescript-eslint/no-misused-spread
     ...result,
     columns: formatColumns(
       result.columns,
@@ -50,45 +51,57 @@ async function fetchData(page = 1, itemsPerPage = 10) {
   };
   // TODO: push tx insert changes
 }
-fetchData();
+await fetchData();
 
 function insertRow() {
+  if (!data.value) {
+    return;
+  }
+
   const row: Record<string, unknown> = {};
   columns.value?.forEach((c) => {
     row[c.name] = c.default_value;
   });
   const key = tx.addInsert(tableId.value, row);
   row.__key = key;
-  data.value!.rows.push(row);
-  data.value!.key++;
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+  data.value.rows.push(row);
+  data.value.key++;
 }
 
 function duplicateRow(row: Record<string, unknown>) {
-  if (!primaryKey.value) {
+  if (!primaryKey.value || !data.value) {
     return;
   }
 
   const dup = { ...row, [primaryKey.value]: "NULL" };
   const key = tx.addInsert(tableId.value, dup);
   dup.__key = key;
-  data.value!.rows.push(dup);
-  data.value!.key++;
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+  data.value.rows.push(dup);
+  data.value.key++;
 }
 
 function deleteRow(row: Record<string, unknown>) {
+  if (!data.value) {
+    return;
+  }
+
   let rowKey = row.__key;
   if (rowKey === undefined && primaryKey.value) {
     rowKey = row[primaryKey.value];
-    tx.toggleDelete(tableId.value, primaryKey.value!, rowKey);
+    tx.toggleDelete(tableId.value, primaryKey.value, rowKey);
   } else if (rowKey !== undefined) {
     tx.removeInsert(tableId.value, rowKey as number);
-    data.value!.rows.splice(
-      data.value!.rows.findIndex(
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
+    data.value.rows.splice(
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
+      data.value.rows.findIndex(
         (r: Record<string, unknown>) => r.__key === rowKey,
       ),
       1,
     );
-    data.value!.key++;
+    data.value.key++;
   }
 }
 </script>

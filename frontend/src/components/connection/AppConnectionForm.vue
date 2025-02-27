@@ -52,7 +52,7 @@ async function submitConnection(event: FormSubmitEvent<Schema>) {
   if (result instanceof Error) {
     return;
   }
-  fetchConnections();
+  await fetchConnections();
   emit("connectionAdded");
 }
 
@@ -72,7 +72,7 @@ function selectType(type: app.ConnectionType) {
 
 <template>
   <UForm :schema="parser" :state="state" @submit="submitConnection">
-    <UStepper :items="items" v-model="active" disabled>
+    <UStepper v-model="active" :items="items" disabled>
       <template #type>
         <AppConnectionTypeSelector :value="state.type" @select="selectType" />
       </template>
@@ -80,30 +80,30 @@ function selectType(type: app.ConnectionType) {
       <template #details>
         <div class="flex pb-4">
           <UButton
+            v-if="!state.id"
             label="Back"
             color="neutral"
             variant="outline"
             icon="lucide:arrow-left"
             @click="active = 0"
-            v-if="!state.id"
           />
         </div>
 
         <UFormField label="Name" name="name">
           <UInput
-            placeholder="Optional name"
             v-model="state.name"
+            placeholder="Optional name"
             class="w-full"
           />
         </UFormField>
 
         <UFormField label="File" name="url">
           <UInput
-            placeholder="Select a file"
             v-model="state.connection_string"
+            placeholder="Select a file"
             class="w-full"
           >
-            <template #trailing v-if="state.type === app.ConnectionType.SQLite">
+            <template v-if="state.type === app.ConnectionType.SQLite" #trailing>
               <UButton
                 variant="link"
                 icon="lucide:upload"

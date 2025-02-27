@@ -79,11 +79,11 @@ const changesCount = computed(
   <div class="flex flex-auto flex-col justify-between overflow-hidden">
     <div class="flex flex-auto flex-col gap-4 overflow-auto">
       <UTable
+        :key="data?.key"
+        v-model:column-pinning="columnPinning"
         :data="data?.rows"
         :columns="data?.columns"
-        v-model:column-pinning="columnPinning"
         :loading="loading"
-        :key="data?.key"
         :ui="{ td: 'p-0 min-w-max', tbody: '[&>tr]:odd:bg-neutral-800' }"
       >
         <template #action-cell="{ row: { original: row } }">
@@ -99,8 +99,8 @@ const changesCount = computed(
         </template>
       </UTable>
       <div
-        class="flex flex-initial justify-center"
         v-if="actions.some((a) => a === RowAction.Insert)"
+        class="flex flex-initial justify-center"
       >
         <UButton
           icon="lucide:plus"

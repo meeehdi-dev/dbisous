@@ -14,8 +14,8 @@ import { client } from "_/go/models";
 const router = useRouter();
 const { databaseId } = useUrlParams();
 
-function navigateToSchema(schemaId: string) {
-  router.push({ name: "schema", params: { schemaId } });
+async function navigateToSchema(schemaId: string) {
+  await router.push({ name: "schema", params: { schemaId } });
 }
 
 const wails = useWails();
@@ -36,11 +36,12 @@ async function fetchData(page = 1, itemsPerPage = 10) {
   columns.value = result.columns;
   data.value = {
     key: dataKey.value++,
+    // eslint-disable-next-line @typescript-eslint/no-misused-spread
     ...result,
     columns: formatColumns(result.columns, undefined, undefined, true),
   };
 }
-fetchData();
+await fetchData();
 </script>
 
 <template>

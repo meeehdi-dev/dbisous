@@ -85,12 +85,12 @@ const value = computed({
 
 const isDeleted = computed(() => {
   if (!row) {
-    return;
+    return false;
   }
 
   let rowKey = row.__key;
   if (rowKey !== undefined || primaryKey === undefined) {
-    return;
+    return false;
   }
 
   rowKey = row[primaryKey];
@@ -99,8 +99,7 @@ const isDeleted = computed(() => {
   );
 });
 
-// @ts-expect-error tkt
-const rowKey = row.__key;
+const rowKey = row?.__key;
 </script>
 
 <template>

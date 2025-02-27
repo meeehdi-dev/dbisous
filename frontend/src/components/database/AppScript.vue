@@ -21,7 +21,8 @@ watch(query, () => {
   error.value = "";
 });
 
-const data = ref<FormattedQueryResult>();
+const data = ref<FormattedQueryResult & { key: number }>();
+const dataKey = ref(0);
 const fetchingData = ref(false);
 async function fetchData() {
   fetchingData.value = true;
@@ -31,6 +32,8 @@ async function fetchData() {
     return;
   }
   data.value = {
+    key: dataKey.value++,
+    // eslint-disable-next-line @typescript-eslint/no-misused-spread
     ...result,
     columns: formatColumns(result.columns, undefined, undefined, true),
   };
@@ -47,21 +50,21 @@ async function fetchPastQueries() {
   pastQueries.value = result;
   fetchingPastQueries.value = false;
 }
-fetchPastQueries();
+await fetchPastQueries();
 
 async function removePastQuery(pastQuery: app.PastQuery) {
   const result = await wails(() => DeletePastQuery(pastQuery.id));
   if (result instanceof Error) {
     return;
   }
-  fetchPastQueries();
+  await fetchPastQueries();
 }
 
-function setQuery(q: string, execute = false) {
+async function setQuery(q: string, execute = false) {
   query.value = q;
   defaultQuery.value = q;
   if (execute) {
-    fetchData();
+    await fetchData();
   }
 }
 </script>
@@ -78,7 +81,7 @@ function setQuery(q: string, execute = false) {
         >
           <div
             v-for="past_query in pastQueries"
-            v-bind:key="past_query.id"
+            :key="past_query.id"
             class="w-full"
           >
             <UTooltip :text="past_query.query" :content="{ side: 'left' }">
@@ -87,9 +90,9 @@ function setQuery(q: string, execute = false) {
                 variant="soft"
                 size="xs"
                 :label="past_query.query"
-                @click="setQuery(past_query.query)"
                 class="w-full"
                 :ui="{ label: 'flex flex-auto' }"
+                @click="setQuery(past_query.query)"
               >
                 <template #trailing>
                   <div class="flex gap-1">
@@ -118,8 +121,8 @@ function setQuery(q: string, execute = false) {
           :disabled="!query"
           :icon="error ? 'lucide:triangle-alert' : 'lucide:terminal'"
           label="Execute"
-          @click="fetchData"
           :color="error ? 'warning' : 'primary'"
+          @click="fetchData"
         />
         <span
           :class="`text-sm text-neutral-400 pointer-events-none transition-opacity ${data && data.duration ? 'opacity-100' : 'opacity-0'}`"

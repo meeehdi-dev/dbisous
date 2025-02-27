@@ -74,11 +74,11 @@ const columnPinning = ref({ right: ["action"] });
   <div class="flex flex-auto flex-col gap-4 justify-between overflow-hidden">
     <div class="flex flex-auto flex-col gap-4 overflow-auto">
       <UTable
+        :key="key"
+        v-model:column-pinning="columnPinning"
         :data="data"
         :columns="columns"
-        v-model:column-pinning="columnPinning"
         :loading="loading"
-        :key="key"
         :ui="{ td: 'p-0' }"
       >
         <template #action-cell="{ row: { original: row } }">

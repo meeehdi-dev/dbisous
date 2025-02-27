@@ -6,8 +6,8 @@ import { computed, ref, useTemplateRef } from "vue";
 const value = defineModel<unknown>();
 
 const { defaultValue, nullable, initialValue, disabled } = defineProps<{
-  initialValue: unknown | undefined;
-  defaultValue: unknown | undefined;
+  initialValue: unknown;
+  defaultValue: unknown;
   nullable: boolean;
   disabled: boolean;
 }>();
@@ -23,8 +23,8 @@ const items = computed(() => [
     label: "Copy to clipboard",
     value: "copy",
     icon: "lucide:copy",
-    onSelect: () => {
-      copy(value.value as string);
+    onSelect: async () => {
+      await copy(value.value as string);
     },
   },
   {
