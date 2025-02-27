@@ -10,6 +10,97 @@ type MysqlClient struct {
 	Db *sql.DB
 }
 
+func (c *MysqlClient) GetDatabaseMetadata() (DatabaseMetadata, error) {
+	var databaseMetadata DatabaseMetadata
+
+	schemas, err := c.getSchemas()
+	if err != nil {
+		return databaseMetadata, err
+	}
+
+	databaseMetadata.Columns = make(map[string]map[string][]string)
+	for _, schema := range schemas {
+		databaseMetadata.Columns[schema] = make(map[string][]string)
+		tables, err := c.getTables(schema)
+		if err != nil {
+			continue
+		}
+		for _, table := range tables {
+			columns, err := c.getColumns(schema, table)
+			if err != nil {
+				continue
+			}
+			databaseMetadata.Columns[schema][table] = columns
+		}
+	}
+
+	return databaseMetadata, nil
+}
+
+func (c *MysqlClient) getColumns(schema string, table string) ([]string, error) {
+	var columns []string
+
+	rows, err := c.Db.Query("SELECT column_name FROM information_schema.columns WHERE table_schema = ? AND table_name = ?", schema, table)
+	if err != nil {
+		return columns, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var columnName string
+		err := rows.Scan(&columnName)
+		if err != nil {
+			return columns, err
+		}
+
+		columns = append(columns, columnName)
+	}
+
+	return columns, nil
+}
+
+func (c *MysqlClient) getTables(schema string) ([]string, error) {
+	var tables []string
+
+	rows, err := c.Db.Query("SELECT table_name FROM information_schema.tables WHERE table_schema = ?", schema)
+	if err != nil {
+		return tables, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var table string
+		err := rows.Scan(&table)
+		if err != nil {
+			return tables, err
+		}
+		tables = append(tables, table)
+	}
+
+	return tables, nil
+}
+
+func (c *MysqlClient) getSchemas() ([]string, error) {
+	var schemas []string
+
+	rows, err := c.Db.Query("SELECT schema_name FROM information_schema.schemata")
+	if err != nil {
+		return schemas, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var schema string
+		err := rows.Scan(&schema)
+		if err != nil {
+			return schemas, err
+		}
+		schemas = append(schemas, schema)
+	}
+
+	return schemas, nil
+}
+
 func (c *MysqlClient) fetchColumnsMetadata(schema string, table string) ([]ColumnMetadata, error) {
 	var columnsMetadata []ColumnMetadata
 

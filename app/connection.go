@@ -60,11 +60,13 @@ func DeleteConnection(id string) error {
 	return err
 }
 
-func Connect(id string) error {
+func Connect(id string) (client.DatabaseMetadata, error) {
+	var databaseMetadata client.DatabaseMetadata
+
 	var dbType, connectionString string
 	err := metadataDB.QueryRow(`SELECT type, connection_string FROM connection WHERE id = ?`, id).Scan(&dbType, &connectionString)
 	if err != nil {
-		return err
+		return databaseMetadata, err
 	}
 
 	var db *sql.DB
@@ -79,15 +81,16 @@ func Connect(id string) error {
 		db, err = sql.Open("postgres", connectionString)
 		dbClients[id] = &client.PostgresClient{Db: db}
 	default:
-		return fmt.Errorf("unsupported database type: %s", dbType)
+		return databaseMetadata, fmt.Errorf("unsupported database type: %s", dbType)
 	}
 
 	if err != nil {
-		return err
+		return databaseMetadata, err
 	}
 
 	activeConnections[id] = db
-	return nil
+
+	return dbClients[id].GetDatabaseMetadata()
 }
 
 func Disconnect(id string) error {

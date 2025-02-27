@@ -9,6 +9,70 @@ type SqliteClient struct {
 	Db *sql.DB
 }
 
+func (c *SqliteClient) GetDatabaseMetadata() (DatabaseMetadata, error) {
+	var databaseMetadata DatabaseMetadata
+
+	tables, err := c.getTables()
+	if err != nil {
+		return databaseMetadata, err
+	}
+
+	databaseMetadata.Columns = make(map[string]map[string][]string)
+	databaseMetadata.Columns["main"] = make(map[string][]string)
+	for _, table := range tables {
+		columns, err := c.getColumns(table)
+		if err != nil {
+			continue
+		}
+		databaseMetadata.Columns["main"][table] = columns
+	}
+
+	return databaseMetadata, nil
+}
+
+func (c *SqliteClient) getColumns(table string) ([]string, error) {
+	var columns []string
+
+	rows, err := c.Db.Query("SELECT name FROM pragma_table_info(?)", table)
+	if err != nil {
+		return columns, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var columnName string
+		err := rows.Scan(&columnName)
+		if err != nil {
+			return columns, err
+		}
+
+		columns = append(columns, columnName)
+	}
+
+	return columns, nil
+}
+
+func (c *SqliteClient) getTables() ([]string, error) {
+	var tables []string
+
+	rows, err := c.Db.Query("SELECT name FROM sqlite_master WHERE type='table'")
+	if err != nil {
+		return tables, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var table string
+		err := rows.Scan(&table)
+		if err != nil {
+			return tables, err
+		}
+		tables = append(tables, table)
+	}
+
+	return tables, nil
+}
+
 func (c *SqliteClient) fetchColumnsMetadata(table string) ([]ColumnMetadata, error) {
 	var columnsMetadata []ColumnMetadata
 
