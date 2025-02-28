@@ -24,7 +24,7 @@ export default defineConfig({
     ui({
       ui: {
         colors: {
-          primary: "indigo",
+          primary: "purple",
         },
       },
     }) as PluginOption,

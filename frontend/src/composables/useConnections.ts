@@ -3,7 +3,7 @@ import { createSharedComposable } from "@vueuse/core";
 import { useWails } from "@/composables/useWails";
 import { useRouter } from "vue-router";
 import { useUrlParams } from "@/composables/useUrlParams";
-import { app } from "_/go/models";
+import { app, client } from "_/go/models";
 import {
   Connect,
   CreateConnection,
@@ -12,6 +12,7 @@ import {
   GetConnections,
   UpdateConnection,
 } from "_/go/app/App";
+import { useCompletions } from "./useMonaco";
 
 export const useConnections = createSharedComposable(() => {
   const wails = useWails();
@@ -20,6 +21,7 @@ export const useConnections = createSharedComposable(() => {
 
   const connections = ref<Array<app.Connection>>([]);
   const activeConnections = ref<Array<string>>([]);
+  const metadata = ref<Record<string, client.DatabaseMetadata>>({});
 
   async function fetchConnections() {
     const result = await wails(GetConnections);
@@ -37,7 +39,7 @@ export const useConnections = createSharedComposable(() => {
     await fetchConnections();
   }
 
-  async function updateConnectionInfo(connection: app.Connection) {
+  async function updateConnection(connection: app.Connection) {
     const result = await wails(() => UpdateConnection(connection));
     if (result instanceof Error) {
       return;
@@ -53,11 +55,14 @@ export const useConnections = createSharedComposable(() => {
     await fetchConnections();
   }
 
+  const { register } = useCompletions();
+
   async function select(id: string) {
     if (
       activeConnections.value.some((c) => c === id) &&
       databaseId.value !== id
     ) {
+      register(metadata.value[id].columns);
       await router.push(`/database/${id}`);
     }
   }
@@ -67,6 +72,7 @@ export const useConnections = createSharedComposable(() => {
     if (result instanceof Error) {
       return;
     }
+    metadata.value[id] = result;
     activeConnections.value.push(id);
     await select(id);
   }
@@ -103,7 +109,7 @@ export const useConnections = createSharedComposable(() => {
     activeConnections,
     fetchConnections,
     addConnection,
-    updateConnectionInfo,
+    updateConnection,
     removeConnection,
     connect,
     disconnect,

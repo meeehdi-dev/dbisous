@@ -9,7 +9,7 @@ import (
 
 var metadataDB *sql.DB
 
-const path = "dbisous/metadata.db"
+const path = "DBisous/metadata.db"
 
 func InitMetadataDB() error {
 	dataFilePath, err := xdg.DataFile(path)

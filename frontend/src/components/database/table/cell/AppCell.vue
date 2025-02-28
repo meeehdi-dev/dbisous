@@ -99,12 +99,27 @@ const isDeleted = computed(() => {
   );
 });
 
-const rowKey = row?.__key;
+const isNullError = computed(() => value.value === "NULL" && !nullable);
+const isNew = computed(() => row?.__key !== undefined);
+const isDirty = computed(() => value.value !== initialValue);
 </script>
 
 <template>
   <div
-    :class="`p-1 flex gap-1 group transition-colors ${isDeleted ? 'opacity-20' : value === 'NULL' && !nullable ? 'bg-error-400/50' : rowKey !== undefined ? 'bg-warning-400/50' : value !== initialValue ? 'bg-primary-400/50' : ''}`"
+    :class="[
+      'p-1 flex gap-1 group transition-colors',
+      disabled
+        ? ''
+        : isDeleted
+          ? 'opacity-20'
+          : isNullError
+            ? 'bg-error-400/50'
+            : isNew
+              ? 'bg-warning-400/50'
+              : isDirty
+                ? 'bg-primary-400/50'
+                : '',
+    ]"
   >
     <AppTypeSelect
       v-if="type.toLowerCase() === 'type'"

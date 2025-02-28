@@ -1,6 +1,7 @@
 package client
 
 type DatabaseClient interface {
+	GetDatabaseMetadata() (DatabaseMetadata, error)
 	GetDatabaseSchemas(int, int) (QueryResult, error)
 	GetSchemaTables(int, int, string) (QueryResult, error)
 	GetTableRows(int, int, string, string) (QueryResult, error)
@@ -24,4 +25,8 @@ type QueryResult struct {
 	Columns  []ColumnMetadata `json:"columns"`
 	Total    int              `json:"total"`
 	Duration string           `json:"duration"`
+}
+
+type DatabaseMetadata struct {
+	Columns map[string]map[string][]string `json:"columns"`
 }

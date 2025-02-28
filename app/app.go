@@ -52,7 +52,7 @@ func (a *App) DeleteConnection(id string) error {
 	return DeleteConnection(id)
 }
 
-func (a *App) Connect(id string) error {
+func (a *App) Connect(id string) (client.DatabaseMetadata, error) {
 	return Connect(id)
 }
 
