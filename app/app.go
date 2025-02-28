@@ -52,7 +52,7 @@ func (a *App) DeleteConnection(id string) error {
 	return DeleteConnection(id)
 }
 
-func (a *App) Connect(id string) error {
+func (a *App) Connect(id string) (client.DatabaseMetadata, error) {
 	return Connect(id)
 }
 
@@ -60,19 +60,16 @@ func (a *App) Disconnect(id string) error {
 	return Disconnect(id)
 }
 
-func (a *App) GetDatabaseSchemas(id string, page int, itemsPerPage int) (client.QueryResult, error) {
-	limit, offset := itemsPerPage, (page-1)*itemsPerPage
-	return GetDatabaseSchemas(id, limit, offset)
+func (a *App) GetDatabaseSchemas(id string, params client.QueryParams) (client.QueryResult, error) {
+	return GetDatabaseSchemas(id, params)
 }
 
-func (a *App) GetSchemaTables(id string, page int, itemsPerPage int, schema string) (client.QueryResult, error) {
-	limit, offset := itemsPerPage, (page-1)*itemsPerPage
-	return GetSchemaTables(id, limit, offset, schema)
+func (a *App) GetSchemaTables(id string, params client.QueryParams, schema string) (client.QueryResult, error) {
+	return GetSchemaTables(id, params, schema)
 }
 
-func (a *App) GetTableRows(id string, page int, itemsPerPage int, schema string, table string) (client.QueryResult, error) {
-	limit, offset := itemsPerPage, (page-1)*itemsPerPage
-	return GetTableRows(id, limit, offset, schema, table)
+func (a *App) GetTableRows(id string, params client.QueryParams, schema string, table string) (client.QueryResult, error) {
+	return GetTableRows(id, params, schema, table)
 }
 
 func (a *App) ExecuteQuery(id string, query string) (client.QueryResult, error) {

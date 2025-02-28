@@ -27,7 +27,12 @@ const fetchingData = ref(false);
 async function fetchData(page = 1, itemsPerPage = 10) {
   fetchingData.value = true;
   const result = await wails(() =>
-    GetDatabaseSchemas(databaseId.value, page, itemsPerPage),
+    GetDatabaseSchemas(databaseId.value, {
+      offset: (page - 1) * itemsPerPage,
+      limit: itemsPerPage,
+      filter: [],
+      order: [],
+    }),
   );
   fetchingData.value = false;
   if (result instanceof Error) {

@@ -3,6 +3,7 @@ package client
 import (
 	"database/sql"
 	"fmt"
+	"strings"
 	"time"
 )
 
@@ -81,27 +82,47 @@ func fetchRows(rows *sql.Rows) (QueryResult, error) {
 
 func executeQuery(db *sql.DB, query string, args ...interface{}) (QueryResult, error) {
 	var result QueryResult
+	result.Rows = make([]interface{}, 0)
+	result.Columns = make([]ColumnMetadata, 0)
 
-	start := time.Now()
-	rows, err := db.Query(query, args...)
-	duration := time.Since(start).String()
-	if err != nil {
-		return result, err
+	lower := strings.ToLower(query)
+	// TODO: refactor?
+	isReturning := strings.Contains(lower, "returning")
+	isMutate := strings.Contains(lower, "insert") || strings.Contains(lower, "update") || strings.Contains(lower, "delete") || strings.Contains(lower, "upsert") || strings.Contains(lower, "create") || strings.Contains(lower, "alter") || strings.Contains(lower, "truncate") || strings.Contains(lower, "drop")
+
+	if isMutate && !isReturning {
+		start := time.Now()
+		_, err := db.Exec(query, args...)
+		duration := time.Since(start).String()
+		if err != nil {
+			return result, err
+		}
+
+		result.Duration = duration
+
+		return result, nil
+	} else {
+		start := time.Now()
+		rows, err := db.Query(query, args...)
+		duration := time.Since(start).String()
+		if err != nil {
+			return result, err
+		}
+		defer rows.Close()
+
+		result, err = fetchRows(rows)
+		if err != nil {
+			return result, err
+		}
+
+		result.Duration = duration
+
+		return result, nil
 	}
-	defer rows.Close()
-
-	result, err = fetchRows(rows)
-	if err != nil {
-		return result, err
-	}
-
-	result.Duration = duration
-
-	return result, nil
 }
 
-func executeSelectQuery(db *sql.DB, query string, limit int, offset int, args ...interface{}) (QueryResult, error) {
-	result, err := executeQuery(db, fmt.Sprintf("SELECT * FROM %s LIMIT %d OFFSET %d", query, limit, offset), args...)
+func executeSelectQuery(db *sql.DB, query string, params QueryParams, args ...interface{}) (QueryResult, error) {
+	result, err := executeQuery(db, fmt.Sprintf("SELECT * FROM %s LIMIT %d OFFSET %d", query, params.Limit, params.Offset), args...)
 
 	countRow := db.QueryRow(fmt.Sprintf("SELECT COUNT(*) FROM %s", query), args...)
 	err = countRow.Scan(&result.Total)

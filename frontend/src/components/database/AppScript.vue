@@ -24,11 +24,13 @@ watch(query, () => {
 const data = ref<FormattedQueryResult & { key: number }>();
 const dataKey = ref(0);
 const fetchingData = ref(false);
-async function fetchData() {
+async function fetchData(reload = true) {
   fetchingData.value = true;
   const result = await wails(() => ExecuteQuery(databaseId.value, query.value));
   fetchingData.value = false;
   if (result instanceof Error) {
+    error.value = result.message;
+    data.value = undefined;
     return;
   }
   data.value = {
@@ -37,6 +39,9 @@ async function fetchData() {
     ...result,
     columns: formatColumns(result.columns, undefined, undefined, true),
   };
+  if (reload) {
+    await fetchPastQueries();
+  }
 }
 
 const pastQueries = ref<app.PastQuery[]>([]);
@@ -64,7 +69,7 @@ async function setQuery(q: string, execute = false) {
   query.value = q;
   defaultQuery.value = q;
   if (execute) {
-    await fetchData();
+    await fetchData(false);
   }
 }
 </script>
@@ -118,11 +123,11 @@ async function setQuery(q: string, execute = false) {
       </div>
       <div class="flex gap-2 items-center">
         <UButton
-          :disabled="!query"
+          :disabled="!query || error !== ''"
           :icon="error ? 'lucide:triangle-alert' : 'lucide:terminal'"
           label="Execute"
           :color="error ? 'warning' : 'primary'"
-          @click="fetchData"
+          @click="() => fetchData()"
         />
         <span
           :class="`text-sm text-neutral-400 pointer-events-none transition-opacity ${data && data.duration ? 'opacity-100' : 'opacity-0'}`"

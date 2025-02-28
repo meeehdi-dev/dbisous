@@ -10,6 +10,97 @@ type MysqlClient struct {
 	Db *sql.DB
 }
 
+func (c *MysqlClient) GetDatabaseMetadata() (DatabaseMetadata, error) {
+	var databaseMetadata DatabaseMetadata
+
+	schemas, err := c.getSchemas()
+	if err != nil {
+		return databaseMetadata, err
+	}
+
+	databaseMetadata.Columns = make(map[string]map[string][]string)
+	for _, schema := range schemas {
+		databaseMetadata.Columns[schema] = make(map[string][]string)
+		tables, err := c.getTables(schema)
+		if err != nil {
+			continue
+		}
+		for _, table := range tables {
+			columns, err := c.getColumns(schema, table)
+			if err != nil {
+				continue
+			}
+			databaseMetadata.Columns[schema][table] = columns
+		}
+	}
+
+	return databaseMetadata, nil
+}
+
+func (c *MysqlClient) getColumns(schema string, table string) ([]string, error) {
+	var columns []string
+
+	rows, err := c.Db.Query("SELECT column_name FROM information_schema.columns WHERE table_schema = ? AND table_name = ?", schema, table)
+	if err != nil {
+		return columns, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var columnName string
+		err := rows.Scan(&columnName)
+		if err != nil {
+			return columns, err
+		}
+
+		columns = append(columns, columnName)
+	}
+
+	return columns, nil
+}
+
+func (c *MysqlClient) getTables(schema string) ([]string, error) {
+	var tables []string
+
+	rows, err := c.Db.Query("SELECT table_name FROM information_schema.tables WHERE table_schema = ?", schema)
+	if err != nil {
+		return tables, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var table string
+		err := rows.Scan(&table)
+		if err != nil {
+			return tables, err
+		}
+		tables = append(tables, table)
+	}
+
+	return tables, nil
+}
+
+func (c *MysqlClient) getSchemas() ([]string, error) {
+	var schemas []string
+
+	rows, err := c.Db.Query("SELECT schema_name FROM information_schema.schemata")
+	if err != nil {
+		return schemas, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var schema string
+		err := rows.Scan(&schema)
+		if err != nil {
+			return schemas, err
+		}
+		schemas = append(schemas, schema)
+	}
+
+	return schemas, nil
+}
+
 func (c *MysqlClient) fetchColumnsMetadata(schema string, table string) ([]ColumnMetadata, error) {
 	var columnsMetadata []ColumnMetadata
 
@@ -25,7 +116,7 @@ func (c *MysqlClient) fetchColumnsMetadata(schema string, table string) ([]Colum
 	return columnsMetadata, nil
 }
 
-func (c *MysqlClient) executeSelectQuery(query string, limit int, offset int, args ...interface{}) (QueryResult, error) {
+func (c *MysqlClient) executeSelectQuery(query string, params QueryParams, args ...interface{}) (QueryResult, error) {
 	queryParts := strings.Split(query, " ")
 	table := queryParts[0]
 	tableParts := strings.Split(table, ".")
@@ -36,7 +127,7 @@ func (c *MysqlClient) executeSelectQuery(query string, limit int, offset int, ar
 		tableName = strings.ReplaceAll(tableParts[1], "`", "")
 	}
 
-	result, err := executeSelectQuery(c.Db, query, limit, offset, args...)
+	result, err := executeSelectQuery(c.Db, query, params, args...)
 	if err != nil {
 		return result, err
 	}
@@ -50,16 +141,16 @@ func (c *MysqlClient) executeSelectQuery(query string, limit int, offset int, ar
 	return result, err
 }
 
-func (c *MysqlClient) GetDatabaseSchemas(limit int, offset int) (QueryResult, error) {
-	return c.executeSelectQuery("information_schema.schemata", limit, offset)
+func (c *MysqlClient) GetDatabaseSchemas(params QueryParams) (QueryResult, error) {
+	return c.executeSelectQuery("information_schema.schemata", params)
 }
 
-func (c *MysqlClient) GetSchemaTables(limit int, offset int, schema string) (QueryResult, error) {
-	return c.executeSelectQuery("information_schema.tables WHERE table_schema = ?", limit, offset, schema)
+func (c *MysqlClient) GetSchemaTables(params QueryParams, schema string) (QueryResult, error) {
+	return c.executeSelectQuery("information_schema.tables WHERE table_schema = ?", params, schema)
 }
 
-func (c *MysqlClient) GetTableRows(limit int, offset int, schema string, table string) (QueryResult, error) {
-	return c.executeSelectQuery(fmt.Sprintf("`%s`.`%s`", schema, table), limit, offset)
+func (c *MysqlClient) GetTableRows(params QueryParams, schema string, table string) (QueryResult, error) {
+	return c.executeSelectQuery(fmt.Sprintf("`%s`.`%s`", schema, table), params)
 }
 
 func (c *MysqlClient) ExecuteQuery(query string, args ...interface{}) (QueryResult, error) {
