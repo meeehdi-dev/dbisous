@@ -88,11 +88,11 @@ func (c *SqliteClient) fetchColumnsMetadata(table string) ([]ColumnMetadata, err
 	return columnsMetadata, nil
 }
 
-func (c *SqliteClient) executeSelectQuery(query string, limit int, offset int, args ...interface{}) (QueryResult, error) {
+func (c *SqliteClient) executeSelectQuery(query string, params QueryParams, args ...interface{}) (QueryResult, error) {
 	queryParts := strings.Split(query, " ")
 	table := queryParts[0]
 
-	result, err := executeSelectQuery(c.Db, query, limit, offset, args...)
+	result, err := executeSelectQuery(c.Db, query, params, args...)
 	if err != nil {
 		return result, err
 	}
@@ -106,16 +106,16 @@ func (c *SqliteClient) executeSelectQuery(query string, limit int, offset int, a
 	return result, err
 }
 
-func (c *SqliteClient) GetDatabaseSchemas(limit int, offset int) (QueryResult, error) {
-	return c.executeSelectQuery("sqlite_master WHERE type = 'table'", limit, offset)
+func (c *SqliteClient) GetDatabaseSchemas(params QueryParams) (QueryResult, error) {
+	return c.executeSelectQuery("sqlite_master WHERE type = 'table'", params)
 }
 
-func (c *SqliteClient) GetSchemaTables(limit int, offset int, schema string) (QueryResult, error) {
-	return c.executeSelectQuery("sqlite_master WHERE type='table' AND name = ?", limit, offset, schema)
+func (c *SqliteClient) GetSchemaTables(params QueryParams, schema string) (QueryResult, error) {
+	return c.executeSelectQuery("sqlite_master WHERE type='table' AND name = ?", params, schema)
 }
 
-func (c *SqliteClient) GetTableRows(limit int, offset int, schema string, table string) (QueryResult, error) {
-	return c.executeSelectQuery(table, limit, offset)
+func (c *SqliteClient) GetTableRows(params QueryParams, schema string, table string) (QueryResult, error) {
+	return c.executeSelectQuery(table, params)
 }
 
 func (c *SqliteClient) ExecuteQuery(query string, args ...interface{}) (QueryResult, error) {

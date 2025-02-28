@@ -2,9 +2,9 @@ package client
 
 type DatabaseClient interface {
 	GetDatabaseMetadata() (DatabaseMetadata, error)
-	GetDatabaseSchemas(int, int) (QueryResult, error)
-	GetSchemaTables(int, int, string) (QueryResult, error)
-	GetTableRows(int, int, string, string) (QueryResult, error)
+	GetDatabaseSchemas(QueryParams) (QueryResult, error)
+	GetSchemaTables(QueryParams, string) (QueryResult, error)
+	GetTableRows(QueryParams, string, string) (QueryResult, error)
 	ExecuteQuery(string, ...interface{}) (QueryResult, error)
 	Execute(string) error
 }
@@ -29,4 +29,28 @@ type QueryResult struct {
 
 type DatabaseMetadata struct {
 	Columns map[string]map[string][]string `json:"columns"`
+}
+
+type OrderDirection string
+
+const (
+	Ascending  OrderDirection = "asc"
+	Descending OrderDirection = "desc"
+)
+
+type QueryOrder struct {
+	Column    string         `json:"column"`
+	Direction OrderDirection `json:"direction"`
+}
+
+type QueryFilter struct {
+	Column string `json:"column"`
+	Value  string `json:"value"`
+}
+
+type QueryParams struct {
+	Limit  int           `json:"limit"`
+	Offset int           `json:"offset"`
+	Order  []QueryOrder  `json:"order"`
+	Filter []QueryFilter `json:"filter"`
 }

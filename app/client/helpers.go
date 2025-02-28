@@ -121,8 +121,8 @@ func executeQuery(db *sql.DB, query string, args ...interface{}) (QueryResult, e
 	}
 }
 
-func executeSelectQuery(db *sql.DB, query string, limit int, offset int, args ...interface{}) (QueryResult, error) {
-	result, err := executeQuery(db, fmt.Sprintf("SELECT * FROM %s LIMIT %d OFFSET %d", query, limit, offset), args...)
+func executeSelectQuery(db *sql.DB, query string, params QueryParams, args ...interface{}) (QueryResult, error) {
+	result, err := executeQuery(db, fmt.Sprintf("SELECT * FROM %s LIMIT %d OFFSET %d", query, params.Limit, params.Offset), args...)
 
 	countRow := db.QueryRow(fmt.Sprintf("SELECT COUNT(*) FROM %s", query), args...)
 	err = countRow.Scan(&result.Total)

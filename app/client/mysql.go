@@ -116,7 +116,7 @@ func (c *MysqlClient) fetchColumnsMetadata(schema string, table string) ([]Colum
 	return columnsMetadata, nil
 }
 
-func (c *MysqlClient) executeSelectQuery(query string, limit int, offset int, args ...interface{}) (QueryResult, error) {
+func (c *MysqlClient) executeSelectQuery(query string, params QueryParams, args ...interface{}) (QueryResult, error) {
 	queryParts := strings.Split(query, " ")
 	table := queryParts[0]
 	tableParts := strings.Split(table, ".")
@@ -127,7 +127,7 @@ func (c *MysqlClient) executeSelectQuery(query string, limit int, offset int, ar
 		tableName = strings.ReplaceAll(tableParts[1], "`", "")
 	}
 
-	result, err := executeSelectQuery(c.Db, query, limit, offset, args...)
+	result, err := executeSelectQuery(c.Db, query, params, args...)
 	if err != nil {
 		return result, err
 	}
@@ -141,16 +141,16 @@ func (c *MysqlClient) executeSelectQuery(query string, limit int, offset int, ar
 	return result, err
 }
 
-func (c *MysqlClient) GetDatabaseSchemas(limit int, offset int) (QueryResult, error) {
-	return c.executeSelectQuery("information_schema.schemata", limit, offset)
+func (c *MysqlClient) GetDatabaseSchemas(params QueryParams) (QueryResult, error) {
+	return c.executeSelectQuery("information_schema.schemata", params)
 }
 
-func (c *MysqlClient) GetSchemaTables(limit int, offset int, schema string) (QueryResult, error) {
-	return c.executeSelectQuery("information_schema.tables WHERE table_schema = ?", limit, offset, schema)
+func (c *MysqlClient) GetSchemaTables(params QueryParams, schema string) (QueryResult, error) {
+	return c.executeSelectQuery("information_schema.tables WHERE table_schema = ?", params, schema)
 }
 
-func (c *MysqlClient) GetTableRows(limit int, offset int, schema string, table string) (QueryResult, error) {
-	return c.executeSelectQuery(fmt.Sprintf("`%s`.`%s`", schema, table), limit, offset)
+func (c *MysqlClient) GetTableRows(params QueryParams, schema string, table string) (QueryResult, error) {
+	return c.executeSelectQuery(fmt.Sprintf("`%s`.`%s`", schema, table), params)
 }
 
 func (c *MysqlClient) ExecuteQuery(query string, args ...interface{}) (QueryResult, error) {
