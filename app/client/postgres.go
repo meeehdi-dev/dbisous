@@ -116,7 +116,7 @@ func (c *PostgresClient) fetchColumnsMetadata(schema string, table string) ([]Co
 	return columnsMetadata, nil
 }
 
-func (c *PostgresClient) executeSelectQuery(query string, limit int, offset int, args ...interface{}) (QueryResult, error) {
+func (c *PostgresClient) executeSelectQuery(query string, params QueryParams, args ...interface{}) (QueryResult, error) {
 	queryParts := strings.Split(query, " ")
 	table := queryParts[0]
 	tableParts := strings.Split(table, ".")
@@ -127,7 +127,7 @@ func (c *PostgresClient) executeSelectQuery(query string, limit int, offset int,
 		tableName = strings.ReplaceAll(tableParts[1], "`", "")
 	}
 
-	result, err := executeSelectQuery(c.Db, query, limit, offset, args...)
+	result, err := executeSelectQuery(c.Db, query, params, args...)
 	if err != nil {
 		return result, err
 	}
@@ -141,16 +141,16 @@ func (c *PostgresClient) executeSelectQuery(query string, limit int, offset int,
 	return result, err
 }
 
-func (c *PostgresClient) GetDatabaseSchemas(limit int, offset int) (QueryResult, error) {
-	return c.executeSelectQuery("information_schema.schemata", limit, offset)
+func (c *PostgresClient) GetDatabaseSchemas(params QueryParams) (QueryResult, error) {
+	return c.executeSelectQuery("information_schema.schemata", params)
 }
 
-func (c *PostgresClient) GetSchemaTables(limit int, offset int, schema string) (QueryResult, error) {
-	return c.executeSelectQuery("information_schema.tables WHERE table_schema = $1", limit, offset, schema)
+func (c *PostgresClient) GetSchemaTables(params QueryParams, schema string) (QueryResult, error) {
+	return c.executeSelectQuery("information_schema.tables WHERE table_schema = $1", params, schema)
 }
 
-func (c *PostgresClient) GetTableRows(limit int, offset int, schema string, table string) (QueryResult, error) {
-	return c.executeSelectQuery(fmt.Sprintf("%s.%s", schema, table), limit, offset)
+func (c *PostgresClient) GetTableRows(params QueryParams, schema string, table string) (QueryResult, error) {
+	return c.executeSelectQuery(fmt.Sprintf("%s.%s", schema, table), params)
 }
 
 func (c *PostgresClient) ExecuteQuery(query string, args ...interface{}) (QueryResult, error) {

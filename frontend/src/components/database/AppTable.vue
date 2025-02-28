@@ -26,8 +26,12 @@ async function fetchData(page = 1, itemsPerPage = 10) {
   const result = await wails(() =>
     GetTableRows(
       databaseId.value,
-      page,
-      itemsPerPage,
+      {
+        offset: (page - 1) * itemsPerPage,
+        limit: itemsPerPage,
+        filter: [],
+        order: [],
+      },
       schemaId.value,
       tableId.value,
     ),

@@ -103,32 +103,32 @@ func Disconnect(id string) error {
 	return conn.Close()
 }
 
-func GetDatabaseSchemas(id string, limit int, offset int) (client.QueryResult, error) {
+func GetDatabaseSchemas(id string, params client.QueryParams) (client.QueryResult, error) {
 	dbClient, exists := dbClients[id]
 	if !exists {
 		return client.QueryResult{}, fmt.Errorf("no database client for database ID: %s", id)
 	}
 
-	return dbClient.GetDatabaseSchemas(limit, offset)
+	return dbClient.GetDatabaseSchemas(params)
 }
 
-func GetSchemaTables(id string, limit int, offset int, schema string) (client.QueryResult, error) {
+func GetSchemaTables(id string, params client.QueryParams, schema string) (client.QueryResult, error) {
 	dbClient, exists := dbClients[id]
 
 	if !exists {
 		return client.QueryResult{}, fmt.Errorf("no database client for database ID: %s", id)
 	}
 
-	return dbClient.GetSchemaTables(limit, offset, schema)
+	return dbClient.GetSchemaTables(params, schema)
 }
 
-func GetTableRows(id string, limit int, offset int, schema string, table string) (client.QueryResult, error) {
+func GetTableRows(id string, params client.QueryParams, schema string, table string) (client.QueryResult, error) {
 	dbClient, exists := dbClients[id]
 	if !exists {
 		return client.QueryResult{}, fmt.Errorf("no database client for database ID: %s", id)
 	}
 
-	return dbClient.GetTableRows(limit, offset, schema, table)
+	return dbClient.GetTableRows(params, schema, table)
 }
 
 func ExecuteQuery(id string, query string) (client.QueryResult, error) {
