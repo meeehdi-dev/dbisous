@@ -29,5 +29,6 @@ jobs:
       - uses: softprops/action-gh-release@v2
         with:
           prerelease: true
-          files: */bin/*
+          files: |
+            */bin/*
           fail_on_unmatched_files: true
