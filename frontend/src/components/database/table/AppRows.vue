@@ -10,7 +10,7 @@ import { useWails } from "@/composables/useWails";
 import { Execute } from "_/go/app/App";
 import { useUrlParams } from "@/composables/useUrlParams";
 
-const emit = defineEmits<RowEmits>();
+const emit = defineEmits<RowEmits<unknown>>();
 const tx = useTransaction();
 
 const {

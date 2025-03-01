@@ -1,10 +1,15 @@
 <script setup lang="ts">
 import type { TableColumn } from "@nuxt/ui/dist/module";
 import { ref, watch } from "vue";
-import { RowEmits, RowAction, cell } from "@/components/database/table/table";
+import {
+  RowEmits,
+  RowAction,
+  cell,
+  getHeader,
+} from "@/components/database/table/table";
 import { client } from "_/go/models";
 
-const emit = defineEmits<RowEmits>();
+const emit = defineEmits<RowEmits<client.ColumnMetadata>>();
 
 const {
   loading,
@@ -42,28 +47,28 @@ watch(
 const columns: TableColumn<client.ColumnMetadata>[] = [
   {
     accessorKey: "name",
-    header: "Name",
     cell: cell({ type: "TEXT", disabled: true }),
+    header: getHeader("Name"),
   },
   {
     accessorKey: "type",
-    header: "Type",
     cell: cell({ type: "TEXT", disabled: true }),
+    header: getHeader("Type"),
   },
   {
     accessorKey: "default_value",
-    header: "Default value",
     cell: cell({ type: "TEXT", disabled: true }),
+    header: getHeader("Default value"),
   },
   {
     accessorKey: "nullable",
-    header: "Nullable",
     cell: cell({ type: "BOOL", disabled: true }),
+    header: getHeader("Nullable"),
   },
   {
     accessorKey: "primary_key",
-    header: "Primary key",
     cell: cell({ type: "BOOL", disabled: true }),
+    header: getHeader("Primary key"),
   },
 ];
 
@@ -83,7 +88,7 @@ const columnPinning = ref({ right: ["action"] });
       >
         <template #action-cell="{ row: { original: row } }">
           <AppColumnActions
-            :row="row"
+            :row="row as unknown as Record<string, unknown>"
             :actions="actions"
             :table="table"
             :primary-key="primaryKey"
