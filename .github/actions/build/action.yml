@@ -1,28 +1,28 @@
-name: "Build"
-description: "Builds binary and uploads artifacts"
+name: 'Build'
+description: 'Builds binary and uploads artifacts'
 runs:
-  using: "composite"
+  using: 'composite'
   steps:
     - uses: actions/setup-go@v5
       with:
-        go-version: "1.24"
+        go-version: '1.24'
     - uses: actions/setup-node@v4
       with:
-        node-version: "22"
+        node-version: '22'
     - shell: bash
-      if: runner.os == "Linux"
+      if: runner.os == 'Linux'
       run: |
         sudo apt update
         sudo apt install libwebkit2gtk-4.1-dev
         go install github.com/wailsapp/wails/v2/cmd/wails@latest
         wails build -tags webkit2_41
     - shell: pwsh
-      if: runner.os == "Windows"
+      if: runner.os == 'Windows'
       run: |
         go install github.com/wailsapp/wails/v2/cmd/wails@latest
         wails build
     - shell: bash
-      if: runner.os == "macOS"
+      if: runner.os == 'macOS'
       run: |
         go install github.com/wailsapp/wails/v2/cmd/wails@latest
         wails build
