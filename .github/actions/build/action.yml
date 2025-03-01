@@ -9,13 +9,18 @@ runs:
     - uses: actions/setup-node@v4
       with:
         node-version: '22'
+    - shell: bash
+      if: runner.os == 'Linux'
+      run: |
+        go install github.com/wailsapp/wails/v2/cmd/wails@latest
+        wails build -tags webkit2_41
     - shell: pwsh
       if: runner.os == 'Windows'
       run: |
         go install github.com/wailsapp/wails/v2/cmd/wails@latest
         wails build
     - shell: bash
-      if: runner.os != 'Windows'
+      if: runner.os == 'macOS'
       run: |
         go install github.com/wailsapp/wails/v2/cmd/wails@latest
         wails build
