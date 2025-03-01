@@ -22,7 +22,7 @@ runs:
       run: |
         go install github.com/wailsapp/wails/v2/cmd/wails@latest
         wails build
-        Compress-Archive -Path build/bin/* -Destination dbisous-windows.zip
+        Compress-Archive -Path build/bin/* -Destination build/bin/dbisous-windows.zip
     - shell: bash
       if: runner.os == 'macOS'
       run: |
