@@ -1,0 +1,34 @@
+name: 'Build'
+description: 'Builds binary and uploads artifacts'
+runs:
+  using: 'composite'
+  steps:
+    - uses: actions/setup-go@v5
+      with:
+        go-version: '1.24'
+    - uses: actions/setup-node@v4
+      with:
+        node-version: '22'
+    - shell: bash
+      if: runner.os == 'Linux'
+      run: |
+        sudo apt update
+        sudo apt install libwebkit2gtk-4.1-dev
+        go install github.com/wailsapp/wails/v2/cmd/wails@latest
+        wails build -tags webkit2_41
+        cd build/bin
+        zip -r dbisous-linux.zip *
+    - shell: pwsh
+      if: runner.os == 'Windows'
+      run: |
+        go install github.com/wailsapp/wails/v2/cmd/wails@latest
+        wails build
+        cd build/bin
+        Compress-Archive -Path * -Destination dbisous-windows.zip
+    - shell: bash
+      if: runner.os == 'macOS'
+      run: |
+        go install github.com/wailsapp/wails/v2/cmd/wails@latest
+        wails build
+        cd build/bin
+        zip -r dbisous-macos.zip *
