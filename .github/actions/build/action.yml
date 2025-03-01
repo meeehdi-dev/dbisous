@@ -5,6 +5,7 @@ runs:
   steps:
     - uses: actions/setup-go@v5
     - uses: actions/setup-node@v4
-    - run: |
+    - shell: bash
+      run: |
         go install github.com/wailsapp/wails/v2/cmd/wails@latest
         wails build
