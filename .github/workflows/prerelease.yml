@@ -4,7 +4,6 @@ on:
       - '*'
 
 env:
-  # Necessary for most environments as build failure can occur due to OOM issues
   NODE_OPTIONS: '--max-old-space-size=4096'
 
 jobs:
@@ -18,12 +17,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/build
-      - uses: actions/upload-artifact@v4
-        with:
-          name: ${{ matrix.os }}
-          path: |
-            build/bin/*
-            build\bin\*
+      # - uses: actions/upload-artifact@v4
+      #   with:
+      #     name: ${{ matrix.os }}
+      #     path: |
+      #       build/bin/*
+      #       build\bin\*
       - uses: softprops/action-gh-release@v2
         with:
           draft: true
