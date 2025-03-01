@@ -12,22 +12,21 @@ jobs:
     strategy:
       matrix:
         build:
-          - name: 'dbisous-linux'
-            platform:  'linux/amd64'
-            os: 'ubuntu-latest'
-          - name: 'dbisous.exe'
-            platform:  'windows/amd64'
-            os: 'windows-latest'
-          - name: 'dbisous'
-            platform:  'darwin/arm64'
-            os: 'macos-latest'
+          - os: 'ubuntu-latest'
+          - os: 'windows-latest'
+          - os: 'macos-latest'
 
     runs-on: ${{ matrix.build.os }}
     steps:
-      - name: git checkout
-        uses: actions/checkout@v4
-      - name: build app
-        uses: ./.github/actions/wails-build-action
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/build
+      - uses: actions/upload-artifact@v4
         with:
-          build-name: ${{ matrix.build.name }}
-          build-platform: ${{ matrix.build.platform }}
+          name: ${{ matrix.os }}
+          path: |
+            build/bin/
+            build\bin\
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: */bin/*
+          fail_on_unmatched_files: true

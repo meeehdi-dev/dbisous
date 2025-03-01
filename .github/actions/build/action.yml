@@ -1,0 +1,10 @@
+name: "Build"
+description: "Builds binary and uploads artifacts"
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/setup-go@v5
+    - uses: actions/setup-node@v4
+    - run: |
+        go install github.com/wailsapp/wails/v2/cmd/wails@latest
+        wails build
