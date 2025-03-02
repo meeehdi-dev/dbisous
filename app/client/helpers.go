@@ -47,8 +47,8 @@ func fetchRows(rows *sql.Rows) (QueryResult, error) {
 
 	var results []Row
 	for rows.Next() {
-		values := make([]interface{}, len(columns))
-		valuePtrs := make([]interface{}, len(columns))
+		values := make([]any, len(columns))
+		valuePtrs := make([]any, len(columns))
 		for i := range columns {
 			valuePtrs[i] = &values[i]
 		}
@@ -57,7 +57,7 @@ func fetchRows(rows *sql.Rows) (QueryResult, error) {
 			return QueryResult{}, err
 		}
 
-		row := make(map[string]interface{})
+		row := make(Row)
 		for i, col := range columns {
 			value := values[i]
 			switch v := value.(type) {
@@ -80,9 +80,9 @@ func fetchRows(rows *sql.Rows) (QueryResult, error) {
 	}, nil
 }
 
-func executeQuery(db *sql.DB, query string, args ...interface{}) (QueryResult, error) {
+func executeQuery(db *sql.DB, query string, args ...any) (QueryResult, error) {
 	var result QueryResult
-	result.Rows = make([]interface{}, 0)
+	result.Rows = make([]Row, 0)
 	result.Columns = make([]ColumnMetadata, 0)
 
 	lower := strings.ToLower(query)
@@ -121,8 +121,13 @@ func executeQuery(db *sql.DB, query string, args ...interface{}) (QueryResult, e
 	}
 }
 
-func executeSelectQuery(db *sql.DB, query string, params QueryParams, args ...interface{}) (QueryResult, error) {
-	result, err := executeQuery(db, fmt.Sprintf("SELECT * FROM %s LIMIT %d OFFSET %d", query, params.Limit, params.Offset), args...)
+func executeSelectQuery(db *sql.DB, query string, params QueryParams, args ...any) (QueryResult, error) {
+	execQuery := fmt.Sprintf("SELECT * FROM %s", query)
+	if len(params.Order) > 0 {
+		execQuery += fmt.Sprintf(" ORDER BY %s %s", params.Order[0].Column, params.Order[0].Direction)
+	}
+	execQuery += fmt.Sprintf(" LIMIT %d OFFSET %d", params.Limit, params.Offset)
+	result, err := executeQuery(db, execQuery, args...)
 
 	countRow := db.QueryRow(fmt.Sprintf("SELECT COUNT(*) FROM %s", query), args...)
 	err = countRow.Scan(&result.Total)

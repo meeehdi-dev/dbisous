@@ -116,7 +116,7 @@ func (c *PostgresClient) fetchColumnsMetadata(schema string, table string) ([]Co
 	return columnsMetadata, nil
 }
 
-func (c *PostgresClient) executeSelectQuery(query string, params QueryParams, args ...interface{}) (QueryResult, error) {
+func (c *PostgresClient) executeSelectQuery(query string, params QueryParams, args ...any) (QueryResult, error) {
 	queryParts := strings.Split(query, " ")
 	table := queryParts[0]
 	tableParts := strings.Split(table, ".")
@@ -153,7 +153,7 @@ func (c *PostgresClient) GetTableRows(params QueryParams, schema string, table s
 	return c.executeSelectQuery(fmt.Sprintf("%s.%s", schema, table), params)
 }
 
-func (c *PostgresClient) ExecuteQuery(query string, args ...interface{}) (QueryResult, error) {
+func (c *PostgresClient) ExecuteQuery(query string, args ...any) (QueryResult, error) {
 	return executeQuery(c.Db, query, args...)
 }
 

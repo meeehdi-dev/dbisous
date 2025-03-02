@@ -7,7 +7,7 @@ import { BreadcrumbItem } from "@nuxt/ui/dist/module";
 const { databaseId, schemaId, tableId } = useUrlParams();
 const { connections } = useConnections();
 
-const items = ref<BreadcrumbItem[]>([]);
+const items = ref<Array<BreadcrumbItem>>([]);
 
 watchEffect(() => {
   const i: BreadcrumbItem[] = [];

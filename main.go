@@ -2,6 +2,7 @@ package main
 
 import (
 	"dbisous/app"
+	"dbisous/app/client"
 	"embed"
 	"os"
 	"strings"
@@ -38,11 +39,12 @@ func main() {
 		},
 		OnStartup:  dbisous.Startup,
 		OnShutdown: dbisous.Shutdown,
-		Bind: []interface{}{
+		Bind: []any{
 			dbisous,
 		},
-		EnumBind: []interface{}{
+		EnumBind: []any{
 			app.AllConnectionTypes,
+			client.OrderDirections,
 		},
 		StartHidden: startHidden,
 	})

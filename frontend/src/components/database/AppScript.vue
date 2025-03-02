@@ -7,7 +7,8 @@ import {
 } from "@/components/database/table/table";
 import { useWails } from "@/composables/useWails";
 import { DeletePastQuery, ExecuteQuery, GetPastQueries } from "_/go/app/App";
-import { app } from "_/go/models";
+import { app, client } from "_/go/models";
+import { SortDirection } from "@/components/database/table/column/AppColumnHeader.vue";
 
 const defaultQuery = defineModel<string>("defaultQuery");
 
@@ -23,6 +24,7 @@ watch(query, () => {
 
 const data = ref<FormattedQueryResult & { key: number }>();
 const dataKey = ref(0);
+const sorting = ref<Array<{ id: string; desc: boolean }>>([]);
 const fetchingData = ref(false);
 async function fetchData(reload = true) {
   fetchingData.value = true;
@@ -37,14 +39,28 @@ async function fetchData(reload = true) {
     key: dataKey.value++,
     // eslint-disable-next-line @typescript-eslint/no-misused-spread
     ...result,
-    columns: formatColumns(result.columns, undefined, undefined, true),
+    columns: formatColumns(
+      result.columns,
+      (name: string, s: SortDirection) => {
+        if (!s) {
+          sorting.value = [];
+        } else {
+          sorting.value = [
+            { id: name, desc: s === client.OrderDirection.Descending },
+          ];
+        }
+      },
+      undefined,
+      undefined,
+      true,
+    ),
   };
   if (reload) {
     await fetchPastQueries();
   }
 }
 
-const pastQueries = ref<app.PastQuery[]>([]);
+const pastQueries = ref<Array<app.PastQuery>>([]);
 const fetchingPastQueries = ref(false);
 async function fetchPastQueries() {
   fetchingPastQueries.value = true;
@@ -138,6 +154,6 @@ async function setQuery(q: string, execute = false) {
         </UBadge>
       </div>
     </div>
-    <AppRows :loading="fetchingData" :data="data" />
+    <AppRows :loading="fetchingData" :data="data" :sorting="sorting" />
   </div>
 </template>

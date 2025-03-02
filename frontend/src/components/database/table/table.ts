@@ -1,5 +1,8 @@
 import { h } from "vue";
 import AppCell from "@/components/database/table/cell/AppCell.vue";
+import AppColumnHeader, {
+  SortDirection,
+} from "@/components/database/table/column/AppColumnHeader.vue";
 import type { TableColumn, TableData } from "@nuxt/ui/dist/module";
 import { client } from "_/go/models";
 
@@ -10,15 +13,13 @@ export enum RowAction {
   Delete = "delete",
 }
 
-type Row = Record<string, unknown>;
-
-export type RowEmits = {
-  view: [Row];
+export interface RowEmits<T> {
+  view: [T];
   insert: [];
-  duplicate: [Row];
-  delete: [Row];
+  duplicate: [T];
+  delete: [T];
   paginationChange: [number, number];
-};
+}
 
 export type FormattedQueryResult = Omit<
   client.QueryResult,
@@ -85,14 +86,14 @@ export const numberTypes = [
 
 export function formatColumns(
   columns: client.ColumnMetadata[],
+  onSort: (name: string, sort: SortDirection) => void | Promise<void>,
   table?: string,
   primaryKey?: string,
   disabled = false,
 ) {
-  const formatted = columns.map(
+  const formatted: TableColumn<TableData>[] = columns.map(
     ({ name, type, default_value: defaultValue, nullable }) => ({
       accessorKey: name,
-      header: name,
       cell: cell({
         table,
         primaryKey,
@@ -102,8 +103,13 @@ export function formatColumns(
         nullable,
         disabled,
       }),
+      header: getHeader(name, {
+        onSort: async (s) => {
+          await onSort(name, s);
+        },
+      }),
     }),
-  ) as TableColumn<TableData>[];
+  );
 
   formatted.push({
     accessorKey: "action",
@@ -112,4 +118,23 @@ export function formatColumns(
 
   // eslint-disable-next-line @typescript-eslint/no-unsafe-return
   return formatted;
+}
+
+export function getHeader(
+  name: string,
+  { onSort }: { onSort: (s: SortDirection) => Promise<void> },
+) {
+  return ({
+    column,
+  }: {
+    column: { getIsSorted: () => false | "asc" | "desc" };
+  }) => {
+    const sort = column.getIsSorted();
+
+    return h(AppColumnHeader, {
+      label: name,
+      sort: sort ? (sort.toUpperCase() as SortDirection) : false,
+      onSort,
+    });
+  };
 }

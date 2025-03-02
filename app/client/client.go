@@ -5,7 +5,7 @@ type DatabaseClient interface {
 	GetDatabaseSchemas(QueryParams) (QueryResult, error)
 	GetSchemaTables(QueryParams, string) (QueryResult, error)
 	GetTableRows(QueryParams, string, string) (QueryResult, error)
-	ExecuteQuery(string, ...interface{}) (QueryResult, error)
+	ExecuteQuery(string, ...any) (QueryResult, error)
 	Execute(string) error
 }
 
@@ -17,11 +17,10 @@ type ColumnMetadata struct {
 	PrimaryKey   bool   `json:"primary_key"`
 }
 
-type Row map[string]interface{}
+type Row map[string]any
 
-// NOTE: Rows should be []Row (fixed in wails v3?)
 type QueryResult struct {
-	Rows     interface{}      `json:"rows"`
+	Rows     []Row            `json:"rows"`
 	Columns  []ColumnMetadata `json:"columns"`
 	Total    int              `json:"total"`
 	Duration string           `json:"duration"`
@@ -34,9 +33,17 @@ type DatabaseMetadata struct {
 type OrderDirection string
 
 const (
-	Ascending  OrderDirection = "asc"
-	Descending OrderDirection = "desc"
+	Ascending  OrderDirection = "ASC"
+	Descending OrderDirection = "DESC"
 )
+
+var OrderDirections = []struct {
+	Value  OrderDirection
+	TSName string
+}{
+	{Ascending, "Ascending"},
+	{Descending, "Descending"},
+}
 
 type QueryOrder struct {
 	Column    string         `json:"column"`
