@@ -88,7 +88,7 @@ func (c *SqliteClient) fetchColumnsMetadata(table string) ([]ColumnMetadata, err
 	return columnsMetadata, nil
 }
 
-func (c *SqliteClient) executeSelectQuery(query string, params QueryParams, args ...interface{}) (QueryResult, error) {
+func (c *SqliteClient) executeSelectQuery(query string, params QueryParams, args ...any) (QueryResult, error) {
 	queryParts := strings.Split(query, " ")
 	table := queryParts[0]
 
@@ -118,7 +118,7 @@ func (c *SqliteClient) GetTableRows(params QueryParams, schema string, table str
 	return c.executeSelectQuery(table, params)
 }
 
-func (c *SqliteClient) ExecuteQuery(query string, args ...interface{}) (QueryResult, error) {
+func (c *SqliteClient) ExecuteQuery(query string, args ...any) (QueryResult, error) {
 	return executeQuery(c.Db, query, args...)
 }
 

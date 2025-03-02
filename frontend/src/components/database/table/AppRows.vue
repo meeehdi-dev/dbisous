@@ -10,18 +10,20 @@ import { useWails } from "@/composables/useWails";
 import { Execute } from "_/go/app/App";
 import { useUrlParams } from "@/composables/useUrlParams";
 
-const emit = defineEmits<RowEmits<unknown>>();
+const emit = defineEmits<RowEmits<Record<string, unknown>>>();
 const tx = useTransaction();
 
 const {
   loading,
   data,
+  sorting,
   table,
   primaryKey,
   actions = [],
 } = defineProps<{
   loading: boolean;
   data?: FormattedQueryResult & { key: number };
+  sorting: { id: string; desc: boolean }[];
   table?: string;
   primaryKey?: string;
   actions?: RowAction[];
@@ -81,6 +83,8 @@ const changesCount = computed(
       <UTable
         :key="data?.key"
         v-model:column-pinning="columnPinning"
+        :sorting="sorting"
+        :sorting-options="{ manualSorting: actions.length > 0 }"
         :data="data?.rows"
         :columns="data?.columns"
         :loading="loading"
@@ -92,9 +96,11 @@ const changesCount = computed(
             :actions="actions"
             :table="table"
             :primary-key="primaryKey"
-            @view="emit(RowAction.View, row)"
-            @duplicate="emit(RowAction.Duplicate, row)"
-            @delete="emit(RowAction.Delete, row)"
+            @view="emit(RowAction.View, row as Record<string, unknown>)"
+            @duplicate="
+              emit(RowAction.Duplicate, row as Record<string, unknown>)
+            "
+            @delete="emit(RowAction.Delete, row as Record<string, unknown>)"
           />
         </template>
       </UTable>

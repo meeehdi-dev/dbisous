@@ -12,7 +12,7 @@ import {
   GetConnections,
   UpdateConnection,
 } from "_/go/app/App";
-import { useCompletions } from "./useMonaco";
+import { useCompletions } from "@/composables/useMonaco";
 
 export const useConnections = createSharedComposable(() => {
   const wails = useWails();

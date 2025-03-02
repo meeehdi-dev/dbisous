@@ -22,7 +22,7 @@ interface Completion {
 export const useCompletions = createSharedComposable(() => {
   const dispose = ref<() => void>();
 
-  function register(columns: Record<string, Record<string, string[]>>) {
+  function register(columns: Record<string, Record<string, Array<string>>>) {
     if (dispose.value !== undefined) {
       dispose.value();
     }

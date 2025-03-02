@@ -1,30 +1,41 @@
 <script setup lang="ts">
+import { client } from "_/go/models";
 import { computed } from "vue";
 
-export type SortDirection = false | "desc" | "asc";
+export type SortDirection = false | client.OrderDirection;
 
-const emit = defineEmits<{ click: [SortDirection] }>();
+const emit = defineEmits<{ sort: [SortDirection] }>();
 
 const { label, sort } = defineProps<{
   label: string;
-  sort: SortDirection;
+  sort: false | SortDirection;
 }>();
 
 const items = computed(() => [
   {
-    label: "Asc",
+    label: "Ascending",
     icon: "lucide:arrow-up-narrow-wide",
-    color: sort === "asc" ? "primary" : undefined,
+    color: sort === client.OrderDirection.Ascending ? "primary" : undefined,
     onSelect: () => {
-      emit("click", sort === "asc" ? false : "asc");
+      emit(
+        "sort",
+        sort === client.OrderDirection.Ascending
+          ? false
+          : client.OrderDirection.Ascending,
+      );
     },
   },
   {
-    label: "Desc",
+    label: "Descending",
     icon: "lucide:arrow-down-narrow-wide",
-    color: sort === "desc" ? "primary" : undefined,
+    color: sort === client.OrderDirection.Descending ? "primary" : undefined,
     onSelect: () => {
-      emit("click", sort === "desc" ? false : "desc");
+      emit(
+        "sort",
+        sort === client.OrderDirection.Descending
+          ? false
+          : client.OrderDirection.Descending,
+      );
     },
   },
 ]);
@@ -39,7 +50,7 @@ const items = computed(() => [
       :label="label"
       :icon="
         sort
-          ? sort === 'asc'
+          ? sort === client.OrderDirection.Ascending
             ? 'lucide:arrow-up-narrow-wide'
             : 'lucide:arrow-down-wide-narrow'
           : 'lucide:arrow-up-down'

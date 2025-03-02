@@ -86,6 +86,7 @@ export const numberTypes = [
 
 export function formatColumns(
   columns: client.ColumnMetadata[],
+  onSort: (name: string, sort: SortDirection) => void | Promise<void>,
   table?: string,
   primaryKey?: string,
   disabled = false,
@@ -102,7 +103,11 @@ export function formatColumns(
         nullable,
         disabled,
       }),
-      header: getHeader(name),
+      header: getHeader(name, {
+        onSort: async (s) => {
+          await onSort(name, s);
+        },
+      }),
     }),
   );
 
@@ -115,29 +120,21 @@ export function formatColumns(
   return formatted;
 }
 
-export function getHeader(name: string) {
-  return ({ column }: { column: unknown }) => {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-expect-error tkt
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
+export function getHeader(
+  name: string,
+  { onSort }: { onSort: (s: SortDirection) => Promise<void> },
+) {
+  return ({
+    column,
+  }: {
+    column: { getIsSorted: () => false | "asc" | "desc" };
+  }) => {
     const sort = column.getIsSorted();
 
     return h(AppColumnHeader, {
       label: name,
-      sort,
-      onClick: (s: SortDirection) => {
-        if (s) {
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-expect-error tkt
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-          column.toggleSorting(s === "desc");
-        } else {
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-expect-error tkt
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-          column.clearSorting();
-        }
-      },
+      sort: sort ? (sort.toUpperCase() as SortDirection) : false,
+      onSort,
     });
   };
 }

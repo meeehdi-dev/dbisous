@@ -116,7 +116,7 @@ func (c *MysqlClient) fetchColumnsMetadata(schema string, table string) ([]Colum
 	return columnsMetadata, nil
 }
 
-func (c *MysqlClient) executeSelectQuery(query string, params QueryParams, args ...interface{}) (QueryResult, error) {
+func (c *MysqlClient) executeSelectQuery(query string, params QueryParams, args ...any) (QueryResult, error) {
 	queryParts := strings.Split(query, " ")
 	table := queryParts[0]
 	tableParts := strings.Split(table, ".")
@@ -153,7 +153,7 @@ func (c *MysqlClient) GetTableRows(params QueryParams, schema string, table stri
 	return c.executeSelectQuery(fmt.Sprintf("`%s`.`%s`", schema, table), params)
 }
 
-func (c *MysqlClient) ExecuteQuery(query string, args ...interface{}) (QueryResult, error) {
+func (c *MysqlClient) ExecuteQuery(query string, args ...any) (QueryResult, error) {
 	return executeQuery(c.Db, query, args...)
 }
 
