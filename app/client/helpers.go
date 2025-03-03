@@ -123,10 +123,19 @@ func executeQuery(db *sql.DB, query string, args ...any) (QueryResult, error) {
 
 func executeSelectQuery(db *sql.DB, query string, params QueryParams, args ...any) (QueryResult, error) {
 	execQuery := fmt.Sprintf("SELECT * FROM %s", query)
+	if len(params.Filter) > 0 {
+		if !strings.Contains(execQuery, "WHERE") {
+			execQuery += " WHERE"
+		} else {
+			execQuery += " AND"
+		}
+		execQuery += " (" + params.Filter[0].Column + " LIKE " + params.Filter[0].Value + ")"
+	}
 	if len(params.Order) > 0 {
 		execQuery += fmt.Sprintf(" ORDER BY %s %s", params.Order[0].Column, params.Order[0].Direction)
 	}
 	execQuery += fmt.Sprintf(" LIMIT %d OFFSET %d", params.Limit, params.Offset)
+	fmt.Println(execQuery)
 	result, err := executeQuery(db, execQuery, args...)
 
 	countRow := db.QueryRow(fmt.Sprintf("SELECT COUNT(*) FROM %s", query), args...)

@@ -11,6 +11,7 @@ import { useWails } from "@/composables/useWails";
 import { ref } from "vue";
 import { client } from "_/go/models";
 import { SortDirection } from "@/components/database/table/column/AppColumnHeader.vue";
+import { toSqlValue } from "@/composables/useTransaction";
 
 const router = useRouter();
 const { databaseId } = useUrlParams();
@@ -23,6 +24,7 @@ const wails = useWails();
 
 const data = ref<FormattedQueryResult & { key: number }>();
 const dataKey = ref(0);
+const filtering = ref<Array<{ id: string; value: unknown }>>([]);
 const sorting = ref<Array<{ id: string; desc: boolean }>>([]);
 const columns = ref<Array<client.ColumnMetadata>>();
 const fetchingData = ref(false);
@@ -34,7 +36,10 @@ async function fetchData(page = 1, itemsPerPage = 10) {
       new client.QueryParams({
         offset: (page - 1) * itemsPerPage,
         limit: itemsPerPage,
-        filter: [],
+        filter: filtering.value.map((s) => ({
+          column: s.id,
+          value: toSqlValue(s.value),
+        })),
         order: sorting.value.map((s) => ({
           column: s.id,
           direction: s.desc
@@ -65,6 +70,14 @@ async function fetchData(page = 1, itemsPerPage = 10) {
         }
         return fetchData();
       },
+      async (name: string, f: unknown) => {
+        if (!f) {
+          filtering.value = [];
+        } else {
+          filtering.value = [{ id: name, value: f }];
+        }
+        return fetchData();
+      },
       undefined,
       undefined,
       true,
@@ -81,6 +94,7 @@ await fetchData();
         :loading="fetchingData"
         :data="data"
         :sorting="sorting"
+        :filtering="filtering"
         :actions="[RowAction.View]"
         @view="
           (row: Record<string, unknown>) =>

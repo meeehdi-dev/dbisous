@@ -87,6 +87,7 @@ export const numberTypes = [
 export function formatColumns(
   columns: client.ColumnMetadata[],
   onSort: (name: string, sort: SortDirection) => void | Promise<void>,
+  onFilter: (name: string, filter: false | string) => void | Promise<void>,
   table?: string,
   primaryKey?: string,
   disabled = false,
@@ -107,6 +108,9 @@ export function formatColumns(
         onSort: async (s) => {
           await onSort(name, s);
         },
+        onFilter: async (f) => {
+          await onFilter(name, f);
+        },
       }),
     }),
   );
@@ -122,19 +126,28 @@ export function formatColumns(
 
 export function getHeader(
   name: string,
-  { onSort }: { onSort: (s: SortDirection) => Promise<void> },
+  callbacks?: {
+    onSort: (s: SortDirection) => Promise<void>;
+    onFilter: (s: false | string) => Promise<void>;
+  },
 ) {
   return ({
     column,
   }: {
-    column: { getIsSorted: () => false | "asc" | "desc" };
+    column: {
+      getIsSorted: () => false | "asc" | "desc";
+      getFilterValue: () => unknown;
+    };
   }) => {
     const sort = column.getIsSorted();
+    const filter = column.getFilterValue();
 
     return h(AppColumnHeader, {
       label: name,
       sort: sort ? (sort.toUpperCase() as SortDirection) : false,
-      onSort,
+      filter,
+      onSort: callbacks?.onSort,
+      onFilter: callbacks?.onFilter,
     });
   };
 }

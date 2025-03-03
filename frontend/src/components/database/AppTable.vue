@@ -9,7 +9,7 @@ import {
 } from "@/components/database/table/table";
 import { client } from "_/go/models";
 import { useWails } from "@/composables/useWails";
-import { useTransaction } from "@/composables/useTransaction";
+import { toSqlValue, useTransaction } from "@/composables/useTransaction";
 import { SortDirection } from "@/components/database/table/column/AppColumnHeader.vue";
 
 const { databaseId, schemaId, tableId } = useUrlParams();
@@ -19,6 +19,7 @@ const tx = useTransaction();
 const data = ref<FormattedQueryResult & { key: number }>();
 const dataKey = ref(0);
 const sorting = ref<Array<{ id: string; desc: boolean }>>([]);
+const filtering = ref<Array<{ id: string; value: unknown }>>([]);
 const columns = ref<Array<client.ColumnMetadata>>();
 const primaryKey = ref<string>();
 const fetchingData = ref(false);
@@ -31,7 +32,10 @@ async function fetchData(page = 1, itemsPerPage = 10) {
       new client.QueryParams({
         offset: (page - 1) * itemsPerPage,
         limit: itemsPerPage,
-        filter: [],
+        filter: filtering.value.map((s) => ({
+          column: s.id,
+          value: toSqlValue(s.value),
+        })),
         order: sorting.value.map((s) => ({
           column: s.id,
           direction: s.desc
@@ -62,6 +66,14 @@ async function fetchData(page = 1, itemsPerPage = 10) {
           sorting.value = [
             { id: name, desc: s === client.OrderDirection.Descending },
           ];
+        }
+        return fetchData();
+      },
+      async (name: string, f: unknown) => {
+        if (!f) {
+          filtering.value = [];
+        } else {
+          filtering.value = [{ id: name, value: f }];
         }
         return fetchData();
       },
@@ -133,6 +145,7 @@ function deleteRow(row: Record<string, unknown>) {
         :loading="fetchingData"
         :data="data"
         :sorting="sorting"
+        :filtering="filtering"
         :table="tableId"
         :primary-key="primaryKey"
         :actions="

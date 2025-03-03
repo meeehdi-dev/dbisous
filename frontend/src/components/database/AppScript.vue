@@ -25,6 +25,7 @@ watch(query, () => {
 const data = ref<FormattedQueryResult & { key: number }>();
 const dataKey = ref(0);
 const sorting = ref<Array<{ id: string; desc: boolean }>>([]);
+const filtering = ref<Array<{ id: string; value: unknown }>>([]);
 const fetchingData = ref(false);
 async function fetchData(reload = true) {
   fetchingData.value = true;
@@ -49,6 +50,14 @@ async function fetchData(reload = true) {
             { id: name, desc: s === client.OrderDirection.Descending },
           ];
         }
+      },
+      async (name: string, f: unknown) => {
+        if (!f) {
+          filtering.value = [];
+        } else {
+          filtering.value = [{ id: name, value: f }];
+        }
+        return fetchData();
       },
       undefined,
       undefined,
@@ -154,6 +163,12 @@ async function setQuery(q: string, execute = false) {
         </UBadge>
       </div>
     </div>
-    <AppRows :loading="fetchingData" :data="data" :sorting="sorting" />
+    <AppRows
+      :loading="fetchingData"
+      :data="data"
+      :sorting="sorting"
+      :filtering="filtering"
+    />
+    />
   </div>
 </template>

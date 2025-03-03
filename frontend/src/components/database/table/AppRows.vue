@@ -17,6 +17,7 @@ const {
   loading,
   data,
   sorting,
+  filtering,
   table,
   primaryKey,
   actions = [],
@@ -24,6 +25,7 @@ const {
   loading: boolean;
   data?: FormattedQueryResult & { key: number };
   sorting: { id: string; desc: boolean }[];
+  filtering: { id: string; value: unknown }[];
   table?: string;
   primaryKey?: string;
   actions?: RowAction[];
@@ -85,6 +87,8 @@ const changesCount = computed(
         v-model:column-pinning="columnPinning"
         :sorting="sorting"
         :sorting-options="{ manualSorting: actions.length > 0 }"
+        :column-filters="filtering"
+        :column-filters-options="{ manualFiltering: actions.length > 0 }"
         :data="data?.rows"
         :columns="data?.columns"
         :loading="loading"
