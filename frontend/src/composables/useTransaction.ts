@@ -34,7 +34,7 @@ export interface DeleteChange extends Change {
   rowKey: unknown;
 }
 
-function toSqlValue(value: unknown): string {
+export function toSqlValue(value: unknown): string {
   if (value === null) {
     return "NULL";
   }
