@@ -169,6 +169,5 @@ async function setQuery(q: string, execute = false) {
       :sorting="sorting"
       :filtering="filtering"
     />
-    />
   </div>
 </template>
