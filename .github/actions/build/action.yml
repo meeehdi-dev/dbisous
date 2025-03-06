@@ -31,4 +31,5 @@ runs:
         go install github.com/wailsapp/wails/v2/cmd/wails@latest
         wails build
         cd build/bin
+        chmod +x dbisous.app/Contents/MacOS/*
         ditto -c -k --keepParent * dbisous-macos.zip
