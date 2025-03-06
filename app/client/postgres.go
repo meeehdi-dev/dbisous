@@ -38,7 +38,7 @@ func (c *PostgresClient) GetDatabaseMetadata() (DatabaseMetadata, error) {
 }
 
 func (c *PostgresClient) getColumns(schema string, table string) ([]string, error) {
-	var columns []string
+	columns := make([]string, 0)
 
 	rows, err := c.Db.Query("SELECT column_name FROM information_schema.columns WHERE table_schema = $1 AND table_name = $2", schema, table)
 	if err != nil {
@@ -60,7 +60,7 @@ func (c *PostgresClient) getColumns(schema string, table string) ([]string, erro
 }
 
 func (c *PostgresClient) getTables(schema string) ([]string, error) {
-	var tables []string
+	tables := make([]string, 0)
 
 	rows, err := c.Db.Query("SELECT table_name FROM information_schema.tables WHERE table_schema = $1", schema)
 	if err != nil {
@@ -81,7 +81,7 @@ func (c *PostgresClient) getTables(schema string) ([]string, error) {
 }
 
 func (c *PostgresClient) getSchemas() ([]string, error) {
-	var schemas []string
+	schemas := make([]string, 0)
 
 	rows, err := c.Db.Query("SELECT schema_name FROM information_schema.schemata")
 	if err != nil {

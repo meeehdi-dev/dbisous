@@ -38,7 +38,7 @@ func (c *MysqlClient) GetDatabaseMetadata() (DatabaseMetadata, error) {
 }
 
 func (c *MysqlClient) getColumns(schema string, table string) ([]string, error) {
-	var columns []string
+	columns := make([]string, 0)
 
 	rows, err := c.Db.Query("SELECT column_name FROM information_schema.columns WHERE table_schema = ? AND table_name = ?", schema, table)
 	if err != nil {
@@ -60,7 +60,7 @@ func (c *MysqlClient) getColumns(schema string, table string) ([]string, error) 
 }
 
 func (c *MysqlClient) getTables(schema string) ([]string, error) {
-	var tables []string
+	tables := make([]string, 0)
 
 	rows, err := c.Db.Query("SELECT table_name FROM information_schema.tables WHERE table_schema = ?", schema)
 	if err != nil {
@@ -81,7 +81,7 @@ func (c *MysqlClient) getTables(schema string) ([]string, error) {
 }
 
 func (c *MysqlClient) getSchemas() ([]string, error) {
-	var schemas []string
+	schemas := make([]string, 0)
 
 	rows, err := c.Db.Query("SELECT schema_name FROM information_schema.schemata")
 	if err != nil {
