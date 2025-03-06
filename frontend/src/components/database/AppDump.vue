@@ -192,7 +192,7 @@ function selectColumn(column: string) {
             <UIcon
               name="lucide:chevron-right"
               :class="[
-                'transition-opacity text-primary size-5',
+                'transition-opacity size-5',
                 activeSchema === schema ? 'opacity-100' : 'opacity-0',
               ]"
             />
@@ -221,7 +221,7 @@ function selectColumn(column: string) {
             <UIcon
               name="lucide:chevron-right"
               :class="[
-                'transition-opacity text-primary size-5',
+                'transition-opacity size-5',
                 activeTable === table ? 'opacity-100' : 'opacity-0',
               ]"
             />
@@ -233,7 +233,7 @@ function selectColumn(column: string) {
         <div
           v-for="column of columns"
           :key="column"
-          class="flex gap-2 items-center cursor-pointer"
+          class="flex gap-2 items-center"
         >
           <UCheckbox
             v-model="selected[`${activeSchema}.${activeTable}.${column}`]"
