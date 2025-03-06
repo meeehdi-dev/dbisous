@@ -17,14 +17,14 @@ const formSchema = v.object({
   id: v.optional(v.string()),
   created_at: v.optional(v.string()),
   updated_at: v.optional(v.string()),
-  type: v.enum(app.ConnectionType),
+  type: v.optional(v.enum(app.ConnectionType)),
   name: v.string(),
   connection_string: v.string(),
 });
 const parser = v.safeParser(formSchema);
 type FormSchema = v.InferOutput<typeof formSchema>;
 
-const state = reactive<Partial<FormSchema>>(
+const state = reactive<FormSchema>(
   connection.value ?? {
     name: "",
     connection_string: "",
