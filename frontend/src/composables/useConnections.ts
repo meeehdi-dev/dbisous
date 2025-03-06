@@ -3,7 +3,7 @@ import { createSharedComposable } from "@vueuse/core";
 import { useWails } from "@/composables/useWails";
 import { useRouter } from "vue-router";
 import { useUrlParams } from "@/composables/useUrlParams";
-import { app, client } from "_/go/models";
+import { app } from "_/go/models";
 import {
   Connect,
   CreateConnection,
@@ -14,6 +14,8 @@ import {
 } from "_/go/app/App";
 import { useCompletions } from "@/composables/useMonaco";
 
+type DatabaseMetadata = Record<string, Record<string, string[]>>;
+
 export const useConnections = createSharedComposable(() => {
   const wails = useWails();
   const router = useRouter();
@@ -21,7 +23,7 @@ export const useConnections = createSharedComposable(() => {
 
   const connections = ref<Array<app.Connection>>([]);
   const activeConnections = ref<Array<string>>([]);
-  const metadata = ref<Record<string, client.DatabaseMetadata>>({});
+  const metadata = ref<Record<string, { columns: DatabaseMetadata }>>({});
 
   async function fetchConnections() {
     const result = await wails(GetConnections);
