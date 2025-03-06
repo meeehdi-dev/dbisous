@@ -1,7 +1,6 @@
 on:
-  push:
-    tags:
-      - '*'
+  release:
+    types: [created]
 
 env:
   NODE_OPTIONS: '--max-old-space-size=4096'
