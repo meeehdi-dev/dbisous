@@ -21,7 +21,7 @@ func GetConnections() ([]Connection, error) {
 	}
 	defer rows.Close()
 
-	var connections []Connection
+	connections := make([]Connection, 0)
 	for rows.Next() {
 		var connection Connection
 		err := rows.Scan(&connection.ID, &connection.CreatedAt, &connection.UpdatedAt, &connection.Name, &connection.Type, &connection.ConnectionString)
@@ -162,7 +162,7 @@ func GetPastQueries() ([]PastQuery, error) {
 	}
 	defer rows.Close()
 
-	var pastQueries []PastQuery
+	pastQueries := make([]PastQuery, 0)
 	for rows.Next() {
 		var pastQuery PastQuery
 		err := rows.Scan(&pastQuery.ID, &pastQuery.Query, &pastQuery.LastUsed)

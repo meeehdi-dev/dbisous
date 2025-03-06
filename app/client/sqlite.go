@@ -31,7 +31,7 @@ func (c *SqliteClient) GetDatabaseMetadata() (DatabaseMetadata, error) {
 }
 
 func (c *SqliteClient) getColumns(table string) ([]string, error) {
-	var columns []string
+	columns := make([]string, 0)
 
 	rows, err := c.Db.Query("SELECT name FROM pragma_table_info(?)", table)
 	if err != nil {
@@ -53,7 +53,7 @@ func (c *SqliteClient) getColumns(table string) ([]string, error) {
 }
 
 func (c *SqliteClient) getTables() ([]string, error) {
-	var tables []string
+	tables := make([]string, 0)
 
 	rows, err := c.Db.Query("SELECT name FROM sqlite_master WHERE type='table'")
 	if err != nil {
@@ -74,7 +74,7 @@ func (c *SqliteClient) getTables() ([]string, error) {
 }
 
 func (c *SqliteClient) fetchColumnsMetadata(table string) ([]ColumnMetadata, error) {
-	var columnsMetadata []ColumnMetadata
+	columnsMetadata := make([]ColumnMetadata, 0)
 
 	columns, err := c.Db.Query("SELECT name, type, COALESCE(dflt_value, 'NULL') AS default_value, CASE \"notnull\" WHEN 1 THEN false ELSE true END nullable, pk AS primary_key FROM pragma_table_info(?)", table)
 	if err != nil {

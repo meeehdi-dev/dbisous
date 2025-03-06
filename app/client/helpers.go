@@ -8,7 +8,7 @@ import (
 )
 
 func fetchColumns(rows *sql.Rows) ([]ColumnMetadata, error) {
-	var columns []ColumnMetadata
+	columns := make([]ColumnMetadata, 0)
 
 	for rows.Next() {
 		var column ColumnMetadata
@@ -45,7 +45,7 @@ func fetchRows(rows *sql.Rows) (QueryResult, error) {
 		columnsMetadata = append(columnsMetadata, columnMetadata)
 	}
 
-	var results []Row
+	results := make([]Row, 0)
 	for rows.Next() {
 		values := make([]any, len(columns))
 		valuePtrs := make([]any, len(columns))
