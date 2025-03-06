@@ -150,6 +150,9 @@ func executeSelectQuery(db *sql.DB, query string, params QueryParams, args ...an
 func execute(db *sql.DB, query string) error {
 	_, err := db.Exec(query)
 	if err != nil {
+		if strings.Contains(query, "BEGIN;") || strings.Contains(query, "BEGIN TRANSACTION;") {
+			db.Exec("ROLLBACK")
+		}
 		return err
 	}
 

@@ -66,14 +66,14 @@ function formatInsertChangeToSql(change: InsertChange) {
       ([key, value]) => key !== "__key" && value !== "NULL",
     ),
   );
-  return `INSERT OR ROLLBACK INTO ${change.table} (${Object.keys(values).join(
+  return `INSERT INTO ${change.table} (${Object.keys(values).join(
     ", ",
   )}) VALUES (${Object.entries(values)
     .map(([, value]) => toSqlValue(value))
     .join(", ")});`;
 }
 function formatUpdateChangeToSql(change: UpdateChange) {
-  return `UPDATE OR ROLLBACK ${change.table} SET ${Object.entries(change.values)
+  return `UPDATE ${change.table} SET ${Object.entries(change.values)
     .map(([key, value]) => `${key} = ${toSqlValue(value)}`)
     .join(", ")} WHERE ${change.primaryKey} = ${toSqlValue(change.rowKey)};`;
 }
