@@ -22,6 +22,11 @@ const tabs = [
     slot: "script",
     icon: "lucide:square-terminal",
   },
+  {
+    label: "Dump",
+    slot: "dump",
+    icon: "lucide:upload",
+  },
 ];
 </script>
 
@@ -42,6 +47,9 @@ const tabs = [
     </template>
     <template #script>
       <AppScript :default-query="defaultQuery" />
+    </template>
+    <template #dump>
+      <AppDump />
     </template>
   </UTabs>
 </template>

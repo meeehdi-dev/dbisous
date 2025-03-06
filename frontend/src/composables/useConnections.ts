@@ -116,5 +116,6 @@ export const useConnections = createSharedComposable(() => {
     select,
     getConnectionName,
     isConnected,
+    metadata,
   };
 });
