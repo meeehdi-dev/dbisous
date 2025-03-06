@@ -10,7 +10,6 @@ runs:
       with:
         node-version: '22'
     - shell: bash
-      id: build-linux
       if: runner.os == 'Linux'
       run: |
         sudo apt update
@@ -21,7 +20,6 @@ runs:
         chmod +x *
         zip -r dbisous-linux.zip *
     - shell: pwsh
-      id: build-windows
       if: runner.os == 'Windows'
       run: |
         go install github.com/wailsapp/wails/v2/cmd/wails@latest
@@ -29,7 +27,6 @@ runs:
         cd build/bin
         Compress-Archive -Path * -Destination dbisous-windows.zip
     - shell: bash
-      id: build-macos
       if: runner.os == 'macOS'
       run: |
         go install github.com/wailsapp/wails/v2/cmd/wails@latest
