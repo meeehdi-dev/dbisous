@@ -66,15 +66,15 @@ function formatInsertChangeToSql(change: InsertChange) {
       ([key, value]) => key !== "__key" && value !== "NULL",
     ),
   );
-  return `INSERT INTO ${change.table} (${Object.keys(values).join(
-    ", ",
-  )}) VALUES (${Object.entries(values)
+  return `INSERT INTO ${change.table} (${Object.keys(values)
+    .map((column) => `"${column}"`)
+    .join(", ")}) VALUES (${Object.entries(values)
     .map(([, value]) => toSqlValue(value))
     .join(", ")});`;
 }
 function formatUpdateChangeToSql(change: UpdateChange) {
   return `UPDATE ${change.table} SET ${Object.entries(change.values)
-    .map(([key, value]) => `${key} = ${toSqlValue(value)}`)
+    .map(([key, value]) => `"${key}" = ${toSqlValue(value)}`)
     .join(", ")} WHERE ${change.primaryKey} = ${toSqlValue(change.rowKey)};`;
 }
 function formatDeleteChangeToSql(change: DeleteChange) {
