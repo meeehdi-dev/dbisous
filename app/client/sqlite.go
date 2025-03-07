@@ -2,6 +2,7 @@ package client
 
 import (
 	"database/sql"
+	"fmt"
 	"strings"
 )
 
@@ -124,4 +125,93 @@ func (c *SqliteClient) ExecuteQuery(query string, args ...any) (QueryResult, err
 
 func (c *SqliteClient) Execute(query string) error {
 	return execute(c.Db, query)
+}
+
+func (c *SqliteClient) Export(options ExportOptions) (string, error) {
+	contents := "BEGIN;\n"
+
+	currentTable := ""
+	currentTableMetadata := make([]ColumnMetadata, 0)
+
+	// NOTE: STEP 1 => Create tables
+	// TODO: refactor and use helper function to avoid duplicate code
+	if options.DropTable != DoNothing {
+		for i, entity := range options.Selected {
+			if entity == "main" {
+				continue
+			}
+			entity, found := strings.CutPrefix(entity, "main.")
+			if !found {
+				return "", fmt.Errorf("invalid entity name: %s", entity)
+			}
+			if !strings.Contains(entity, ".") {
+				if entity != currentTable {
+					currentTable = entity
+					var err error
+					currentTableMetadata, err = c.fetchColumnsMetadata(currentTable)
+					if err != nil {
+						return "", err
+					}
+				}
+				switch options.DropTable {
+				case DropAndCreate:
+					contents += fmt.Sprintf("DROP TABLE %s;\n", entity)
+					contents += fmt.Sprintf("CREATE TABLE %s (\n", entity)
+				case Create:
+					contents += fmt.Sprintf("CREATE TABLE %s (\n", entity)
+				case CreateIfNotExists:
+					contents += fmt.Sprintf("CREATE IF NOT EXISTS TABLE %s (\n", entity)
+				}
+			}
+			if strings.Contains(entity, ".") {
+				parts := strings.Split(entity, ".")
+				table := parts[0]
+				column := parts[1]
+				var currentColumn *ColumnMetadata = nil
+				for _, col := range currentTableMetadata {
+					if col.Name == column {
+						currentColumn = &col
+						break
+					}
+				}
+				if currentColumn == nil {
+					return "", fmt.Errorf("invalid column name: %s", entity)
+				}
+
+				nullable := ""
+				defaultValue := ""
+				primaryKey := ""
+				if !currentColumn.Nullable {
+					nullable = " NOT NULL"
+				}
+				if currentColumn.DefaultValue != "NULL" {
+					defaultValue = fmt.Sprintf(" DEFAULT %s", currentColumn.DefaultValue)
+				}
+				if currentColumn.PrimaryKey {
+					primaryKey = " PRIMARY KEY"
+				}
+				contents += fmt.Sprintf("    %s %s%s%s%s", currentColumn.Name, currentColumn.Type, nullable, defaultValue, primaryKey)
+				if i+1 < len(options.Selected) {
+					next := options.Selected[i+1]
+					next, found = strings.CutPrefix(next, "main.")
+					// FIXME: is there a way to avoid any default schema handling?
+					if strings.HasPrefix(next, table+".") {
+						contents += ","
+					} else {
+						contents += "\n);"
+					}
+				} else {
+					contents += "\n);"
+				}
+				contents += "\n"
+			}
+		}
+	}
+
+	// NOTE: STEP 2 => Insert data
+	// TODO: use helper function to avoid duplicate code
+
+	contents += "COMMIT;\n"
+
+	return contents, nil
 }

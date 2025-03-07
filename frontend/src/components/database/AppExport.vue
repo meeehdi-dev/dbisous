@@ -1,39 +1,46 @@
 <script setup lang="ts">
 import { useConnections } from "@/composables/useConnections";
 import { useUrlParams } from "@/composables/useUrlParams";
+import { useWails } from "@/composables/useWails";
 import { FormSubmitEvent } from "@nuxt/ui/dist/module";
+import { Export } from "_/go/app/App";
+import { client } from "_/go/models";
 import * as v from "valibot";
 import { computed, reactive, ref } from "vue";
 
-enum ExportType {
-  SQL = "sql",
-  CSV = "csv",
-}
-
 const { databaseId } = useUrlParams();
 const { metadata } = useConnections();
+const wails = useWails();
+// eslint-disable-next-line no-undef
+const toast = useToast();
 
-const formSchema = v.object({
-  type: v.enum(ExportType),
-  drop_tables: v.union([v.literal("yes"), v.literal("no")]),
-  drop_schemas: v.union([v.literal("yes"), v.literal("no")]),
+const exportSchema = v.object({
+  type: v.enum(client.ExportType),
+  drop_schema: v.enum(client.ExportDrop),
+  drop_table: v.enum(client.ExportDrop),
   selected: v.record(
     v.string(),
     v.union([v.boolean(), v.literal("indeterminate")]),
   ),
 });
-const parser = v.safeParser(formSchema);
-type FormSchema = v.InferOutput<typeof formSchema>;
+const parser = v.safeParser(exportSchema);
+type ExportSchema = v.InferOutput<typeof exportSchema>;
 
-const state = reactive<FormSchema>({
-  type: ExportType.SQL,
-  drop_tables: "yes",
-  drop_schemas: "no",
+const state = reactive<ExportSchema>({
+  type: client.ExportType.SQL,
+  drop_schema: client.ExportDrop.Do_nothing,
+  drop_table: client.ExportDrop.Drop_and_create,
   selected: {},
 });
 
 const types = ref(
-  Object.entries(ExportType).map(([label, value]) => ({ label, value })),
+  Object.entries(client.ExportType).map(([label, value]) => ({ label, value })),
+);
+const drop = ref(
+  Object.entries(client.ExportDrop).map(([label, value]) => ({
+    label: label.replaceAll("_", " "),
+    value,
+  })),
 );
 
 const schemas = computed(() => {
@@ -57,8 +64,22 @@ const columns = computed(() => {
   return md[activeSchema.value][activeTable.value];
 });
 
-function submitConnection(event: FormSubmitEvent<FormSchema>) {
-  console.log(event.data);
+async function submitConnection(event: FormSubmitEvent<ExportSchema>) {
+  const result = await wails(() =>
+    Export(databaseId.value, {
+      ...event.data,
+      selected: Object.entries(state.selected)
+        .filter(([, value]) => value === true)
+        .map(([key]) => key),
+    }),
+  );
+  if (result instanceof Error) {
+    return;
+  }
+  toast.add({
+    title: "Successfully exported database!",
+    description: result,
+  });
 }
 
 const activeSchema = ref("");
@@ -185,6 +206,13 @@ function selectColumn(column: string) {
     }
   }
 }
+
+const disabled = computed(() => {
+  return (
+    Object.entries(state.selected).filter(([, value]) => value === true)
+      .length === 0
+  );
+});
 </script>
 
 <template>
@@ -192,7 +220,7 @@ function selectColumn(column: string) {
     <div class="p-4 w-full">
       <div class="flex flex-col gap-4">
         <div class="flex gap-4 h-48 w-full">
-          <div class="flex flex-1 flex-col max-h-96">
+          <div class="flex flex-1 flex-col max-h-96 overflow-auto">
             <div
               v-for="schema of schemas"
               :key="schema"
@@ -223,7 +251,7 @@ function selectColumn(column: string) {
             </div>
           </div>
           <USeparator orientation="vertical" />
-          <div class="flex flex-1 flex-col max-h-96">
+          <div class="flex flex-1 flex-col max-h-96 overflow-auto">
             <div
               v-for="table of tables"
               :key="table"
@@ -254,7 +282,7 @@ function selectColumn(column: string) {
             </div>
           </div>
           <USeparator orientation="vertical" />
-          <div class="flex flex-1 flex-col max-h-96">
+          <div class="flex flex-1 flex-col max-h-96 overflow-auto">
             <div
               v-for="column of columns"
               :key="column"
@@ -285,24 +313,27 @@ function selectColumn(column: string) {
         >
           <UFormField label="Drop/Create schemas?" name="drop">
             <URadioGroup
-              v-model="state.drop_schemas"
-              :items="[
-                { label: 'Yes', value: 'yes' },
-                { label: 'No', value: 'no' },
-              ]"
+              v-model="state.drop_schema"
+              :items="drop"
               :disabled="state.type !== 'sql'"
             />
           </UFormField>
           <USeparator orientation="vertical" />
           <UFormField label="Drop/Create tables?" name="drop">
             <URadioGroup
-              v-model="state.drop_tables"
-              :items="[
-                { label: 'Yes', value: 'yes' },
-                { label: 'No', value: 'no' },
-              ]"
+              v-model="state.drop_table"
+              :items="drop"
               :disabled="state.type !== 'sql'"
             />
+          </UFormField>
+          <USeparator orientation="vertical" />
+          <UFormField
+            label="Drop constraints during import?"
+            name="constraints"
+          >
+          </UFormField>
+          <USeparator orientation="vertical" />
+          <UFormField label="Wrap in transaction?" name="transaction">
           </UFormField>
           <USeparator orientation="vertical" />
           <div
@@ -314,7 +345,12 @@ function selectColumn(column: string) {
           </div>
         </div>
         <div class="flex justify-center">
-          <UButton icon="lucide:upload" type="submit" label="Export" />
+          <UButton
+            icon="lucide:upload"
+            type="submit"
+            label="Export"
+            :disabled="disabled"
+          />
         </div>
       </div>
     </div>

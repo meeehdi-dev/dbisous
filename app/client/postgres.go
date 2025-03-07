@@ -160,3 +160,88 @@ func (c *PostgresClient) ExecuteQuery(query string, args ...any) (QueryResult, e
 func (c *PostgresClient) Execute(query string) error {
 	return execute(c.Db, query)
 }
+
+func (c *PostgresClient) Export(options ExportOptions) (string, error) {
+	contents := "BEGIN;\n"
+
+	currentTable := ""
+	currentTableMetadata := make([]ColumnMetadata, 0)
+
+	// NOTE: STEP 1 => Create tables
+	// TODO: refactor and use helper function to avoid duplicate code
+	if options.DropTable != DoNothing {
+		for i, entity := range options.Selected {
+			if strings.Count(entity, ".") == 1 {
+				parts := strings.Split(entity, ".")
+				schema := parts[0]
+				table := parts[1]
+				if entity != currentTable {
+					currentTable = entity
+					var err error
+					currentTableMetadata, err = c.fetchColumnsMetadata(schema, table)
+					if err != nil {
+						return "", err
+					}
+				}
+				switch options.DropTable {
+				case DropAndCreate:
+					contents += fmt.Sprintf("DROP TABLE %s;\n", entity)
+					contents += fmt.Sprintf("CREATE TABLE %s (\n", entity)
+				case Create:
+					contents += fmt.Sprintf("CREATE TABLE %s (\n", entity)
+				case CreateIfNotExists:
+					contents += fmt.Sprintf("CREATE IF NOT EXISTS TABLE %s (\n", entity)
+				}
+			}
+			if strings.Count(entity, ".") == 2 {
+				parts := strings.Split(entity, ".")
+				schema := parts[0]
+				table := parts[1]
+				column := parts[2]
+				var currentColumn *ColumnMetadata = nil
+				for _, col := range currentTableMetadata {
+					if col.Name == column {
+						currentColumn = &col
+						break
+					}
+				}
+				if currentColumn == nil {
+					return "", fmt.Errorf("invalid column name: %s", entity)
+				}
+
+				nullable := ""
+				defaultValue := ""
+				primaryKey := ""
+				if !currentColumn.Nullable {
+					nullable = " NOT NULL"
+				}
+				if currentColumn.DefaultValue != "NULL" {
+					defaultValue = fmt.Sprintf(" DEFAULT %s", currentColumn.DefaultValue)
+				}
+				if currentColumn.PrimaryKey {
+					primaryKey = " PRIMARY KEY"
+				}
+				contents += fmt.Sprintf("    %s %s%s%s%s", currentColumn.Name, currentColumn.Type, nullable, defaultValue, primaryKey)
+				if i+1 < len(options.Selected) {
+					next := options.Selected[i+1]
+					// NOTE: only part differing from sqlite as we can use the schema here
+					if strings.HasPrefix(next, schema+"."+table+".") {
+						contents += ","
+					} else {
+						contents += "\n);"
+					}
+				} else {
+					contents += "\n);"
+				}
+				contents += "\n"
+			}
+		}
+	}
+
+	// NOTE: STEP 2 => Insert data
+	// TODO: use helper function to avoid duplicate code
+
+	contents += "COMMIT;\n"
+
+	return contents, nil
+}

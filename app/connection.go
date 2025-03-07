@@ -194,6 +194,20 @@ func Execute(id string, query string) error {
 	return nil
 }
 
+func Export(id string, options client.ExportOptions) (string, error) {
+	dbClient, exists := dbClients[id]
+	if !exists {
+		return "", fmt.Errorf("no database client for database ID: %s", id)
+	}
+
+	contents, err := dbClient.Export(options)
+	if err != nil {
+		return "", err
+	}
+
+	return contents, nil
+}
+
 type ConnectionType string
 
 const (
