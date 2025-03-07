@@ -175,27 +175,28 @@ func (c *MysqlClient) Export(options ExportOptions) (string, error) {
 	// TODO: refactor and use helper function to avoid duplicate code
 	if options.DropTable != DoNothing {
 		for i, entity := range options.Selected {
-			if strings.Count(entity, ".") == 1 {
-				parts := strings.Split(entity, ".")
-				schema := parts[0]
-				table := parts[1]
-				if entity != currentTable {
-					currentTable = entity
-					var err error
-					currentTableMetadata, err = c.fetchColumnsMetadata(schema, table)
-					if err != nil {
-						return "", err
-					}
+			if strings.Count(entity, ".") == 0 {
+				// TODO: schema
+			}
+			parts := strings.Split(entity, ".")
+			schema := parts[0]
+			table := parts[1]
+			if table != currentTable {
+				currentTable = table
+				var err error
+				currentTableMetadata, err = c.fetchColumnsMetadata(schema, table)
+				if err != nil {
+					return "", err
 				}
-				switch options.DropTable {
-				case DropAndCreate:
-					contents += fmt.Sprintf("DROP TABLE %s;\n", entity)
-					contents += fmt.Sprintf("CREATE TABLE %s (\n", entity)
-				case Create:
-					contents += fmt.Sprintf("CREATE TABLE %s (\n", entity)
-				case CreateIfNotExists:
-					contents += fmt.Sprintf("CREATE IF NOT EXISTS TABLE %s (\n", entity)
-				}
+			}
+			switch options.DropTable {
+			case DropAndCreate:
+				contents += fmt.Sprintf("DROP TABLE %s;\n", entity)
+				contents += fmt.Sprintf("CREATE TABLE %s (\n", entity)
+			case Create:
+				contents += fmt.Sprintf("CREATE TABLE %s (\n", entity)
+			case CreateIfNotExists:
+				contents += fmt.Sprintf("CREATE IF NOT EXISTS TABLE %s (\n", entity)
 			}
 			if strings.Count(entity, ".") == 2 {
 				parts := strings.Split(entity, ".")
@@ -228,6 +229,7 @@ func (c *MysqlClient) Export(options ExportOptions) (string, error) {
 				contents += fmt.Sprintf("    %s %s%s%s%s", currentColumn.Name, currentColumn.Type, nullable, defaultValue, primaryKey)
 				if i+1 < len(options.Selected) {
 					next := options.Selected[i+1]
+					// NOTE: only part differing from sqlite as we can use the schema here
 					if strings.HasPrefix(next, schema+"."+table+".") {
 						contents += ","
 					} else {

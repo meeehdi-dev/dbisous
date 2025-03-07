@@ -17,6 +17,7 @@ const toast = useToast();
 const exportSchema = v.object({
   type: v.enum(client.ExportType),
   schema_only: v.boolean(),
+  data_only: v.boolean(),
   drop_schema: v.boolean(),
   ignore_constraints: v.boolean(),
   wrap_in_transaction: v.boolean(),
@@ -32,6 +33,7 @@ type ExportSchema = v.InferOutput<typeof exportSchema>;
 const state = reactive<ExportSchema>({
   type: client.ExportType.SQL,
   schema_only: false,
+  data_only: false,
   drop_schema: false,
   ignore_constraints: false,
   wrap_in_transaction: true,
@@ -75,7 +77,7 @@ async function submitConnection(event: FormSubmitEvent<ExportSchema>) {
     Export(databaseId.value, {
       ...event.data,
       selected: Object.entries(state.selected)
-        .filter(([, value]) => value === true)
+        .filter(([, value]) => value !== false)
         .map(([key]) => key),
     }),
   );
@@ -192,6 +194,14 @@ function selectColumn(column: string) {
         state.selected[`${activeSchema.value}.${activeTable.value}`] =
           "indeterminate";
       }
+      const schemaTables = Object.keys(md[activeSchema.value]);
+      if (
+        schemaTables.some((t) => state.selected[`${activeSchema.value}.${t}`])
+      ) {
+        state.selected[activeSchema.value] = "indeterminate";
+      } else {
+        state.selected[activeSchema.value] = false;
+      }
     }
   } else {
     if (
@@ -208,6 +218,14 @@ function selectColumn(column: string) {
           "indeterminate";
       } else {
         state.selected[`${activeSchema.value}.${activeTable.value}`] = false;
+      }
+      const schemaTables = Object.keys(md[activeSchema.value]);
+      if (
+        schemaTables.some((t) => state.selected[`${activeSchema.value}.${t}`])
+      ) {
+        state.selected[activeSchema.value] = "indeterminate";
+      } else {
+        state.selected[activeSchema.value] = false;
       }
     }
   }
@@ -308,17 +326,34 @@ const disabled = computed(() => {
             </div>
           </div>
         </div>
-        <UFormField label="Type">
-          <USelect v-model="state.type" :items="types" :ui="{ base: 'w-36' }" />
-        </UFormField>
         <span class="text-2xl">Options</span>
         <USeparator />
         <div class="flex flex-row gap-4 h-32">
           <div class="flex flex-col gap-2">
-            <UCheckbox v-model="state.schema_only" label="Export schema only" />
+            <UFormField label="Type">
+              <USelect
+                v-model="state.type"
+                :items="types"
+                :ui="{ base: 'w-36' }"
+              />
+            </UFormField>
+          </div>
+          <USeparator orientation="vertical" class="h-full" />
+          <div class="flex flex-col gap-2">
+            <UCheckbox
+              v-model="state.schema_only"
+              label="Export schema only"
+              :disabled="state.data_only"
+            />
+            <UCheckbox
+              v-model="state.data_only"
+              label="Export data only"
+              :disabled="state.schema_only"
+            />
             <UCheckbox
               v-model="state.drop_schema"
               label="Drop schema before creating"
+              :disabled="state.data_only"
             />
             <UCheckbox
               v-model="state.ignore_constraints"
@@ -331,7 +366,7 @@ const disabled = computed(() => {
             />
           </div>
           <USeparator orientation="vertical" class="h-full" />
-          <UFormField label="Drop/Create tables?">
+          <UFormField label="Drop/Create tables?" :disabled="state.data_only">
             <URadioGroup v-model="state.drop_table" :items="drop" />
           </UFormField>
         </div>
