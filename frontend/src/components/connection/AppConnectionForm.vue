@@ -88,7 +88,7 @@ function selectType(type: app.ConnectionType) {
           />
         </div>
 
-        <UFormField label="Name" name="name">
+        <UFormField label="Name">
           <UInput
             v-model="state.name"
             placeholder="Optional name"
@@ -96,7 +96,7 @@ function selectType(type: app.ConnectionType) {
           />
         </UFormField>
 
-        <UFormField label="File" name="url">
+        <UFormField label="File">
           <UInput
             v-model="state.connection_string"
             placeholder="Select a file"

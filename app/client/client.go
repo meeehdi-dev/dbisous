@@ -96,8 +96,11 @@ var ExportDrops = []struct {
 }
 
 type ExportOptions struct {
-	Type       ExportType `json:"type"`
-	DropSchema ExportDrop `json:"drop_schema"`
-	DropTable  ExportDrop `json:"drop_table"`
-	Selected   []string   `json:"selected"`
+	Type              ExportType `json:"type"`
+	SchemaOnly        bool       `json:"schema_only"`
+	DropSchema        bool       `json:"drop_schema"`
+	IgnoreConstraints bool       `json:"ignore_constraints"`
+	WrapInTransaction bool       `json:"wrap_in_transaction"`
+	DropTable         ExportDrop `json:"drop_table"`
+	Selected          []string   `json:"selected"`
 }

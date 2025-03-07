@@ -16,7 +16,10 @@ const toast = useToast();
 
 const exportSchema = v.object({
   type: v.enum(client.ExportType),
-  drop_schema: v.enum(client.ExportDrop),
+  schema_only: v.boolean(),
+  drop_schema: v.boolean(),
+  ignore_constraints: v.boolean(),
+  wrap_in_transaction: v.boolean(),
   drop_table: v.enum(client.ExportDrop),
   selected: v.record(
     v.string(),
@@ -28,7 +31,10 @@ type ExportSchema = v.InferOutput<typeof exportSchema>;
 
 const state = reactive<ExportSchema>({
   type: client.ExportType.SQL,
-  drop_schema: client.ExportDrop.Do_nothing,
+  schema_only: false,
+  drop_schema: false,
+  ignore_constraints: false,
+  wrap_in_transaction: true,
   drop_table: client.ExportDrop.Drop_and_create,
   selected: {},
 });
@@ -36,7 +42,7 @@ const state = reactive<ExportSchema>({
 const types = ref(
   Object.entries(client.ExportType).map(([label, value]) => ({ label, value })),
 );
-const drop = ref(
+const drop = computed(() =>
   Object.entries(client.ExportDrop).map(([label, value]) => ({
     label: label.replaceAll("_", " "),
     value,
@@ -302,47 +308,32 @@ const disabled = computed(() => {
             </div>
           </div>
         </div>
-        <UFormField label="Type" name="type">
+        <UFormField label="Type">
           <USelect v-model="state.type" :items="types" :ui="{ base: 'w-36' }" />
         </UFormField>
-        <div
-          :class="[
-            'flex flew-row gap-4 h-20 transition-opacity',
-            state.type === 'sql' ? 'opacity-100' : 'opacity-50',
-          ]"
-        >
-          <UFormField label="Drop/Create schemas?" name="drop">
-            <URadioGroup
+        <span class="text-2xl">Options</span>
+        <USeparator />
+        <div class="flex flex-row gap-4 h-32">
+          <div class="flex flex-col gap-2">
+            <UCheckbox v-model="state.schema_only" label="Export schema only" />
+            <UCheckbox
               v-model="state.drop_schema"
-              :items="drop"
-              :disabled="state.type !== 'sql'"
+              label="Drop schema before creating"
             />
-          </UFormField>
-          <USeparator orientation="vertical" />
-          <UFormField label="Drop/Create tables?" name="drop">
-            <URadioGroup
-              v-model="state.drop_table"
-              :items="drop"
-              :disabled="state.type !== 'sql'"
+            <UCheckbox
+              v-model="state.ignore_constraints"
+              label="Ignore constraints"
+              :disabled="state.schema_only"
             />
-          </UFormField>
-          <USeparator orientation="vertical" />
-          <UFormField
-            label="Drop constraints during import?"
-            name="constraints"
-          >
-          </UFormField>
-          <USeparator orientation="vertical" />
-          <UFormField label="Wrap in transaction?" name="transaction">
-          </UFormField>
-          <USeparator orientation="vertical" />
-          <div
-            v-if="state.type !== 'sql'"
-            class="flex items-center gap-2 text-warning-400"
-          >
-            <UIcon name="lucide:triangle-alert" />
-            SQL Only
+            <UCheckbox
+              v-model="state.wrap_in_transaction"
+              label="Wrap in transaction"
+            />
           </div>
+          <USeparator orientation="vertical" class="h-full" />
+          <UFormField label="Drop/Create tables?">
+            <URadioGroup v-model="state.drop_table" :items="drop" />
+          </UFormField>
         </div>
         <div class="flex justify-center">
           <UButton

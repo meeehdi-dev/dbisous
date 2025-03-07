@@ -128,7 +128,11 @@ func (c *SqliteClient) Execute(query string) error {
 }
 
 func (c *SqliteClient) Export(options ExportOptions) (string, error) {
-	contents := "BEGIN;\n"
+	contents := ""
+
+	if options.WrapInTransaction {
+		contents += "BEGIN;\n"
+	}
 
 	currentTable := ""
 	currentTableMetadata := make([]ColumnMetadata, 0)
@@ -211,7 +215,9 @@ func (c *SqliteClient) Export(options ExportOptions) (string, error) {
 	// NOTE: STEP 2 => Insert data
 	// TODO: use helper function to avoid duplicate code
 
-	contents += "COMMIT;\n"
+	if options.WrapInTransaction {
+		contents += "COMMIT;\n"
+	}
 
 	return contents, nil
 }
