@@ -45,7 +45,7 @@ const items = [
 ];
 const active = ref(state.id ? 1 : 0);
 
-async function submitConnection(event: FormSubmitEvent<FormSchema>) {
+async function submit(event: FormSubmitEvent<FormSchema>) {
   if (event.data.id) {
     await updateConnection(event.data as app.Connection);
   } else {
@@ -70,7 +70,7 @@ function selectType(type: app.ConnectionType) {
 </script>
 
 <template>
-  <UForm :schema="parser" :state="state" @submit="submitConnection">
+  <UForm :schema="parser" :state="state" @submit="submit">
     <UStepper v-model="active" :items="items" disabled>
       <template #type>
         <AppConnectionTypeSelector :value="state.type" @select="selectType" />
@@ -106,7 +106,6 @@ function selectType(type: app.ConnectionType) {
               <UButton
                 variant="link"
                 icon="lucide:upload"
-                aria-label="Select SQLite file"
                 @click="selectFile"
               />
             </template>

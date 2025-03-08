@@ -72,7 +72,7 @@ const columns = computed(() => {
   return md[activeSchema.value][activeTable.value];
 });
 
-async function submitConnection(event: FormSubmitEvent<ExportSchema>) {
+async function submit(event: FormSubmitEvent<ExportSchema>) {
   const result = await wails(() =>
     Export(databaseId.value, {
       ...event.data,
@@ -240,7 +240,7 @@ const disabled = computed(() => {
 </script>
 
 <template>
-  <UForm :schema="parser" :state="state" @submit="submitConnection">
+  <UForm :schema="parser" :state="state" @submit="submit">
     <div class="p-4 w-full">
       <div class="flex flex-col gap-4">
         <div class="flex gap-4 h-48 w-full">

@@ -300,3 +300,14 @@ func (c *SqliteClient) Export(options ExportOptions) (string, error) {
 
 	return contents, nil
 }
+
+func (c *SqliteClient) Import(contents string) error {
+	err := c.Execute(contents)
+	if err != nil {
+		if strings.Contains(contents, "BEGIN;") || strings.Contains(contents, "BEGIN TRANSACTION;") {
+			c.Execute("ROLLBACK;")
+		}
+		return err
+	}
+	return nil
+}
