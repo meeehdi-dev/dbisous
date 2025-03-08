@@ -8,6 +8,7 @@ type DatabaseClient interface {
 	ExecuteQuery(string, ...any) (QueryResult, error)
 	Execute(string) error
 	Export(ExportOptions) (string, error)
+	Import(string) error
 }
 
 type ColumnMetadata struct {

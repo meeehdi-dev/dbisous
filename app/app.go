@@ -5,6 +5,7 @@ import (
 	"context"
 	"dbisous/app/client"
 	"fmt"
+	"io"
 	"os"
 
 	"github.com/wailsapp/wails/v2/pkg/runtime"
@@ -118,6 +119,43 @@ func (a *App) Export(id string, options client.ExportOptions) (string, error) {
 		return "", err
 	}
 	w.Flush()
+
+	return file, nil
+}
+
+func (a *App) Import(id string) (string, error) {
+	// TODO: buffered read and do it step by step to avoid memory overload
+	file, err := runtime.SaveFileDialog(a.Ctx, runtime.SaveDialogOptions{})
+	if err != nil {
+		return "", err
+	}
+	if file == "" {
+		return "", fmt.Errorf("No file selected")
+	}
+
+	f, err := os.Open(file)
+	if err != nil {
+		return "", err
+	}
+	defer f.Close()
+
+	reader := bufio.NewReader(f)
+	contents := ""
+	for {
+		line, err := reader.ReadString('\n') // FIXME: replace with ";" ig?
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			return "", err
+		}
+		contents += line
+	}
+
+	err = Import(id, contents)
+	if err != nil {
+		return "", err
+	}
 
 	return file, nil
 }

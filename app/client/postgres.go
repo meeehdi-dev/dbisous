@@ -334,3 +334,7 @@ func (c *PostgresClient) Export(options ExportOptions) (string, error) {
 
 	return contents, nil
 }
+
+func (c *PostgresClient) Import(contents string) error {
+	return nil
+}

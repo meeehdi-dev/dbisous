@@ -336,3 +336,7 @@ func (c *MysqlClient) Export(options ExportOptions) (string, error) {
 
 	return contents, nil
 }
+
+func (c *MysqlClient) Import(contents string) error {
+	return nil
+}

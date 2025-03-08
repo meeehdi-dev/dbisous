@@ -27,6 +27,11 @@ const tabs = [
     slot: "export",
     icon: "lucide:upload",
   },
+  {
+    label: "Import",
+    slot: "import",
+    icon: "lucide:download",
+  },
 ];
 </script>
 
@@ -50,6 +55,9 @@ const tabs = [
     </template>
     <template #export>
       <AppExport />
+    </template>
+    <template #import>
+      <AppImport />
     </template>
   </UTabs>
 </template>

@@ -300,3 +300,7 @@ func (c *SqliteClient) Export(options ExportOptions) (string, error) {
 
 	return contents, nil
 }
+
+func (c *SqliteClient) Import(contents string) error {
+	return nil
+}
