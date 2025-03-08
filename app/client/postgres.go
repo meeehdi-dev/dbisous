@@ -336,5 +336,12 @@ func (c *PostgresClient) Export(options ExportOptions) (string, error) {
 }
 
 func (c *PostgresClient) Import(contents string) error {
+	err := c.Execute(contents)
+	if err != nil {
+		if strings.Contains(contents, "BEGIN;") || strings.Contains(contents, "BEGIN TRANSACTION;") {
+			c.Execute("ROLLBACK;")
+		}
+		return err
+	}
 	return nil
 }
