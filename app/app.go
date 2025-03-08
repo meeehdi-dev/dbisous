@@ -1,8 +1,11 @@
 package app
 
 import (
+	"bufio"
 	"context"
 	"dbisous/app/client"
+	"fmt"
+	"os"
 
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
@@ -86,4 +89,35 @@ func (a *App) DeletePastQuery(id string) error {
 
 func (a *App) Execute(id string, query string) error {
 	return Execute(id, query)
+}
+
+func (a *App) Export(id string, options client.ExportOptions) (string, error) {
+	// TODO: savefiledialog before exporting to make use of buffered writes and avoid memory issues
+	contents, err := Export(id, options)
+	if err != nil {
+		return "", err
+	}
+
+	file, err := runtime.SaveFileDialog(a.Ctx, runtime.SaveDialogOptions{})
+	if err != nil {
+		return "", err
+	}
+	if file == "" {
+		return "", fmt.Errorf("No file selected")
+	}
+
+	f, err := os.Create(file)
+	if err != nil {
+		return "", err
+	}
+	defer f.Close()
+
+	w := bufio.NewWriter(f)
+	_, err = w.WriteString(contents)
+	if err != nil {
+		return "", err
+	}
+	w.Flush()
+
+	return file, nil
 }

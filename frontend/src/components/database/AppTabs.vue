@@ -2,25 +2,30 @@
 const { defaultQuery } = defineProps<{ defaultQuery?: string }>();
 
 defineSlots<{
-  data: unknown;
-  info: unknown;
+  rows: unknown;
+  columns: unknown;
 }>();
 
 const tabs = [
   {
-    label: "Data",
-    slot: "data",
+    label: "Rows",
+    slot: "rows",
     icon: "lucide:list",
   },
   {
-    label: "Info",
-    slot: "info",
+    label: "Columns",
+    slot: "columns",
     icon: "lucide:info",
   },
   {
     label: "Script",
     slot: "script",
     icon: "lucide:square-terminal",
+  },
+  {
+    label: "Export",
+    slot: "export",
+    icon: "lucide:upload",
   },
 ];
 </script>
@@ -34,14 +39,17 @@ const tabs = [
       content: 'flex flex-auto flex-col gap-2 overflow-hidden',
     }"
   >
-    <template #data>
-      <slot name="data" />
+    <template #rows>
+      <slot name="rows" />
     </template>
-    <template #info>
-      <slot name="info" />
+    <template #columns>
+      <slot name="columns" />
     </template>
     <template #script>
       <AppScript :default-query="defaultQuery" />
+    </template>
+    <template #export>
+      <AppExport />
     </template>
   </UTabs>
 </template>

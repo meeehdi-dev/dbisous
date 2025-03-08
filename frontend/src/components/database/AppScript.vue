@@ -154,6 +154,7 @@ async function setQuery(q: string, execute = false) {
           :color="error ? 'warning' : 'primary'"
           @click="() => fetchData()"
         />
+        <!-- TODO: add button to execute script from sql file -->
         <span
           :class="`text-sm text-neutral-400 pointer-events-none transition-opacity ${data && data.duration ? 'opacity-100' : 'opacity-0'}`"
           >{{ data?.duration }}</span

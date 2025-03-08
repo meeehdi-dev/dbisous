@@ -13,18 +13,18 @@ const connection = defineModel<app.Connection>();
 const wails = useWails();
 const { fetchConnections, addConnection, updateConnection } = useConnections();
 
-const schema = v.object({
+const formSchema = v.object({
   id: v.optional(v.string()),
   created_at: v.optional(v.string()),
   updated_at: v.optional(v.string()),
-  type: v.enum(app.ConnectionType),
+  type: v.optional(v.enum(app.ConnectionType)),
   name: v.string(),
   connection_string: v.string(),
 });
-const parser = v.safeParser(schema);
-type Schema = v.InferOutput<typeof schema>;
+const parser = v.safeParser(formSchema);
+type FormSchema = v.InferOutput<typeof formSchema>;
 
-const state = reactive<Partial<Schema>>(
+const state = reactive<FormSchema>(
   connection.value ?? {
     name: "",
     connection_string: "",
@@ -45,7 +45,7 @@ const items = [
 ];
 const active = ref(state.id ? 1 : 0);
 
-async function submitConnection(event: FormSubmitEvent<Schema>) {
+async function submitConnection(event: FormSubmitEvent<FormSchema>) {
   if (event.data.id) {
     await updateConnection(event.data as app.Connection);
   } else {
@@ -88,7 +88,7 @@ function selectType(type: app.ConnectionType) {
           />
         </div>
 
-        <UFormField label="Name" name="name">
+        <UFormField label="Name">
           <UInput
             v-model="state.name"
             placeholder="Optional name"
@@ -96,7 +96,7 @@ function selectType(type: app.ConnectionType) {
           />
         </UFormField>
 
-        <UFormField label="File" name="url">
+        <UFormField label="File">
           <UInput
             v-model="state.connection_string"
             placeholder="Select a file"

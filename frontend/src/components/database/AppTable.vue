@@ -16,8 +16,8 @@ const { databaseId, schemaId, tableId } = useUrlParams();
 const wails = useWails();
 const tx = useTransaction();
 
-const data = ref<FormattedQueryResult & { key: number }>();
-const dataKey = ref(0);
+const rows = ref<FormattedQueryResult & { key: number }>();
+const rowsKey = ref(0);
 const sorting = ref<Array<{ id: string; desc: boolean }>>([]);
 const filtering = ref<Array<{ id: string; value: unknown }>>([]);
 const columns = ref<Array<client.ColumnMetadata>>();
@@ -53,8 +53,8 @@ async function fetchData(page = 1, itemsPerPage = 10) {
   }
   columns.value = result.columns;
   primaryKey.value = result.columns.find((c) => c.primary_key)?.name;
-  data.value = {
-    key: dataKey.value++,
+  rows.value = {
+    key: rowsKey.value++,
     // eslint-disable-next-line @typescript-eslint/no-misused-spread
     ...result,
     columns: formatColumns(
@@ -87,7 +87,7 @@ async function fetchData(page = 1, itemsPerPage = 10) {
 await fetchData();
 
 function insertRow() {
-  if (!data.value) {
+  if (!rows.value) {
     return;
   }
 
@@ -98,12 +98,12 @@ function insertRow() {
   const key = tx.addInsert(tableId.value, row);
   row.__key = key;
 
-  data.value.rows.push(row);
-  data.value.key++;
+  rows.value.rows.push(row);
+  rows.value.key++;
 }
 
 function duplicateRow(row: Record<string, unknown>) {
-  if (!primaryKey.value || !data.value) {
+  if (!primaryKey.value || !rows.value) {
     return;
   }
 
@@ -111,12 +111,12 @@ function duplicateRow(row: Record<string, unknown>) {
   const key = tx.addInsert(tableId.value, dup);
   dup.__key = key;
 
-  data.value.rows.push(dup);
-  data.value.key++;
+  rows.value.rows.push(dup);
+  rows.value.key++;
 }
 
 function deleteRow(row: Record<string, unknown>) {
-  if (!data.value) {
+  if (!rows.value) {
     return;
   }
 
@@ -127,23 +127,23 @@ function deleteRow(row: Record<string, unknown>) {
   } else if (rowKey !== undefined) {
     tx.removeInsert(tableId.value, rowKey as number);
 
-    data.value.rows.splice(
-      data.value.rows.findIndex(
+    rows.value.rows.splice(
+      rows.value.rows.findIndex(
         (r: Record<string, unknown>) => r.__key === rowKey,
       ),
       1,
     );
-    data.value.key++;
+    rows.value.key++;
   }
 }
 </script>
 
 <template>
   <AppTabs :default-query="`SELECT * FROM ${tableId};`">
-    <template #data>
+    <template #rows>
       <AppRows
         :loading="fetchingData"
-        :data="data"
+        :data="rows"
         :sorting="sorting"
         :filtering="filtering"
         :table="tableId"
@@ -159,7 +159,7 @@ function deleteRow(row: Record<string, unknown>) {
         @pagination-change="fetchData"
       />
     </template>
-    <template #info>
+    <template #columns>
       <AppColumns
         :loading="fetchingData"
         :data="columns"

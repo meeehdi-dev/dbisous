@@ -24,8 +24,8 @@ async function navigateToTable(schemaId: string, tableId: string) {
   });
 }
 
-const data = ref<FormattedQueryResult & { key: number }>();
-const dataKey = ref(0);
+const rows = ref<FormattedQueryResult & { key: number }>();
+const rowsKey = ref(0);
 const sorting = ref<Array<{ id: string; desc: boolean }>>([]);
 const filtering = ref<Array<{ id: string; value: unknown }>>([]);
 const columns = ref<Array<client.ColumnMetadata>>();
@@ -57,8 +57,8 @@ async function fetchData(page = 1, itemsPerPage = 10) {
     return;
   }
   columns.value = result.columns;
-  data.value = {
-    key: dataKey.value++,
+  rows.value = {
+    key: rowsKey.value++,
     // eslint-disable-next-line @typescript-eslint/no-misused-spread
     ...result,
     columns: formatColumns(
@@ -92,10 +92,10 @@ await fetchData();
 
 <template>
   <AppTabs>
-    <template #data>
+    <template #rows>
       <AppRows
         :loading="fetchingData"
-        :data="data"
+        :data="rows"
         :sorting="sorting"
         :filtering="filtering"
         :actions="[RowAction.View]"
@@ -109,7 +109,7 @@ await fetchData();
         @pagination-change="fetchData"
       />
     </template>
-    <template #info>
+    <template #columns>
       <AppColumns :loading="fetchingData" :data="columns" />
     </template>
   </AppTabs>

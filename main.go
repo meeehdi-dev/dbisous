@@ -45,6 +45,8 @@ func main() {
 		EnumBind: []any{
 			app.AllConnectionTypes,
 			client.OrderDirections,
+			client.ExportTypes,
+			client.ExportDrops,
 		},
 		StartHidden: startHidden,
 	})
