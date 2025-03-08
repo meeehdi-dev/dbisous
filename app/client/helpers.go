@@ -86,9 +86,9 @@ func executeQuery(db *sql.DB, query string, args ...any) (QueryResult, error) {
 	result.Columns = make([]ColumnMetadata, 0)
 
 	lower := strings.ToLower(query)
-	// TODO: refactor?
-	isReturning := strings.Contains(lower, "returning")
-	isMutate := strings.Contains(lower, "insert") || strings.Contains(lower, "update") || strings.Contains(lower, "delete") || strings.Contains(lower, "upsert") || strings.Contains(lower, "create") || strings.Contains(lower, "alter") || strings.Contains(lower, "truncate") || strings.Contains(lower, "drop")
+	// FIXME: rewrite to avoid issues with columns named 'created_at' etc !!
+	isReturning := strings.Contains(lower, "returning ")
+	isMutate := strings.Contains(lower, "insert ") || strings.Contains(lower, "update ") || strings.Contains(lower, "delete ") || strings.Contains(lower, "upsert ") || strings.Contains(lower, "create ") || strings.Contains(lower, "alter ") || strings.Contains(lower, "truncate ") || strings.Contains(lower, "drop ")
 
 	if isMutate && !isReturning {
 		start := time.Now()
@@ -135,7 +135,6 @@ func executeSelectQuery(db *sql.DB, query string, params QueryParams, args ...an
 		execQuery += fmt.Sprintf(" ORDER BY %s %s", params.Order[0].Column, params.Order[0].Direction)
 	}
 	execQuery += fmt.Sprintf(" LIMIT %d OFFSET %d", params.Limit, params.Offset)
-	fmt.Println(execQuery)
 	result, err := executeQuery(db, execQuery, args...)
 
 	countRow := db.QueryRow(fmt.Sprintf("SELECT COUNT(*) FROM %s", query), args...)

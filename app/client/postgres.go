@@ -3,7 +3,9 @@ package client
 import (
 	"database/sql"
 	"fmt"
+	"reflect"
 	"strings"
+	"time"
 )
 
 type PostgresClient struct {
@@ -171,6 +173,8 @@ func (c *PostgresClient) Export(options ExportOptions) (string, error) {
 	currentTable := ""
 	currentTableMetadata := make([]ColumnMetadata, 0)
 
+	tableColumnsMap := make(map[string][]string)
+
 	// NOTE: STEP 1 => Create tables
 	// TODO: refactor and use helper function to avoid duplicate code
 	if options.DropTable != DoNothing {
@@ -178,31 +182,35 @@ func (c *PostgresClient) Export(options ExportOptions) (string, error) {
 			if strings.Count(entity, ".") == 0 {
 				// TODO: schema
 			}
-			parts := strings.Split(entity, ".")
-			schema := parts[0]
-			table := parts[1]
-			if table != currentTable {
-				currentTable = table
-				var err error
-				currentTableMetadata, err = c.fetchColumnsMetadata(schema, table)
-				if err != nil {
-					return "", err
+			if strings.Count(entity, ".") == 1 {
+				parts := strings.Split(entity, ".")
+				schema := parts[0]
+				table := parts[1]
+				if table != currentTable {
+					var err error
+					currentTableMetadata, err = c.fetchColumnsMetadata(schema, table)
+					if err != nil {
+						return "", err
+					}
+					currentTable = table
+					tableColumnsMap[table] = make([]string, 0)
 				}
-			}
-			switch options.DropTable {
-			case DropAndCreate:
-				contents += fmt.Sprintf("DROP TABLE %s;\n", entity)
-				contents += fmt.Sprintf("CREATE TABLE %s (\n", entity)
-			case Create:
-				contents += fmt.Sprintf("CREATE TABLE %s (\n", entity)
-			case CreateIfNotExists:
-				contents += fmt.Sprintf("CREATE IF NOT EXISTS TABLE %s (\n", entity)
+				switch options.DropTable {
+				case DropAndCreate:
+					contents += fmt.Sprintf("DROP TABLE %s;\n", table)
+					contents += fmt.Sprintf("CREATE TABLE %s (\n", table)
+				case Create:
+					contents += fmt.Sprintf("CREATE TABLE %s (\n", table)
+				case CreateIfNotExists:
+					contents += fmt.Sprintf("CREATE IF NOT EXISTS TABLE %s (\n", table)
+				}
 			}
 			if strings.Count(entity, ".") == 2 {
 				parts := strings.Split(entity, ".")
 				schema := parts[0]
 				table := parts[1]
 				column := parts[2]
+				tableColumnsMap[table] = append(tableColumnsMap[table], column)
 				var currentColumn *ColumnMetadata = nil
 				for _, col := range currentTableMetadata {
 					if col.Name == column {
@@ -245,6 +253,80 @@ func (c *PostgresClient) Export(options ExportOptions) (string, error) {
 
 	// NOTE: STEP 2 => Insert data
 	// TODO: use helper function to avoid duplicate code
+	if !options.SchemaOnly {
+		contents += "\n"
+		for table, columns := range tableColumnsMap {
+			query := "SELECT "
+			for i, column := range columns {
+				query += fmt.Sprintf("\"%s\"", column)
+				if i+1 < len(columns) {
+					query += ", "
+				}
+			}
+			query += fmt.Sprintf(" FROM %s;", table)
+			result, err := c.ExecuteQuery(query)
+			if err != nil {
+				return "", err
+			}
+			if len(result.Rows) == 0 {
+				continue
+			}
+
+			contents += fmt.Sprintf("INSERT INTO %s (", table)
+			for i, column := range columns {
+				contents += fmt.Sprintf("\"%s\"", column)
+				if i+1 < len(columns) {
+					contents += ", "
+				}
+			}
+			contents += ") VALUES\n"
+
+			for i, row := range result.Rows {
+				contents += "    ("
+				for j, column := range columns {
+					value := row[column]
+					switch v := value.(type) {
+					case nil:
+						contents += "NULL"
+					case []byte:
+						// TODO: check type directly from column metadata to correctly add quotes
+						contents += fmt.Sprintf("'%s'", strings.ReplaceAll(string(v), "'", "''"))
+					case bool:
+						if v {
+							contents += "TRUE"
+						} else {
+							contents += "FALSE"
+						}
+					case int:
+						contents += fmt.Sprint(v)
+					case int64:
+						contents += fmt.Sprint(v)
+					case float64:
+						contents += fmt.Sprint(v)
+					case string:
+						contents += fmt.Sprintf("'%s'", strings.ReplaceAll(v, "'", "''"))
+					case time.Time:
+						contents += fmt.Sprintf("'%s'", v.Format(time.RFC3339))
+					default:
+						return "", fmt.Errorf("invalid value type: %s (%s)", v, reflect.TypeOf(value))
+					}
+					if j+1 < len(columns) {
+						contents += ", "
+					} else {
+						contents += ")"
+					}
+				}
+				if i+1 < len(result.Rows) {
+					contents += ","
+				} else {
+					contents += ";"
+				}
+				contents += "\n"
+			}
+		}
+
+		contents += "\n"
+	}
 
 	if options.WrapInTransaction {
 		contents += "COMMIT;\n"
