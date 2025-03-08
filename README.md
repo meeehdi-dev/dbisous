@@ -8,14 +8,12 @@
 
 ## Features
 
-- **Database Connection Management**: Connect to SQLite, MySQL, PostgreSQL, and more.
+- **Database Connection Management**: Connect to SQLite, MySQL, PostgreSQL, and more to come.
 - **Table Viewer**: List tables, view structures, and paginate data.
 - **Query Execution**: Execute SQL queries with syntax highlighting and save frequently used queries.
 - **Data Editing**: Add, update, and delete rows directly from the viewer.
-- **Data Export**: Export table data to CSV, JSON, and other formats.
-- **User Management**: Manage database users and roles.
-- **Performance Monitoring**: View query performance metrics.
-- **Security**: Encrypt sensitive data and implement role-based access control (RBAC).
+- **Data Export**: Export table data to SQL, CSV, JSON, and other formats.
+- **Data Import**: Import table data from SQL, CSV, JSON, and other formats.
 - **Cross-Platform Support**: Runs on Windows, macOS, and Linux.
 
 ## Installation
@@ -28,13 +26,13 @@
 
 2. **Install dependencies**:
    ```bash
-   go mod tidy
+   make tidy
    cd frontend && npm install
    ```
 
 3. **Build and run**:
    ```bash
-   wails build
+   make build
    ./build/bin/dbisous # (.exe on win, .app on macos)
    ```
 
@@ -45,10 +43,7 @@
 3. **Execute Queries**: Use the SQL query editor to run and save queries.
 4. **Edit Data**: Directly edit table data from the viewer.
 5. **Export Data**: Export table data to various formats.
-
-## Contributing
-
-Contributions are welcome! Please open an issue or submit a pull request.
+5. **Import Data**: Import table data from various formats.
 
 ## License
 
