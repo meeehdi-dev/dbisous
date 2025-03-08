@@ -258,7 +258,7 @@ func (c *MysqlClient) Export(options ExportOptions) (string, error) {
 		for table, columns := range tableColumnsMap {
 			query := "SELECT "
 			for i, column := range columns {
-				query += fmt.Sprintf("\"%s\"", column)
+				query += fmt.Sprintf("`%s`", column)
 				if i+1 < len(columns) {
 					query += ", "
 				}
@@ -268,13 +268,14 @@ func (c *MysqlClient) Export(options ExportOptions) (string, error) {
 			if err != nil {
 				return "", err
 			}
+			fmt.Println("res", len(result.Rows), query)
 			if len(result.Rows) == 0 {
 				continue
 			}
 
 			contents += fmt.Sprintf("INSERT INTO %s (", table)
 			for i, column := range columns {
-				contents += fmt.Sprintf("\"%s\"", column)
+				contents += fmt.Sprintf("`%s`", column)
 				if i+1 < len(columns) {
 					contents += ", "
 				}
@@ -285,6 +286,7 @@ func (c *MysqlClient) Export(options ExportOptions) (string, error) {
 				contents += "    ("
 				for j, column := range columns {
 					value := row[column]
+					fmt.Println("huh?", column, value, reflect.TypeOf(value))
 					switch v := value.(type) {
 					case nil:
 						contents += "NULL"
