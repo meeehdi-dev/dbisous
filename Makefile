@@ -12,5 +12,8 @@ test:
 tidy:
 	go mod tidy
 
+install:
+	cd frontend && npm install
+
 up:
 	go get -u

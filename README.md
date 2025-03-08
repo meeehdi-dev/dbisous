@@ -26,8 +26,8 @@
 
 2. **Install dependencies**:
    ```bash
-   make tidy
-   cd frontend && npm install
+   make tidy    # install backend dependencies
+   make install # install frontend dependencies
    ```
 
 3. **Build and run**:
