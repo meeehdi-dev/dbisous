@@ -3,7 +3,7 @@ import { RowAction, RowEmits } from "@/components/database/table/table";
 import { computed } from "vue";
 import { useTransaction } from "@/composables/useTransaction";
 
-const emit = defineEmits<RowEmits>();
+const emit = defineEmits<RowEmits<Record<string, unknown>>>();
 
 const {
   row,
