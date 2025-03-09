@@ -1,6 +1,6 @@
 <script setup lang="ts">
+import { useApp } from "@/composables/useApp";
 import { useConnections } from "@/composables/useConnections";
-import { useUrlParams } from "@/composables/useUrlParams";
 import { useWails } from "@/composables/useWails";
 import { FormSubmitEvent } from "@nuxt/ui/dist/module";
 import { Export } from "_/go/app/App";
@@ -8,7 +8,7 @@ import { client } from "_/go/models";
 import * as v from "valibot";
 import { computed, reactive, ref } from "vue";
 
-const { databaseId } = useUrlParams();
+const { database } = useApp();
 const { metadata } = useConnections();
 const wails = useWails();
 // eslint-disable-next-line no-undef
@@ -52,7 +52,7 @@ const drop = computed(() =>
 );
 
 const schemas = computed(() => {
-  const md = metadata.value[databaseId.value].columns;
+  const md = metadata.value[database.value].columns;
   return Object.keys(md);
 });
 
@@ -60,7 +60,7 @@ const tables = computed(() => {
   if (activeSchema.value === "") {
     return [];
   }
-  const md = metadata.value[databaseId.value].columns;
+  const md = metadata.value[database.value].columns;
   return Object.keys(md[activeSchema.value]);
 });
 
@@ -68,13 +68,13 @@ const columns = computed(() => {
   if (activeSchema.value === "" || activeTable.value === "") {
     return [];
   }
-  const md = metadata.value[databaseId.value].columns;
+  const md = metadata.value[database.value].columns;
   return md[activeSchema.value][activeTable.value];
 });
 
 async function submit(event: FormSubmitEvent<ExportSchema>) {
   const result = await wails(() =>
-    Export(databaseId.value, {
+    Export(database.value, {
       ...event.data,
       selected: Object.entries(state.selected)
         .filter(([, value]) => value !== false)
@@ -111,7 +111,7 @@ function viewTable(table: string) {
 
 function selectSchema(schema: string) {
   if (state.selected[schema]) {
-    const md = metadata.value[databaseId.value].columns;
+    const md = metadata.value[database.value].columns;
     const schemas = Object.keys(md);
     const otherSchemas = schemas.filter((s) => s !== schema);
     otherSchemas.forEach((otherSchema) => {
@@ -140,7 +140,7 @@ function selectSchema(schema: string) {
 }
 
 function selectTable(table: string) {
-  const md = metadata.value[databaseId.value].columns;
+  const md = metadata.value[database.value].columns;
   if (state.selected[`${activeSchema.value}.${table}`] === true) {
     if (state.selected[activeSchema.value] !== true) {
       const schemaTables = Object.keys(md[activeSchema.value]);
@@ -176,7 +176,7 @@ function selectTable(table: string) {
 }
 
 function selectColumn(column: string) {
-  const md = metadata.value[databaseId.value].columns;
+  const md = metadata.value[database.value].columns;
   if (
     state.selected[`${activeSchema.value}.${activeTable.value}.${column}`] ===
     true

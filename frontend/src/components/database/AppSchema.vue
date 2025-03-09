@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { useRouter } from "vue-router";
-import { useUrlParams } from "@/composables/useUrlParams";
 import {
   formatColumns,
   FormattedQueryResult,
@@ -12,15 +11,18 @@ import { ref } from "vue";
 import { client } from "_/go/models";
 import { SortDirection } from "@/components/database/table/column/AppColumnHeader.vue";
 import { toSqlValue } from "@/composables/useTransaction";
+import { useApp } from "@/composables/useApp";
+import { Route } from "@/router";
 
-const router = useRouter();
-const { databaseId, schemaId } = useUrlParams();
 const wails = useWails();
+const router = useRouter();
+const { database, schema, table } = useApp();
+table.value = "";
 
-async function navigateToTable(schemaId: string, tableId: string) {
+async function navigateToTable(t: string) {
+  table.value = t;
   await router.push({
-    name: "table",
-    params: { schemaId, tableId },
+    name: Route.Table,
   });
 }
 
@@ -34,7 +36,7 @@ async function fetchData(page = 1, itemsPerPage = 10) {
   fetchingData.value = true;
   const result = await wails(() =>
     GetSchemaTables(
-      databaseId.value,
+      database.value,
       new client.QueryParams({
         offset: (page - 1) * itemsPerPage,
         limit: itemsPerPage,
@@ -49,7 +51,7 @@ async function fetchData(page = 1, itemsPerPage = 10) {
             : client.OrderDirection.Ascending,
         })),
       }),
-      schemaId.value,
+      schema.value,
     ),
   );
   fetchingData.value = false;
@@ -102,7 +104,6 @@ await fetchData();
         @view="
           (row) =>
             navigateToTable(
-              (row.TABLE_SCHEMA || row.table_schema || row.schema) as string,
               (row.TABLE_NAME || row.table_name || row.name) as string,
             )
         "

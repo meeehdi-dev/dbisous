@@ -30,7 +30,7 @@ function onConnectionEdit(connection: app.Connection) {
       class="flex flex-initial flex-col px-2 py-4 gap-4 items-center overflow-hidden"
     >
       <div class="w-full flex flex-initial flex-col gap-2 overflow-auto">
-        <AppConnection
+        <AppConnectionCard
           v-for="connection in connections"
           :key="connection.id"
           :connection="connection"

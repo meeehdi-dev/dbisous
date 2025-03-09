@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { useRouter } from "vue-router";
 import { GetDatabaseSchemas } from "_/go/app/App";
-import { useUrlParams } from "@/composables/useUrlParams";
 import {
   formatColumns,
   FormattedQueryResult,
@@ -12,12 +11,18 @@ import { ref } from "vue";
 import { client } from "_/go/models";
 import { SortDirection } from "@/components/database/table/column/AppColumnHeader.vue";
 import { toSqlValue } from "@/composables/useTransaction";
+import { Route } from "@/router";
+import { useApp } from "@/composables/useApp";
 
 const router = useRouter();
-const { databaseId } = useUrlParams();
+const { database, schema, table } = useApp();
+schema.value = "";
+table.value = "";
 
-async function navigateToSchema(schemaId: string) {
-  await router.push({ name: "schema", params: { schemaId } });
+async function navigateToSchema(s: string) {
+  schema.value = s;
+  table.value = "";
+  await router.push({ name: Route.Schema });
 }
 
 const wails = useWails();
@@ -32,7 +37,7 @@ async function fetchData(page = 1, itemsPerPage = 10) {
   fetchingData.value = true;
   const result = await wails(() =>
     GetDatabaseSchemas(
-      databaseId.value,
+      database.value,
       new client.QueryParams({
         offset: (page - 1) * itemsPerPage,
         limit: itemsPerPage,

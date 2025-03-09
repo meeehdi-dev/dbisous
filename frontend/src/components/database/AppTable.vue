@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { useUrlParams } from "@/composables/useUrlParams";
 import { GetTableRows } from "_/go/app/App";
 import { ref } from "vue";
 import {
@@ -11,8 +10,10 @@ import { client } from "_/go/models";
 import { useWails } from "@/composables/useWails";
 import { toSqlValue, useTransaction } from "@/composables/useTransaction";
 import { SortDirection } from "@/components/database/table/column/AppColumnHeader.vue";
+import { useApp } from "@/composables/useApp";
 
-const { databaseId, schemaId, tableId } = useUrlParams();
+const { database, schema, table } = useApp();
+
 const wails = useWails();
 const tx = useTransaction();
 
@@ -28,7 +29,7 @@ async function fetchData(page = 1, itemsPerPage = 10) {
   fetchingData.value = true;
   const result = await wails(() =>
     GetTableRows(
-      databaseId.value,
+      database.value,
       new client.QueryParams({
         offset: (page - 1) * itemsPerPage,
         limit: itemsPerPage,
@@ -43,8 +44,8 @@ async function fetchData(page = 1, itemsPerPage = 10) {
             : client.OrderDirection.Ascending,
         })),
       }),
-      schemaId.value,
-      tableId.value,
+      schema.value,
+      table.value,
     ),
   );
   fetchingData.value = false;
@@ -77,7 +78,7 @@ async function fetchData(page = 1, itemsPerPage = 10) {
         }
         return fetchData();
       },
-      tableId.value,
+      table.value,
       primaryKey.value,
       false,
     ),
@@ -95,7 +96,7 @@ function insertRow() {
   columns.value?.forEach((c) => {
     row[c.name] = c.default_value;
   });
-  const key = tx.addInsert(tableId.value, row);
+  const key = tx.addInsert(table.value, row);
   row.__key = key;
 
   rows.value.rows.push(row);
@@ -108,7 +109,7 @@ function duplicateRow(row: Record<string, unknown>) {
   }
 
   const dup = { ...row, [primaryKey.value]: "NULL" };
-  const key = tx.addInsert(tableId.value, dup);
+  const key = tx.addInsert(table.value, dup);
   dup.__key = key;
 
   rows.value.rows.push(dup);
@@ -123,9 +124,9 @@ function deleteRow(row: Record<string, unknown>) {
   let rowKey = row.__key;
   if (rowKey === undefined && primaryKey.value) {
     rowKey = row[primaryKey.value];
-    tx.toggleDelete(tableId.value, primaryKey.value, rowKey);
+    tx.toggleDelete(table.value, primaryKey.value, rowKey);
   } else if (rowKey !== undefined) {
-    tx.removeInsert(tableId.value, rowKey as number);
+    tx.removeInsert(table.value, rowKey as number);
 
     rows.value.rows.splice(
       rows.value.rows.findIndex(
@@ -139,14 +140,14 @@ function deleteRow(row: Record<string, unknown>) {
 </script>
 
 <template>
-  <AppTabs :default-query="`SELECT * FROM ${tableId};`">
+  <AppTabs :default-query="`SELECT * FROM ${table};`">
     <template #rows>
       <AppRows
         :loading="fetchingData"
         :data="rows"
         :sorting="sorting"
         :filtering="filtering"
-        :table="tableId"
+        :table="table"
         :primary-key="primaryKey"
         :actions="
           primaryKey
@@ -163,7 +164,7 @@ function deleteRow(row: Record<string, unknown>) {
       <AppColumns
         :loading="fetchingData"
         :data="columns"
-        :table="tableId"
+        :table="table"
         :primary-key="primaryKey"
       />
     </template>

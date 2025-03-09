@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { onMounted } from "vue";
 import { useRouter } from "vue-router";
+import { Route } from "./router";
 
 const router = useRouter();
 
 onMounted(async () => {
-  await router.push({ name: "welcome" });
+  await router.push({ name: Route.Welcome });
 });
 </script>
 

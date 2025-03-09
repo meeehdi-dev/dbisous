@@ -8,7 +8,7 @@ import {
 import { useTransaction } from "@/composables/useTransaction";
 import { useWails } from "@/composables/useWails";
 import { Execute } from "_/go/app/App";
-import { useUrlParams } from "@/composables/useUrlParams";
+import { useApp } from "@/composables/useApp";
 
 const emit = defineEmits<RowEmits<Record<string, unknown>>>();
 const tx = useTransaction();
@@ -53,9 +53,14 @@ function commit() {
 }
 
 const wails = useWails();
-const { databaseId } = useUrlParams();
+const { database } = useApp();
 async function execute() {
-  const result = await wails(() => Execute(databaseId.value, query.value));
+  const db = database.value;
+  if (!db) {
+    return;
+  }
+
+  const result = await wails(() => Execute(db, query.value));
   if (result instanceof Error) {
     return;
   }

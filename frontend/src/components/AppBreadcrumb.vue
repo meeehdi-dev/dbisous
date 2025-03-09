@@ -1,37 +1,37 @@
 <script setup lang="ts">
 import { ref, watchEffect } from "vue";
-import { useUrlParams } from "@/composables/useUrlParams";
 import { useConnections } from "@/composables/useConnections";
 import { BreadcrumbItem } from "@nuxt/ui/dist/module";
+import { useApp } from "@/composables/useApp";
 
-const { databaseId, schemaId, tableId } = useUrlParams();
+const { database, schema, table } = useApp();
 const { connections } = useConnections();
 
 const items = ref<Array<BreadcrumbItem>>([]);
 
 watchEffect(() => {
   const i: BreadcrumbItem[] = [];
-  if (databaseId.value) {
+  if (database.value) {
     i.push({
       label:
-        connections.value.find((c) => c.id === databaseId.value)?.name ||
+        connections.value.find((c) => c.id === database.value)?.name ||
         "Database",
       icon: "lucide:database",
-      to: `/database/${databaseId.value}`,
+      to: "/database",
     });
   }
-  if (schemaId.value) {
+  if (schema.value) {
     i.push({
-      label: schemaId.value,
+      label: schema.value,
       icon: "lucide:table-of-contents",
-      to: `/database/${databaseId.value}/schema/${schemaId.value}`,
+      to: "/schema",
     });
   }
-  if (tableId.value) {
+  if (table.value) {
     i.push({
-      label: tableId.value,
+      label: table.value,
       icon: "lucide:table",
-      to: `/database/${databaseId.value}/schema/${schemaId.value}/table/${tableId.value}`,
+      to: "/table",
     });
   }
   items.value = i;

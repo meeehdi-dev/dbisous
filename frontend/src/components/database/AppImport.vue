@@ -1,15 +1,15 @@
 <script setup lang="ts">
-import { useUrlParams } from "@/composables/useUrlParams";
+import { useApp } from "@/composables/useApp";
 import { useWails } from "@/composables/useWails";
 import { Import } from "_/go/app/App";
 
-const { databaseId } = useUrlParams();
+const { database } = useApp();
 const wails = useWails();
 // eslint-disable-next-line no-undef
 const toast = useToast();
 
 async function importFile() {
-  const result = await wails(() => Import(databaseId.value));
+  const result = await wails(() => Import(database.value));
   if (result instanceof Error) {
     return;
   }

@@ -1,6 +1,5 @@
 import { defineConfig, PluginOption } from "vite";
 import vue from "@vitejs/plugin-vue";
-import tailwindcss from "@tailwindcss/vite";
 import ui from "@nuxt/ui/vite";
 import packageJson from "./package.json";
 import { resolve } from "path";
@@ -18,8 +17,6 @@ export default defineConfig({
   },
   plugins: [
     vue(),
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-    tailwindcss() as PluginOption,
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     ui({
       ui: {

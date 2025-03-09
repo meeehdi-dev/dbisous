@@ -2,7 +2,6 @@ import { onMounted, ref } from "vue";
 import { createSharedComposable } from "@vueuse/core";
 import { useWails } from "@/composables/useWails";
 import { useRouter } from "vue-router";
-import { useUrlParams } from "@/composables/useUrlParams";
 import { app } from "_/go/models";
 import {
   Connect,
@@ -13,13 +12,15 @@ import {
   UpdateConnection,
 } from "_/go/app/App";
 import { useCompletions } from "@/composables/useMonaco";
+import { Route } from "@/router";
+import { useApp } from "./useApp";
 
 type DatabaseMetadata = Record<string, Record<string, string[]>>;
 
 export const useConnections = createSharedComposable(() => {
   const wails = useWails();
   const router = useRouter();
-  const { databaseId } = useUrlParams();
+  const { database } = useApp();
 
   const connections = ref<Array<app.Connection>>([]);
   const activeConnections = ref<Array<string>>([]);
@@ -62,10 +63,11 @@ export const useConnections = createSharedComposable(() => {
   async function select(id: string) {
     if (
       activeConnections.value.some((c) => c === id) &&
-      databaseId.value !== id
+      database.value !== id
     ) {
       register(metadata.value[id].columns);
-      await router.push(`/database/${id}`);
+      database.value = id;
+      await router.push({ name: Route.Database });
     }
   }
 
@@ -87,8 +89,8 @@ export const useConnections = createSharedComposable(() => {
     activeConnections.value = activeConnections.value.filter(
       (connectionId) => connectionId !== id,
     );
-    if (databaseId.value === id) {
-      await router.push("/");
+    if (database.value === id) {
+      await router.push({ name: Route.Welcome });
     }
   }
 

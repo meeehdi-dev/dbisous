@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ref, watch } from "vue";
-import { useUrlParams } from "@/composables/useUrlParams";
 import {
   formatColumns,
   FormattedQueryResult,
@@ -9,11 +8,12 @@ import { useWails } from "@/composables/useWails";
 import { DeletePastQuery, ExecuteQuery, GetPastQueries } from "_/go/app/App";
 import { app, client } from "_/go/models";
 import { SortDirection } from "@/components/database/table/column/AppColumnHeader.vue";
+import { useApp } from "@/composables/useApp";
 
 const defaultQuery = defineModel<string>("defaultQuery");
 
 const wails = useWails();
-const { databaseId } = useUrlParams();
+const { database } = useApp();
 
 const query = ref(defaultQuery.value ?? "");
 const error = ref("");
@@ -29,7 +29,7 @@ const filtering = ref<Array<{ id: string; value: unknown }>>([]);
 const fetchingData = ref(false);
 async function fetchData(reload = true) {
   fetchingData.value = true;
-  const result = await wails(() => ExecuteQuery(databaseId.value, query.value));
+  const result = await wails(() => ExecuteQuery(database.value, query.value));
   fetchingData.value = false;
   if (result instanceof Error) {
     error.value = result.message;

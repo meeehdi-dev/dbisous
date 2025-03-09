@@ -1,18 +1,19 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { useConnections } from "@/composables/useConnections";
-import { useUrlParams } from "@/composables/useUrlParams";
 import { app } from "_/go/models";
 import { useWails } from "@/composables/useWails";
 import { DeleteConnection } from "_/go/app/App";
 import { useRouter } from "vue-router";
+import { useApp } from "@/composables/useApp";
+import { Route } from "@/router";
 
 const { connection } = defineProps<{ connection: app.Connection }>();
 const emit = defineEmits<{ connectionEdit: [app.Connection] }>();
 
 const { isConnected, connect, disconnect, select, fetchConnections } =
   useConnections();
-const { databaseId } = useUrlParams();
+const { database } = useApp();
 const wails = useWails();
 const router = useRouter();
 
@@ -32,8 +33,8 @@ async function removeConnection(connection: app.Connection) {
     return;
   }
   await fetchConnections();
-  if (connection.id === databaseId.value) {
-    await router.push("/");
+  if (connection.id === database.value) {
+    await router.push({ name: Route.Welcome });
   }
 }
 </script>
@@ -42,7 +43,7 @@ async function removeConnection(connection: app.Connection) {
   <UCard
     :ui="{
       root:
-        connection.id === databaseId
+        connection.id === database
           ? 'border-r-2 border-r-primary-400 transition-colors'
           : connected
             ? 'cursor-pointer border-r-2 border-r-primary-400/50 hover:border-r-primary-400 transition-colors'
