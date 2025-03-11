@@ -17,7 +17,7 @@ import { Route } from "@/router";
 const wails = useWails();
 const router = useRouter();
 const { database, schema, table } = useApp();
-table.value = "";
+table.value = ""; // FIXME: reset table var bc breadcrumb does not provide onclick
 
 async function navigateToTable(t: string) {
   table.value = t;
@@ -31,9 +31,9 @@ const rowsKey = ref(0);
 const sorting = ref<Array<{ id: string; desc: boolean }>>([]);
 const filtering = ref<Array<{ id: string; value: unknown }>>([]);
 const columns = ref<Array<client.ColumnMetadata>>();
-const fetchingData = ref(false);
+const loading = ref(false);
 async function fetchData(page = 1, itemsPerPage = 10) {
-  fetchingData.value = true;
+  loading.value = true;
   const result = await wails(() =>
     GetSchemaTables(
       database.value,
@@ -54,7 +54,7 @@ async function fetchData(page = 1, itemsPerPage = 10) {
       schema.value,
     ),
   );
-  fetchingData.value = false;
+  loading.value = false;
   if (result instanceof Error) {
     return;
   }
@@ -96,7 +96,7 @@ await fetchData();
   <AppTabs>
     <template #rows>
       <AppRows
-        :loading="fetchingData"
+        :loading="loading"
         :data="rows"
         :sorting="sorting"
         :filtering="filtering"
@@ -111,7 +111,7 @@ await fetchData();
       />
     </template>
     <template #columns>
-      <AppColumns :loading="fetchingData" :data="columns" />
+      <AppColumns :loading="loading" :data="columns" />
     </template>
   </AppTabs>
 </template>

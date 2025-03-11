@@ -15,7 +15,7 @@ import { useCompletions } from "@/composables/useMonaco";
 import { Route } from "@/router";
 import { useApp } from "./useApp";
 
-type DatabaseMetadata = Record<string, Record<string, string[]>>;
+type DatabaseMetadata = Record<string, Record<string, Array<string>>>;
 
 export const useConnections = createSharedComposable(() => {
   const wails = useWails();

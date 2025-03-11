@@ -3,7 +3,7 @@ import AppCell from "@/components/database/table/cell/AppCell.vue";
 import AppColumnHeader, {
   SortDirection,
 } from "@/components/database/table/column/AppColumnHeader.vue";
-import type { TableColumn, TableData } from "@nuxt/ui/dist/module";
+import type { TableColumn } from "@nuxt/ui/dist/module";
 import { client } from "_/go/models";
 
 export enum RowAction {
@@ -23,9 +23,10 @@ export interface RowEmits<T> {
 
 export type FormattedQueryResult = Omit<
   client.QueryResult,
-  "convertValues" | "columns"
+  "rows" | "columns" | "convertValues"
 > & {
-  columns: Array<TableColumn<TableData>>;
+  rows: Array<Record<string, unknown>>;
+  columns: Array<TableColumn<Record<string, unknown>>>;
 };
 
 export type CellProps = {
@@ -92,7 +93,7 @@ export function formatColumns(
   primaryKey?: string,
   disabled = false,
 ) {
-  const formatted: TableColumn<TableData>[] = columns.map(
+  const formatted: TableColumn<Record<string, unknown>>[] = columns.map(
     ({ name, type, default_value: defaultValue, nullable }) => ({
       accessorKey: name,
       cell: cell({

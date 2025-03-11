@@ -16,8 +16,8 @@ import { useApp } from "@/composables/useApp";
 
 const router = useRouter();
 const { database, schema, table } = useApp();
-schema.value = "";
-table.value = "";
+schema.value = ""; // FIXME: reset schema var bc breadcrumb does not provide onclick
+table.value = ""; // FIXME: reset table var bc breadcrumb does not provide onclick
 
 async function navigateToSchema(s: string) {
   schema.value = s;
@@ -32,9 +32,9 @@ const rowsKey = ref(0);
 const filtering = ref<Array<{ id: string; value: unknown }>>([]);
 const sorting = ref<Array<{ id: string; desc: boolean }>>([]);
 const columns = ref<Array<client.ColumnMetadata>>();
-const fetchingData = ref(false);
+const loading = ref(false);
 async function fetchData(page = 1, itemsPerPage = 10) {
-  fetchingData.value = true;
+  loading.value = true;
   const result = await wails(() =>
     GetDatabaseSchemas(
       database.value,
@@ -54,7 +54,7 @@ async function fetchData(page = 1, itemsPerPage = 10) {
       }),
     ),
   );
-  fetchingData.value = false;
+  loading.value = false;
   if (result instanceof Error) {
     return;
   }
@@ -96,7 +96,7 @@ await fetchData();
   <AppTabs>
     <template #rows>
       <AppRows
-        :loading="fetchingData"
+        :loading="loading"
         :data="rows"
         :sorting="sorting"
         :filtering="filtering"
@@ -111,7 +111,7 @@ await fetchData();
       />
     </template>
     <template #columns>
-      <AppColumns :loading="fetchingData" :data="columns" />
+      <AppColumns :loading="loading" :data="columns" />
     </template>
   </AppTabs>
 </template>

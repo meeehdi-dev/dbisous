@@ -23,10 +23,10 @@ const sorting = ref<Array<{ id: string; desc: boolean }>>([]);
 const filtering = ref<Array<{ id: string; value: unknown }>>([]);
 const columns = ref<Array<client.ColumnMetadata>>();
 const primaryKey = ref<string>();
-const fetchingData = ref(false);
+const loading = ref(false);
 
 async function fetchData(page = 1, itemsPerPage = 10) {
-  fetchingData.value = true;
+  loading.value = true;
   const result = await wails(() =>
     GetTableRows(
       database.value,
@@ -48,7 +48,7 @@ async function fetchData(page = 1, itemsPerPage = 10) {
       table.value,
     ),
   );
-  fetchingData.value = false;
+  loading.value = false;
   if (result instanceof Error) {
     return;
   }
@@ -143,7 +143,7 @@ function deleteRow(row: Record<string, unknown>) {
   <AppTabs :default-query="`SELECT * FROM ${table};`">
     <template #rows>
       <AppRows
-        :loading="fetchingData"
+        :loading="loading"
         :data="rows"
         :sorting="sorting"
         :filtering="filtering"
@@ -162,7 +162,7 @@ function deleteRow(row: Record<string, unknown>) {
     </template>
     <template #columns>
       <AppColumns
-        :loading="fetchingData"
+        :loading="loading"
         :data="columns"
         :table="table"
         :primary-key="primaryKey"

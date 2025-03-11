@@ -4,7 +4,7 @@ import { createApp } from "vue";
 import { createRouter, createWebHistory } from "vue-router";
 import ui from "@nuxt/ui/vue-plugin";
 import App from "@/App.vue";
-import { routes } from "./router";
+import { routes } from "@/router";
 
 const app = createApp(App);
 
