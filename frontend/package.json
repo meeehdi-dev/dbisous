@@ -9,6 +9,7 @@
     "preview": "vite preview",
     "lint": "eslint",
     "lint-staged": "lint-staged",
+    "typecheck": "vue-tsc --noEmit",
     "prepare": "cd .. && husky ./frontend/.husky"
   },
   "dependencies": {
