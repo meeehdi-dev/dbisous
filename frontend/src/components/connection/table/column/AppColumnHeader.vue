@@ -19,7 +19,10 @@ const items = computed(() => [
   {
     label: "Ascending",
     icon: "lucide:arrow-up-narrow-wide",
-    color: sort === client.OrderDirection.Ascending ? "primary" : undefined,
+    color:
+      sort === client.OrderDirection.Ascending
+        ? ("primary" as const)
+        : undefined,
     onSelect: () => {
       emit(
         "sort",
@@ -32,7 +35,10 @@ const items = computed(() => [
   {
     label: "Descending",
     icon: "lucide:arrow-down-narrow-wide",
-    color: sort === client.OrderDirection.Descending ? "primary" : undefined,
+    color:
+      sort === client.OrderDirection.Descending
+        ? ("primary" as const)
+        : undefined,
     onSelect: () => {
       emit(
         "sort",

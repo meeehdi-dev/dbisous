@@ -31,7 +31,7 @@ const items = computed(() => [
     label: "Reset",
     value: "reset",
     icon: "lucide:refresh-ccw",
-    color: disabled || resetDisabled.value ? undefined : "primary",
+    color: disabled || resetDisabled.value ? undefined : ("primary" as const),
     onSelect: () => {
       value.value = initialValue;
     },
@@ -41,7 +41,8 @@ const items = computed(() => [
     label: "Default value",
     value: "default",
     icon: "lucide:refresh-ccw-dot",
-    color: disabled || defaultDisabled.value ? undefined : "secondary",
+    color:
+      disabled || defaultDisabled.value ? undefined : ("secondary" as const),
     onSelect: () => {
       value.value = defaultValue;
     },
@@ -51,7 +52,7 @@ const items = computed(() => [
     label: "Set to NULL",
     value: "null",
     icon: "lucide:delete",
-    color: !disabled && nullable ? "warning" : undefined,
+    color: !disabled && nullable ? ("warning" as const) : undefined,
     onSelect: () => {},
     disabled: disabled || !nullable,
   },
