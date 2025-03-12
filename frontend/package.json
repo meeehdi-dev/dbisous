@@ -21,7 +21,7 @@
     "@types/node": "^22.13.10",
     "@unhead/vue": "^1.11.20",
     "@vitejs/plugin-vue": "^5.2.1",
-    "@vueuse/core": "^12.8.2",
+    "@vueuse/core": "^13.0.0",
     "autoprefixer": "^10.4.21",
     "eslint": "^9.22.0",
     "eslint-config-prettier": "^10.1.1",
