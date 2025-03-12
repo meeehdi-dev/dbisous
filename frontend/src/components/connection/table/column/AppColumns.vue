@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { TableColumn } from "@nuxt/ui/dist/module";
+import type { TableColumn } from "@nuxt/ui";
 import { ref, watch } from "vue";
 import {
   RowEmits,

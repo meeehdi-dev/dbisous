@@ -2,7 +2,7 @@
 import { useApp } from "@/composables/useApp";
 import { useConnections } from "@/composables/useConnections";
 import { useWails } from "@/composables/useWails";
-import { FormSubmitEvent } from "@nuxt/ui/runtime/types/index.js";
+import type { FormSubmitEvent } from "@nuxt/ui";
 import { Export } from "_/go/app/App";
 import { client } from "_/go/models";
 import * as v from "valibot";
