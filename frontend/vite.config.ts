@@ -12,12 +12,10 @@ export default defineConfig({
     ],
   },
   define: {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     "import.meta.env.PACKAGE_VERSION": JSON.stringify(packageJson.version),
   },
   plugins: [
     vue(),
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     ui({
       ui: {
         colors: {

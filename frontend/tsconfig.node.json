@@ -17,7 +17,7 @@
   },
   "include": [
     "vite.config.ts",
-    "eslint.config.js",
+    "eslint.config.ts",
     ".lintstagedrc.js"
   ]
 }

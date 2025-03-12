@@ -3,9 +3,9 @@ import * as v from "valibot";
 import { reactive, ref } from "vue";
 import { useWails } from "@/composables/useWails";
 import { SelectFile } from "_/go/app/App";
-import { FormSubmitEvent } from "@nuxt/ui/dist/module";
 import { useConnections } from "@/composables/useConnections";
 import { app } from "_/go/models";
+import { FormSubmitEvent } from "@nuxt/ui/runtime/types/index.js";
 
 const emit = defineEmits<{ connectionAdded: [] }>();
 const connection = defineModel<app.Connection>();
