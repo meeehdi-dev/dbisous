@@ -1,8 +1,8 @@
 import { h } from "vue";
-import AppCell from "@/components/database/table/cell/AppCell.vue";
+import AppCell from "@/components/connection/table/cell/AppCell.vue";
 import AppColumnHeader, {
   SortDirection,
-} from "@/components/database/table/column/AppColumnHeader.vue";
+} from "@/components/connection/table/column/AppColumnHeader.vue";
 import type { TableColumn } from "@nuxt/ui/dist/module";
 import { client } from "_/go/models";
 

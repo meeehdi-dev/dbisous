@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { RowAction, RowEmits } from "@/components/database/table/table";
+import { RowAction, RowEmits } from "@/components/connection/table/table";
 import { computed } from "vue";
 import { useTransaction } from "@/composables/useTransaction";
 

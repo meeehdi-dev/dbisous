@@ -64,7 +64,7 @@ async function removeConnection(connection: app.Connection) {
             {{ getConnectionName(connection) }}
           </span>
         </UTooltip>
-        <AppConnectionInfo :connection="connection" />
+        <AppSidebarConnectionInfo :connection="connection" />
       </div>
     </div>
 

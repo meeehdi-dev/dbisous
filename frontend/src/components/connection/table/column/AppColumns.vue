@@ -6,7 +6,7 @@ import {
   RowAction,
   cell,
   getHeader,
-} from "@/components/database/table/table";
+} from "@/components/connection/table/table";
 import { client } from "_/go/models";
 
 const emit = defineEmits<RowEmits<client.ColumnMetadata>>();

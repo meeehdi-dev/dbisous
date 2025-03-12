@@ -14,9 +14,7 @@ const packageVersion = import.meta.env.PACKAGE_VERSION as string;
           :label="packageVersion"
         />
 
-        <template #content>
-          <USkeleton class="h-48 m-4" />
-        </template>
+        <template #content>TODO</template>
       </UModal>
     </div>
   </div>

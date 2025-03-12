@@ -5,7 +5,7 @@ import {
   dateTypes,
   numberTypes,
   textTypes,
-} from "@/components/database/table/table";
+} from "@/components/connection/table/table";
 import { useTransaction } from "@/composables/useTransaction";
 
 const {

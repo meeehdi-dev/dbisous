@@ -4,7 +4,7 @@ import {
   RowEmits,
   RowAction,
   FormattedQueryResult,
-} from "@/components/database/table/table";
+} from "@/components/connection/table/table";
 import { useTransaction } from "@/composables/useTransaction";
 import { useWails } from "@/composables/useWails";
 import { Execute } from "_/go/app/App";

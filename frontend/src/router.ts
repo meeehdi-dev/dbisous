@@ -1,7 +1,7 @@
 import AppWelcome from "@/components/AppWelcome.vue";
-import AppDatabase from "@/components/database/AppDatabase.vue";
-import AppSchema from "@/components/database/AppSchema.vue";
-import AppTable from "@/components/database/AppTable.vue";
+import AppDatabase from "@/components/connection/AppDatabase.vue";
+import AppSchema from "@/components/connection/AppSchema.vue";
+import AppTable from "@/components/connection/AppTable.vue";
 
 export enum Route {
   Welcome = "welcome",

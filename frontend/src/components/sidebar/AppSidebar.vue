@@ -1,9 +1,6 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import { useConnections } from "@/composables/useConnections";
 import { app } from "_/go/models";
-
-const { connections } = useConnections();
 
 const slideoverOpen = ref(false);
 const editedConnection = ref<app.Connection>();
@@ -30,12 +27,7 @@ function onConnectionEdit(connection: app.Connection) {
       class="flex flex-initial flex-col px-2 py-4 gap-4 items-center overflow-hidden"
     >
       <div class="w-full flex flex-initial flex-col gap-2 overflow-auto">
-        <AppConnectionCard
-          v-for="connection in connections"
-          :key="connection.id"
-          :connection="connection"
-          @connection-edit="onConnectionEdit"
-        />
+        <AppSidebarConnections @connection-edit="onConnectionEdit" />
       </div>
 
       <UButton
@@ -52,7 +44,7 @@ function onConnectionEdit(connection: app.Connection) {
         description="Fill connection type and details to test and save"
       >
         <template #body>
-          <AppConnectionForm
+          <AppSidebarConnectionForm
             v-model="editedConnection"
             @connection-added="onConnectionAdded"
           />

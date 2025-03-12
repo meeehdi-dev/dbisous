@@ -5,11 +5,11 @@ import {
   formatColumns,
   FormattedQueryResult,
   RowAction,
-} from "@/components/database/table/table";
+} from "@/components/connection/table/table";
 import { client } from "_/go/models";
 import { useWails } from "@/composables/useWails";
 import { toSqlValue, useTransaction } from "@/composables/useTransaction";
-import { SortDirection } from "@/components/database/table/column/AppColumnHeader.vue";
+import { SortDirection } from "@/components/connection/table/column/AppColumnHeader.vue";
 import { useApp } from "@/composables/useApp";
 
 const { database, schema, table } = useApp();

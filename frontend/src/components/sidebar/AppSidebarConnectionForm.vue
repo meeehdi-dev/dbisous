@@ -73,7 +73,10 @@ function selectType(type: app.ConnectionType) {
   <UForm :schema="parser" :state="state" @submit="submit">
     <UStepper v-model="active" :items="items" disabled>
       <template #type>
-        <AppConnectionTypeSelector :value="state.type" @select="selectType" />
+        <AppSidebarConnectionTypeSelector
+          :value="state.type"
+          @select="selectType"
+        />
       </template>
 
       <template #details>

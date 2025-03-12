@@ -1,41 +1,42 @@
 <script setup lang="ts">
 import { useRouter } from "vue-router";
+import { GetDatabaseSchemas } from "_/go/app/App";
 import {
   formatColumns,
   FormattedQueryResult,
   RowAction,
-} from "@/components/database/table/table";
+} from "@/components/connection/table/table";
 import { useWails } from "@/composables/useWails";
-import { GetSchemaTables } from "_/go/app/App";
 import { ref } from "vue";
 import { client } from "_/go/models";
-import { SortDirection } from "@/components/database/table/column/AppColumnHeader.vue";
+import { SortDirection } from "@/components/connection/table/column/AppColumnHeader.vue";
 import { toSqlValue } from "@/composables/useTransaction";
-import { useApp } from "@/composables/useApp";
 import { Route } from "@/router";
+import { useApp } from "@/composables/useApp";
 
-const wails = useWails();
 const router = useRouter();
 const { database, schema, table } = useApp();
+schema.value = ""; // FIXME: reset schema var bc breadcrumb does not provide onclick
 table.value = ""; // FIXME: reset table var bc breadcrumb does not provide onclick
 
-async function navigateToTable(t: string) {
-  table.value = t;
-  await router.push({
-    name: Route.Table,
-  });
+async function navigateToSchema(s: string) {
+  schema.value = s;
+  table.value = "";
+  await router.push({ name: Route.Schema });
 }
+
+const wails = useWails();
 
 const rows = ref<FormattedQueryResult & { key: number }>();
 const rowsKey = ref(0);
-const sorting = ref<Array<{ id: string; desc: boolean }>>([]);
 const filtering = ref<Array<{ id: string; value: unknown }>>([]);
+const sorting = ref<Array<{ id: string; desc: boolean }>>([]);
 const columns = ref<Array<client.ColumnMetadata>>();
 const loading = ref(false);
 async function fetchData(page = 1, itemsPerPage = 10) {
   loading.value = true;
   const result = await wails(() =>
-    GetSchemaTables(
+    GetDatabaseSchemas(
       database.value,
       new client.QueryParams({
         offset: (page - 1) * itemsPerPage,
@@ -51,7 +52,6 @@ async function fetchData(page = 1, itemsPerPage = 10) {
             : client.OrderDirection.Ascending,
         })),
       }),
-      schema.value,
     ),
   );
   loading.value = false;
@@ -102,9 +102,9 @@ await fetchData();
         :filtering="filtering"
         :actions="[RowAction.View]"
         @view="
-          (row) =>
-            navigateToTable(
-              (row.TABLE_NAME || row.table_name || row.name) as string,
+          (row: Record<string, unknown>) =>
+            navigateToSchema(
+              (row.SCHEMA_NAME || row.schema_name || row.name) as string,
             )
         "
         @pagination-change="fetchData"
