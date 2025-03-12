@@ -6,14 +6,14 @@ import eslintPluginPrettierRecommended from "eslint-plugin-prettier/recommended"
 
 /** @type {import('eslint').Linter.Config[]} */
 export default [
-  { files: ["**/*.{js,mjs,cjs,ts,vue}"] },
+  { files: ["**/*.{ts,vue}"] },
   {
     languageOptions: {
       globals: globals.browser,
       parserOptions: {
         projectService: true,
         tsconfigRootDir: import.meta.dirname,
-        extraFileExtensions: [".vue", ".js"],
+        extraFileExtensions: [".vue", ".ts", ".js"],
       },
     },
   },
@@ -22,7 +22,7 @@ export default [
   ...pluginVue.configs["flat/recommended"],
   eslintPluginPrettierRecommended,
   {
-    files: ["**/*.vue"],
+    files: ["**/*.vue", "**/*.ts"],
     languageOptions: { parserOptions: { parser: tseslint.parser } },
   },
   {
