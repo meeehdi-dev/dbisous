@@ -123,18 +123,39 @@ func executeQuery(db *sql.DB, query string, args ...any) (QueryResult, error) {
 
 func executeSelectQuery(db *sql.DB, query string, params QueryParams, args ...any) (QueryResult, error) {
 	execQuery := fmt.Sprintf("SELECT * FROM %s", query)
+
 	if len(params.Filter) > 0 {
 		if !strings.Contains(execQuery, "WHERE") {
 			execQuery += " WHERE"
 		} else {
 			execQuery += " AND"
 		}
-		execQuery += " (" + params.Filter[0].Column + " LIKE " + params.Filter[0].Value + ")"
+		execQuery += " ("
+
+		filters := make([]string, 0)
+		for _, filter := range params.Filter {
+			operator := "="
+			if strings.HasPrefix(filter.Value, "'") {
+				operator = "LIKE"
+			}
+			filters = append(filters, filter.Column+" "+operator+" "+filter.Value)
+		}
+		execQuery += strings.Join(filters, " AND ")
+
+		execQuery += ")"
 	}
+
 	if len(params.Order) > 0 {
-		execQuery += fmt.Sprintf(" ORDER BY %s %s", params.Order[0].Column, params.Order[0].Direction)
+		execQuery += " ORDER BY "
+		orders := make([]string, 0)
+		for _, order := range params.Order {
+			orders = append(orders, order.Column+" "+string(order.Direction))
+		}
+		execQuery += strings.Join(orders, ", ")
 	}
+
 	execQuery += fmt.Sprintf(" LIMIT %d OFFSET %d", params.Limit, params.Offset)
+
 	result, err := executeQuery(db, execQuery, args...)
 
 	countRow := db.QueryRow(fmt.Sprintf("SELECT COUNT(*) FROM %s", query), args...)

@@ -67,9 +67,10 @@ async function fetchData(page = 1, itemsPerPage = 10) {
       result.columns,
       async (name: string, s: SortDirection) => {
         if (!s) {
-          sorting.value = [];
+          sorting.value = sorting.value.filter((s) => s.id !== name);
         } else {
           sorting.value = [
+            ...sorting.value.filter((s) => s.id !== name),
             { id: name, desc: s === client.OrderDirection.Descending },
           ];
         }
@@ -77,9 +78,12 @@ async function fetchData(page = 1, itemsPerPage = 10) {
       },
       async (name: string, f: unknown) => {
         if (!f) {
-          filtering.value = [];
+          filtering.value = filtering.value.filter((f) => f.id !== name);
         } else {
-          filtering.value = [{ id: name, value: f }];
+          filtering.value = [
+            ...filtering.value.filter((f) => f.id !== name),
+            { id: name, value: f },
+          ];
         }
         return fetchData();
       },
