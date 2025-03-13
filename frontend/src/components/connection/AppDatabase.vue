@@ -7,7 +7,7 @@ import {
   RowAction,
 } from "@/components/connection/table/table";
 import { useWails } from "@/composables/useWails";
-import { ref } from "vue";
+import { ref, watch } from "vue";
 import { client } from "_/go/models";
 import { SortDirection } from "@/components/connection/table/column/AppColumnHeader.vue";
 import { Route } from "@/router";
@@ -94,6 +94,9 @@ async function fetchData(page = 1, itemsPerPage = 10) {
   };
 }
 await fetchData();
+watch(database, async () => {
+  await fetchData();
+});
 </script>
 
 <template>
