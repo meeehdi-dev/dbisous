@@ -10,9 +10,9 @@ import { useWails } from "@/composables/useWails";
 import { ref } from "vue";
 import { client } from "_/go/models";
 import { SortDirection } from "@/components/connection/table/column/AppColumnHeader.vue";
-import { toSqlValue } from "@/composables/useTransaction";
 import { Route } from "@/router";
-import { useApp } from "@/composables/useApp";
+import { useApp } from "@/composables/shared/useApp";
+import { toSqlValue } from "@/utils/transaction";
 
 const router = useRouter();
 const { database, schema, table } = useApp();

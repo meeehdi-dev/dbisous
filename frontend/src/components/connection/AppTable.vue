@@ -8,9 +8,10 @@ import {
 } from "@/components/connection/table/table";
 import { client } from "_/go/models";
 import { useWails } from "@/composables/useWails";
-import { toSqlValue, useTransaction } from "@/composables/useTransaction";
+import { useTransaction } from "@/composables/shared/useTransaction";
 import { SortDirection } from "@/components/connection/table/column/AppColumnHeader.vue";
-import { useApp } from "@/composables/useApp";
+import { useApp } from "@/composables/shared/useApp";
+import { toSqlValue } from "@/utils/transaction";
 
 const { database, schema, table } = useApp();
 

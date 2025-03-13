@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import { useConnections } from "@/composables/useConnections";
+import { useConnections } from "@/composables/shared/useConnections";
 import { app } from "_/go/models";
 import { useWails } from "@/composables/useWails";
 import { DeleteConnection } from "_/go/app/App";
 import { useRouter } from "vue-router";
-import { useApp } from "@/composables/useApp";
+import { useApp } from "@/composables/shared/useApp";
 import { Route } from "@/router";
 
 const { connection } = defineProps<{ connection: app.Connection }>();

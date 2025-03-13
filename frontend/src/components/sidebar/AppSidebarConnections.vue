@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useConnections } from "@/composables/useConnections";
+import { useConnections } from "@/composables/shared/useConnections";
 import { app } from "_/go/models";
 
 const emit = defineEmits<{ connectionEdit: [app.Connection] }>();

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { RowAction, RowEmits } from "@/components/connection/table/table";
 import { computed } from "vue";
-import { useTransaction } from "@/composables/useTransaction";
+import { useTransaction } from "@/composables/shared/useTransaction";
 
 const emit = defineEmits<RowEmits<Record<string, unknown>>>();
 

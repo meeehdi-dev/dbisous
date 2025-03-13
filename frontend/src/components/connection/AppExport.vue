@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { useApp } from "@/composables/useApp";
-import { useConnections } from "@/composables/useConnections";
+import { useApp } from "@/composables/shared/useApp";
+import { useConnections } from "@/composables/shared/useConnections";
 import { useWails } from "@/composables/useWails";
 import type { FormSubmitEvent } from "@nuxt/ui";
 import { Export } from "_/go/app/App";

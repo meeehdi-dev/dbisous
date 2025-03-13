@@ -5,10 +5,10 @@ import {
   RowAction,
   FormattedQueryResult,
 } from "@/components/connection/table/table";
-import { useTransaction } from "@/composables/useTransaction";
+import { useTransaction } from "@/composables/shared/useTransaction";
 import { useWails } from "@/composables/useWails";
 import { Execute } from "_/go/app/App";
-import { useApp } from "@/composables/useApp";
+import { useApp } from "@/composables/shared/useApp";
 
 const emit = defineEmits<RowEmits<Record<string, unknown>>>();
 const tx = useTransaction();

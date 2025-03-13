@@ -3,7 +3,7 @@ import * as v from "valibot";
 import { reactive, ref } from "vue";
 import { useWails } from "@/composables/useWails";
 import { SelectFile } from "_/go/app/App";
-import { useConnections } from "@/composables/useConnections";
+import { useConnections } from "@/composables/shared/useConnections";
 import { app } from "_/go/models";
 import type { FormSubmitEvent } from "@nuxt/ui";
 

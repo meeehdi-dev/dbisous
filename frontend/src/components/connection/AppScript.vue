@@ -8,7 +8,7 @@ import { useWails } from "@/composables/useWails";
 import { DeletePastQuery, ExecuteQuery, GetPastQueries } from "_/go/app/App";
 import { app, client } from "_/go/models";
 import { SortDirection } from "@/components/connection/table/column/AppColumnHeader.vue";
-import { useApp } from "@/composables/useApp";
+import { useApp } from "@/composables/shared/useApp";
 
 const defaultQuery = defineModel<string>("defaultQuery");
 

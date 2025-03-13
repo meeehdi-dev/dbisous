@@ -6,7 +6,7 @@ import {
   numberTypes,
   textTypes,
 } from "@/components/connection/table/table";
-import { useTransaction } from "@/composables/useTransaction";
+import { useTransaction } from "@/composables/shared/useTransaction";
 
 const {
   table,

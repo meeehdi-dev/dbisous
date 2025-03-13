@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useApp } from "@/composables/useApp";
+import { useApp } from "@/composables/shared/useApp";
 import { useWails } from "@/composables/useWails";
 import { Import } from "_/go/app/App";
 

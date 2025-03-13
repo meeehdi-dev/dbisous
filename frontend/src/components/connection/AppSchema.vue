@@ -10,9 +10,9 @@ import { GetSchemaTables } from "_/go/app/App";
 import { ref } from "vue";
 import { client } from "_/go/models";
 import { SortDirection } from "@/components/connection/table/column/AppColumnHeader.vue";
-import { toSqlValue } from "@/composables/useTransaction";
-import { useApp } from "@/composables/useApp";
+import { useApp } from "@/composables/shared/useApp";
 import { Route } from "@/router";
+import { toSqlValue } from "@/utils/transaction";
 
 const wails = useWails();
 const router = useRouter();
