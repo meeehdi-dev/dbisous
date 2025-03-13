@@ -3,7 +3,7 @@ import AppCell from "@/components/connection/table/cell/AppCell.vue";
 import AppColumnHeader, {
   SortDirection,
 } from "@/components/connection/table/column/AppColumnHeader.vue";
-import type { TableColumn } from "@nuxt/ui/dist/module";
+import type { TableColumn } from "@nuxt/ui";
 import { client } from "_/go/models";
 
 export enum RowAction {

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, watchEffect } from "vue";
 import { useConnections } from "@/composables/useConnections";
-import { BreadcrumbItem } from "@nuxt/ui/dist/module";
+import type { BreadcrumbItem } from "@nuxt/ui";
 import { useApp } from "@/composables/useApp";
 
 const { database, schema, table } = useApp();
