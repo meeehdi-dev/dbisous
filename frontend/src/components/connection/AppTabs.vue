@@ -1,9 +1,11 @@
 <script setup lang="ts">
 const { defaultQuery } = defineProps<{ defaultQuery?: string }>();
+import AppRows from "@/components/connection/table/AppRows.vue";
+import AppColumns from "@/components/connection/table/column/AppColumns.vue";
 
 defineSlots<{
-  rows: unknown;
-  columns: unknown;
+  rows: typeof AppRows;
+  columns: typeof AppColumns;
 }>();
 
 const tabs = [
