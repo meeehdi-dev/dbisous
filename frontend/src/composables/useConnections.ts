@@ -11,9 +11,9 @@ import {
   GetConnections,
   UpdateConnection,
 } from "_/go/app/App";
-import { useCompletions } from "@/composables/useMonaco";
+import { useCompletions } from "@/composables/shared/useCompletions";
 import { Route } from "@/router";
-import { useApp } from "./useApp";
+import { useApp } from "@/composables/shared/useApp";
 
 type DatabaseMetadata = Record<string, Record<string, Array<string>>>;
 
