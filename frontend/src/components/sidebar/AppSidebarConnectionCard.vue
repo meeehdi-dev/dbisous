@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import { useConnections } from "@/composables/shared/useConnections";
 import { app } from "_/go/models";
 import { useWails } from "@/composables/useWails";
@@ -19,6 +19,8 @@ const router = useRouter();
 
 const connected = computed(() => isConnected(connection.id));
 
+const connecting = ref(false);
+
 function getConnectionName(connection: app.Connection) {
   if (connection.name) {
     return connection.name;
@@ -36,6 +38,18 @@ async function removeConnection(connection: app.Connection) {
   if (connection.id === database.value) {
     await router.push({ name: Route.Welcome });
   }
+}
+
+async function onConnect(connection: app.Connection) {
+  connecting.value = true;
+  await connect(connection.id);
+  connecting.value = false;
+}
+
+async function onDisconnect(connection: app.Connection) {
+  connecting.value = true;
+  await disconnect(connection.id);
+  connecting.value = false;
 }
 </script>
 
@@ -93,10 +107,11 @@ async function removeConnection(connection: app.Connection) {
           <UButton
             :icon="connected ? 'lucide:unplug' : 'lucide:plug'"
             :color="connected ? 'warning' : 'primary'"
+            :loading="connecting"
             variant="soft"
             @click.prevent="
               () => {
-                connected ? disconnect(connection.id) : connect(connection.id);
+                connected ? onDisconnect(connection) : onConnect(connection);
               }
             "
           />
