@@ -115,7 +115,7 @@ func executeQuery(db *sql.DB, query string, args ...any) (QueryResult, error) {
 			return result, err
 		}
 
-		result.Query = query
+		result.Query = query + ";"
 		result.Duration = duration
 
 		return result, nil
