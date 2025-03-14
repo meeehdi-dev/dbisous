@@ -14,7 +14,7 @@ import (
 var activeConnections = make(map[string]*sql.DB)
 var dbClients = make(map[string]client.DatabaseClient)
 
-func GetConnections() ([]Connection, error) {
+func (a *App) GetConnections() ([]Connection, error) {
 	rows, err := metadataDB.Query(`SELECT id, created_at, updated_at, name, type, connection_string FROM connection`)
 	if err != nil {
 		return nil, err
@@ -34,7 +34,7 @@ func GetConnections() ([]Connection, error) {
 	return connections, nil
 }
 
-func CreateConnection(connection Connection) error {
+func (a *App) CreateConnection(connection Connection) error {
 	id, err := uuid.NewRandom()
 	if err != nil {
 		return err
@@ -48,19 +48,19 @@ func CreateConnection(connection Connection) error {
 	return err
 }
 
-func UpdateConnection(connection Connection) error {
+func (a *App) UpdateConnection(connection Connection) error {
 	_, err := metadataDB.Exec(`UPDATE connection
   SET name = ?, type = ?, connection_string = ?, updated_at = CURRENT_TIMESTAMP
   WHERE id = ?`, connection.Name, connection.Type, connection.ConnectionString, connection.ID)
 	return err
 }
 
-func DeleteConnection(id string) error {
+func (a *App) DeleteConnection(id string) error {
 	_, err := metadataDB.Exec(`DELETE FROM connection WHERE id = ?`, id)
 	return err
 }
 
-func Connect(id string) (client.DatabaseMetadata, error) {
+func (a *App) Connect(id string) (client.DatabaseMetadata, error) {
 	var databaseMetadata client.DatabaseMetadata
 
 	var dbType, connectionString string
@@ -93,7 +93,7 @@ func Connect(id string) (client.DatabaseMetadata, error) {
 	return dbClients[id].GetDatabaseMetadata()
 }
 
-func Disconnect(id string) error {
+func (a *App) Disconnect(id string) error {
 	conn, exists := activeConnections[id]
 	if !exists {
 		return fmt.Errorf("no active connection for database ID: %s", id)
