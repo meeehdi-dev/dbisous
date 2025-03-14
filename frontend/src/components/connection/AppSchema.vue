@@ -27,6 +27,7 @@ async function navigateToTable(t: string) {
 }
 
 const rows = ref<FormattedQueryResult & { key: number }>();
+const query = ref<string>();
 const rowsKey = ref(0);
 const sorting = ref<Array<{ id: string; desc: boolean }>>([]);
 const filtering = ref<Array<{ id: string; value: unknown }>>([]);
@@ -58,6 +59,7 @@ async function fetchData(page = 1, itemsPerPage = 10) {
   if (result instanceof Error) {
     return;
   }
+  query.value = result.query;
   columns.value = result.columns;
   rows.value = {
     key: rowsKey.value++,
@@ -101,6 +103,7 @@ await fetchData();
     <template #rows>
       <AppRows
         :loading="loading"
+        :query="query"
         :data="rows"
         :sorting="sorting"
         :filtering="filtering"

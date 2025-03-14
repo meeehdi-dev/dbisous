@@ -15,6 +15,7 @@ const tx = useTransaction();
 
 const {
   loading,
+  query,
   data,
   sorting,
   filtering,
@@ -23,6 +24,7 @@ const {
   actions = [],
 } = defineProps<{
   loading: boolean;
+  query?: string;
   data?: FormattedQueryResult & { key: number };
   sorting: { id: string; desc: boolean }[];
   filtering: { id: string; value: unknown }[];
@@ -45,10 +47,10 @@ watch(itemsPerPage, () => {
 const columnPinning = ref({ right: ["action"] });
 
 const open = ref(false);
-const query = ref("");
+const txQuery = ref("");
 function commit() {
   const sql = tx.commit();
-  query.value = sql;
+  txQuery.value = sql;
   open.value = true;
 }
 
@@ -60,7 +62,7 @@ async function execute() {
     return;
   }
 
-  const result = await wails(() => Execute(db, query.value));
+  const result = await wails(() => Execute(db, txQuery.value));
   if (result instanceof Error) {
     return;
   }
@@ -87,6 +89,9 @@ const changesCount = computed(
 <template>
   <div class="flex flex-auto flex-col justify-between overflow-hidden">
     <div class="flex flex-auto flex-col gap-4 overflow-auto">
+      <div class="m-2 h-9 pointer-events-none">
+        <AppEditor v-model="query!" :default-value="query" full disabled />
+      </div>
       <UTable
         :key="data?.key"
         v-model:column-pinning="columnPinning"
@@ -170,7 +175,7 @@ const changesCount = computed(
       }"
     >
       <template #body>
-        <AppEditor v-model="query" full />
+        <AppEditor v-model="txQuery" full />
       </template>
 
       <template #footer>

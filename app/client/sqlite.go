@@ -58,7 +58,7 @@ func (c *SqliteClient) getColumns(table string) ([]string, error) {
 func (c *SqliteClient) getTables() ([]string, error) {
 	tables := make([]string, 0)
 
-	rows, err := c.Db.Query("SELECT name FROM sqlite_master WHERE type='table'")
+	rows, err := c.Db.Query("SELECT name FROM sqlite_master WHERE type LIKE 'table'")
 	if err != nil {
 		return tables, err
 	}
@@ -110,11 +110,11 @@ func (c *SqliteClient) executeSelectQuery(query string, params QueryParams, args
 }
 
 func (c *SqliteClient) GetDatabaseSchemas(params QueryParams) (QueryResult, error) {
-	return c.executeSelectQuery("sqlite_master WHERE type = 'table'", params)
+	return c.executeSelectQuery("sqlite_master WHERE type LIKE 'table'", params)
 }
 
 func (c *SqliteClient) GetSchemaTables(params QueryParams, schema string) (QueryResult, error) {
-	return c.executeSelectQuery("sqlite_master WHERE type='table' AND name = ?", params, schema)
+	return c.executeSelectQuery("sqlite_master WHERE type LIKE 'table' AND name = ?", params, schema)
 }
 
 func (c *SqliteClient) GetTableRows(params QueryParams, schema string, table string) (QueryResult, error) {

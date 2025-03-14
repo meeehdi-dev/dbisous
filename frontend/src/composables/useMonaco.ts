@@ -2,7 +2,7 @@ import { editor } from "monaco-editor";
 import { Ref } from "vue";
 
 export const useMonaco = () => {
-  function create(el: HTMLDivElement, value: Ref<string>) {
+  function create(el: HTMLDivElement, value: Ref<string>, disabled: boolean) {
     const e = editor.create(el, {
       language: "sql",
       minimap: { enabled: false },
@@ -14,6 +14,7 @@ export const useMonaco = () => {
       theme: "vs-dark",
       scrollBeyondLastLine: false,
       wordWrap: "on",
+      readOnly: disabled,
     });
     e.onEndUpdate(() => {
       value.value = e.getValue();

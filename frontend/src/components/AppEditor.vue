@@ -3,9 +3,14 @@ import { onMounted, onUnmounted, useTemplateRef, watch } from "vue";
 import { useMonaco } from "@/composables/useMonaco";
 import { editor } from "monaco-editor";
 
-const { defaultValue = "", full = false } = defineProps<{
+const {
+  defaultValue = "",
+  full = false,
+  disabled = false,
+} = defineProps<{
   defaultValue?: string;
   full?: boolean;
+  disabled?: boolean;
 }>();
 const value = defineModel<string>({ required: true });
 const container = useTemplateRef("container");
@@ -17,7 +22,7 @@ onMounted(() => {
     return;
   }
 
-  e = create(container.value, value);
+  e = create(container.value, value, disabled);
 });
 onUnmounted(() => {
   e.dispose();

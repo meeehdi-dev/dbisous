@@ -28,6 +28,7 @@ async function navigateToSchema(s: string) {
 const wails = useWails();
 
 const rows = ref<FormattedQueryResult & { key: number }>();
+const query = ref<string>();
 const rowsKey = ref(0);
 const filtering = ref<Array<{ id: string; value: unknown }>>([]);
 const sorting = ref<Array<{ id: string; desc: boolean }>>([]);
@@ -58,6 +59,7 @@ async function fetchData(page = 1, itemsPerPage = 10) {
   if (result instanceof Error) {
     return;
   }
+  query.value = result.query;
   columns.value = result.columns;
   rows.value = {
     key: rowsKey.value++,
@@ -104,6 +106,7 @@ watch(database, async () => {
     <template #rows>
       <AppRows
         :loading="loading"
+        :query="query"
         :data="rows"
         :sorting="sorting"
         :filtering="filtering"

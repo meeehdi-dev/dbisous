@@ -81,7 +81,7 @@ func fetchRows(rows *sql.Rows) (QueryResult, error) {
 }
 
 func executeQuery(db *sql.DB, query string, args ...any) (QueryResult, error) {
-	var result QueryResult
+	result := QueryResult{Query: query}
 	result.Rows = make([]Row, 0)
 	result.Columns = make([]ColumnMetadata, 0)
 
@@ -115,6 +115,7 @@ func executeQuery(db *sql.DB, query string, args ...any) (QueryResult, error) {
 			return result, err
 		}
 
+		result.Query = query
 		result.Duration = duration
 
 		return result, nil

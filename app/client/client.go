@@ -22,6 +22,7 @@ type ColumnMetadata struct {
 type Row map[string]any
 
 type QueryResult struct {
+	Query    string           `json:"query"`
 	Rows     []Row            `json:"rows"`
 	Columns  []ColumnMetadata `json:"columns"`
 	Total    int              `json:"total"`
