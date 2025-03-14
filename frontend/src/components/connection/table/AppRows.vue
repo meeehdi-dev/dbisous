@@ -88,8 +88,8 @@ const changesCount = computed(
 
 <template>
   <div class="flex flex-auto flex-col justify-between overflow-hidden">
-    <div class="flex flex-auto flex-col gap-4 overflow-auto">
-      <div v-if="query" class="m-2 h-9 pointer-events-none">
+    <div class="flex flex-auto flex-col overflow-auto">
+      <div v-if="query" class="pointer-events-none m-2 h-9">
         <AppEditor v-model="query!" :default-value="query" full disabled />
       </div>
       <UTable
@@ -102,7 +102,11 @@ const changesCount = computed(
         :data="data?.rows"
         :columns="data?.columns"
         :loading="loading"
-        :ui="{ td: 'p-0 min-w-max', tbody: '[&>tr]:odd:bg-neutral-800' }"
+        :ui="{
+          root: '-mt-2',
+          td: 'p-0 min-w-max',
+          tbody: '[&>tr]:odd:bg-neutral-800',
+        }"
       >
         <template #action-cell="{ row: { original: row } }">
           <AppColumnActions
@@ -136,7 +140,7 @@ const changesCount = computed(
       :total="data?.total"
     />
     <div
-      :class="`px-2 mb-2 ${changesCount ? 'h-16 opacity-100' : 'h-0 opacity-0'} transition-all duration-500 overflow-hidden`"
+      :class="`mb-2 px-2 ${changesCount ? 'h-16 opacity-100' : 'h-0 opacity-0'} overflow-hidden transition-all duration-500`"
     >
       <UAlert
         color="neutral"
