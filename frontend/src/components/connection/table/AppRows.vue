@@ -89,7 +89,7 @@ const changesCount = computed(
 <template>
   <div class="flex flex-auto flex-col justify-between overflow-hidden">
     <div class="flex flex-auto flex-col gap-4 overflow-auto">
-      <div class="m-2 h-9 pointer-events-none">
+      <div v-if="query" class="m-2 h-9 pointer-events-none">
         <AppEditor v-model="query!" :default-value="query" full disabled />
       </div>
       <UTable
