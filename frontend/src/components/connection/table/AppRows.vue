@@ -140,7 +140,7 @@ const changesCount = computed(
       :total="data?.total"
     />
     <div
-      :class="`mb-2 px-2 ${changesCount ? 'h-16 opacity-100' : 'h-0 opacity-0'} overflow-hidden transition-all duration-500`"
+      :class="`px-2 ${changesCount ? 'mb-2 h-16 opacity-100' : 'mb-0 h-0 opacity-0'} overflow-hidden transition-all duration-500`"
     >
       <UAlert
         color="neutral"
