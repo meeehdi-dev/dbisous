@@ -37,7 +37,7 @@ watch(
 </script>
 
 <template>
-  <div class="flex flex-auto bg-neutral-950 pl-2 py-2 rounded h-full w-full">
+  <div class="flex h-full w-full flex-auto rounded bg-neutral-950 py-2 pl-2">
     <div
       ref="container"
       :class="`flex flex-auto h-${full ? 'full' : '[100px]'} w-full`"

@@ -22,11 +22,11 @@ function onConnectionEdit(connection: app.Connection) {
 </script>
 
 <template>
-  <div class="min-w-72 bg-neutral-800 flex flex-col justify-between">
+  <div class="flex min-w-72 flex-col justify-between bg-neutral-800">
     <div
-      class="flex flex-initial flex-col px-2 py-4 gap-4 items-center overflow-hidden"
+      class="flex flex-initial flex-col items-center gap-4 overflow-hidden px-2 py-4"
     >
-      <div class="w-full flex flex-initial flex-col gap-2 overflow-auto">
+      <div class="flex w-full flex-initial flex-col gap-2 overflow-auto">
         <AppSidebarConnections @connection-edit="onConnectionEdit" />
       </div>
 

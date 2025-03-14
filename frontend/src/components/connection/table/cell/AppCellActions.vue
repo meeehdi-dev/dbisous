@@ -80,7 +80,7 @@ onClickOutside(null, (event) => {
       color="neutral"
       variant="ghost"
       size="sm"
-      :class="`${open ? 'opacity-100' : 'opacity-0'} group-hover:opacity-100 transition-opacity`"
+      :class="`${open ? 'opacity-100' : 'opacity-0'} transition-opacity group-hover:opacity-100`"
     />
   </UDropdownMenu>
 </template>

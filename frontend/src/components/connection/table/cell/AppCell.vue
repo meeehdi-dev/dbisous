@@ -107,7 +107,7 @@ const isDirty = computed(() => value.value !== initialValue);
 <template>
   <div
     :class="[
-      'p-1 flex gap-1 group transition-colors',
+      'group flex gap-1 p-1 transition-colors',
       disabled
         ? ''
         : isDeleted
@@ -149,7 +149,7 @@ const isDirty = computed(() => value.value !== initialValue);
       v-model="value as number"
       :disabled="disabled || isDeleted"
     />
-    <span v-else-if="type === ''" class="italic px-2.5">{{
+    <span v-else-if="type === ''" class="px-2.5 italic">{{
       initialValue
     }}</span>
     <span v-else class="font-bold text-red-400"

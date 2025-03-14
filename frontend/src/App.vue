@@ -12,9 +12,9 @@ onMounted(async () => {
 
 <template>
   <UApp>
-    <div class="flex flex-auto w-screen h-screen overflow-hidden">
+    <div class="flex h-screen w-screen flex-auto overflow-hidden">
       <AppSidebar />
-      <div class="flex flex-auto bg-neutral-900 overflow-hidden">
+      <div class="flex flex-auto overflow-hidden bg-neutral-900">
         <div class="flex flex-auto flex-col overflow-hidden">
           <AppBreadcrumb />
           <Suspense>

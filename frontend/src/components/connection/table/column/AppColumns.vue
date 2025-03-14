@@ -76,7 +76,7 @@ const columnPinning = ref({ right: ["action"] });
 </script>
 
 <template>
-  <div class="flex flex-auto flex-col gap-4 justify-between overflow-hidden">
+  <div class="flex flex-auto flex-col justify-between gap-4 overflow-hidden">
     <div class="flex flex-auto flex-col gap-4 overflow-auto">
       <UTable
         :key="key"

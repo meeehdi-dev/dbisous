@@ -12,13 +12,13 @@ const { copy } = useCopy();
     <div class="flex">
       <UIcon
         name="lucide:info"
-        class="size-6 text-secondary-400/50 hover:text-secondary-400 transition-colors"
+        class="text-secondary-400/50 hover:text-secondary-400 size-6 transition-colors"
       />
     </div>
     <template #content>
-      <div class="p-2 flex flex-col gap-2 text-gray-400">
+      <div class="flex flex-col gap-2 p-2 text-gray-400">
         <UTooltip text="Connection string" :content="{ side: 'left' }">
-          <div class="flex flex-row gap-2 items-center">
+          <div class="flex flex-row items-center gap-2">
             <UIcon name="lucide:link" class="text-secondary-400" />
             <UButton
               color="neutral"
@@ -31,7 +31,7 @@ const { copy } = useCopy();
           </div>
         </UTooltip>
         <UTooltip text="Creation date" :content="{ side: 'left' }">
-          <div class="flex flex-row gap-2 items-center">
+          <div class="flex flex-row items-center gap-2">
             <UIcon
               name="lucide:calendar"
               :class="
@@ -48,7 +48,7 @@ const { copy } = useCopy();
         <UTooltip text="Last update" :content="{ side: 'left' }">
           <div
             v-if="connection.created_at !== connection.updated_at"
-            class="flex flex-row gap-2 items-center"
+            class="flex flex-row items-center gap-2"
           >
             <UIcon name="lucide:calendar-sync" class="text-primary-400" />
             <span class="text-sm">

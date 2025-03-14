@@ -26,7 +26,7 @@ const { total = 0 } = defineProps<{
         :total="total"
         :ui="{ root: 'flex flex-auto justify-center' }"
       />
-      <div class="flex flex-auto justify-end items-center gap-1">
+      <div class="flex flex-auto items-center justify-end gap-1">
         <UIcon name="lucide:list-ordered" class="text-secondary-400" />
         <span class="text-secondary-400 text-sm">
           {{ total }} row{{ total > 1 ? "s" : "" }}

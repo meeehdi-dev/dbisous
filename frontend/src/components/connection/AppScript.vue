@@ -101,13 +101,13 @@ async function setQuery(q: string, execute = false) {
 
 <template>
   <div class="flex flex-auto flex-col">
-    <div class="flex flex-col p-4 gap-4">
+    <div class="flex flex-col gap-4 p-4">
       <div class="flex gap-2">
         <div class="flex flex-1/2">
           <AppEditor v-model="query" :default-value="defaultQuery" />
         </div>
         <div
-          class="flex flex-1/2 flex-col gap-2 p-2 bg-neutral-950 rounded h-[116px] overflow-auto"
+          class="flex h-[116px] flex-1/2 flex-col gap-2 overflow-auto rounded bg-neutral-950 p-2"
         >
           <div
             v-for="past_query in pastQueries"
@@ -146,7 +146,7 @@ async function setQuery(q: string, execute = false) {
           </div>
         </div>
       </div>
-      <div class="flex gap-2 items-center">
+      <div class="flex items-center gap-2">
         <UButton
           :disabled="!query || error !== ''"
           :icon="error ? 'lucide:triangle-alert' : 'lucide:terminal'"
@@ -156,7 +156,7 @@ async function setQuery(q: string, execute = false) {
         />
         <!-- TODO: add button to execute script from sql file -->
         <span
-          :class="`text-sm text-neutral-400 pointer-events-none transition-opacity ${data && data.duration ? 'opacity-100' : 'opacity-0'}`"
+          :class="`pointer-events-none text-sm text-neutral-400 transition-opacity ${data && data.duration ? 'opacity-100' : 'opacity-0'}`"
           >{{ data?.duration }}</span
         >
         <UBadge v-if="error" color="warning">

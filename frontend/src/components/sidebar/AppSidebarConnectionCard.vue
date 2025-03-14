@@ -54,11 +54,11 @@ async function removeConnection(connection: app.Connection) {
     }"
     @click="select(connection.id)"
   >
-    <div class="flex gap-4 items-center">
+    <div class="flex items-center gap-4">
       <div class="flex flex-initial">
         <UIcon :name="`simple-icons:${connection.type}`" class="size-8" />
       </div>
-      <div class="flex flex-auto flex-row gap-2 justify-between">
+      <div class="flex flex-auto flex-row justify-between gap-2">
         <UTooltip :text="connection.name" :content="{ side: 'right' }">
           <span class="line-clamp-1 text-ellipsis">
             {{ getConnectionName(connection) }}
@@ -69,7 +69,7 @@ async function removeConnection(connection: app.Connection) {
     </div>
 
     <template #footer>
-      <div class="flex gap-2 justify-end">
+      <div class="flex justify-end gap-2">
         <AppPopconfirm
           text="Are you sure?"
           @confirm="removeConnection(connection)"

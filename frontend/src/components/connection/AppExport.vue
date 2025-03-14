@@ -241,14 +241,14 @@ const disabled = computed(() => {
 
 <template>
   <UForm :schema="parser" :state="state" @submit="submit">
-    <div class="p-4 w-full">
+    <div class="w-full p-4">
       <div class="flex flex-col gap-4">
-        <div class="flex gap-4 h-48 w-full">
-          <div class="flex flex-1 flex-col max-h-96 overflow-auto">
+        <div class="flex h-48 w-full gap-4">
+          <div class="flex max-h-96 flex-1 flex-col overflow-auto">
             <div
               v-for="schema of schemas"
               :key="schema"
-              class="flex gap-2 items-center cursor-pointer"
+              class="flex cursor-pointer items-center gap-2"
             >
               <UCheckbox
                 v-model="state.selected[schema]"
@@ -256,7 +256,7 @@ const disabled = computed(() => {
               />
               <div
                 :class="[
-                  'flex flex-auto px-2 py-1 rounded justify-between items-center transition-colors',
+                  'flex flex-auto items-center justify-between rounded px-2 py-1 transition-colors',
                   activeSchema === schema
                     ? 'bg-primary-500/50'
                     : 'bg-transparent',
@@ -267,7 +267,7 @@ const disabled = computed(() => {
                 <UIcon
                   name="lucide:chevron-right"
                   :class="[
-                    'transition-opacity size-5',
+                    'size-5 transition-opacity',
                     activeSchema === schema ? 'opacity-100' : 'opacity-0',
                   ]"
                 />
@@ -275,11 +275,11 @@ const disabled = computed(() => {
             </div>
           </div>
           <USeparator orientation="vertical" />
-          <div class="flex flex-1 flex-col max-h-96 overflow-auto">
+          <div class="flex max-h-96 flex-1 flex-col overflow-auto">
             <div
               v-for="table of tables"
               :key="table"
-              class="flex gap-2 items-center cursor-pointer"
+              class="flex cursor-pointer items-center gap-2"
             >
               <UCheckbox
                 v-model="state.selected[`${activeSchema}.${table}`]"
@@ -287,7 +287,7 @@ const disabled = computed(() => {
               />
               <div
                 :class="[
-                  'flex flex-auto px-2 py-1 rounded justify-between items-center transition-colors',
+                  'flex flex-auto items-center justify-between rounded px-2 py-1 transition-colors',
                   activeTable === table
                     ? 'bg-primary-500/50'
                     : 'bg-transparent',
@@ -298,7 +298,7 @@ const disabled = computed(() => {
                 <UIcon
                   name="lucide:chevron-right"
                   :class="[
-                    'transition-opacity size-5',
+                    'size-5 transition-opacity',
                     activeTable === table ? 'opacity-100' : 'opacity-0',
                   ]"
                 />
@@ -306,11 +306,11 @@ const disabled = computed(() => {
             </div>
           </div>
           <USeparator orientation="vertical" />
-          <div class="flex flex-1 flex-col max-h-96 overflow-auto">
+          <div class="flex max-h-96 flex-1 flex-col overflow-auto">
             <div
               v-for="column of columns"
               :key="column"
-              class="flex gap-2 items-center"
+              class="flex items-center gap-2"
             >
               <UCheckbox
                 v-model="
@@ -319,7 +319,7 @@ const disabled = computed(() => {
                 @change="selectColumn(column)"
               />
               <div
-                class="flex flex-auto px-2 py-1 rounded justify-between items-center transition-colors"
+                class="flex flex-auto items-center justify-between rounded px-2 py-1 transition-colors"
               >
                 <span>{{ column }}</span>
               </div>
@@ -328,7 +328,7 @@ const disabled = computed(() => {
         </div>
         <span class="text-2xl">Options</span>
         <USeparator />
-        <div class="flex flex-row gap-4 h-32">
+        <div class="flex h-32 flex-row gap-4">
           <div class="flex flex-col gap-2">
             <UFormField label="Type">
               <USelect
