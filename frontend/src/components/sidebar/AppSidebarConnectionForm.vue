@@ -33,6 +33,40 @@ const state = reactive<FormSchema>(
   },
 );
 
+const connectionHost = ref("");
+const connectionPort = ref("");
+const connectionUser = ref("");
+const connectionPass = ref("");
+const connectionDatabase = ref("");
+const connectionOptions = ref<Array<string>>([]);
+
+const postgresPrefix = "postgres://";
+function onConnectionStringChange() {
+  let connectionString = state.connection_string;
+  if (
+    state.type === app.ConnectionType.PostgreSQL &&
+    connectionString.startsWith(postgresPrefix)
+  ) {
+    connectionString = connectionString.slice(postgresPrefix.length);
+  }
+  const [userInfo, connectionInfo] = connectionString.split("@");
+  const [user, pass] = userInfo.split(":");
+  const [hostInfo, params] = (connectionInfo || "").split("/");
+  const [host, port] = hostInfo.split(":");
+  const [database, options] = (params || "").split("?");
+
+  connectionHost.value = host || "";
+  connectionPort.value = port || "";
+  connectionUser.value = user || "";
+  connectionPass.value = pass || "";
+  connectionDatabase.value = database || "";
+  connectionOptions.value = (options || "").split("&");
+}
+onConnectionStringChange(); // NOTE: init vals on connection edit
+function onConnectionInfoChange() {
+  state.connection_string = `${state.type === app.ConnectionType.PostgreSQL ? postgresPrefix : ""}${connectionUser.value}:${connectionPass.value}@${connectionHost.value}${connectionPort.value ? `:${connectionPort.value}` : ""}/${connectionDatabase.value}${connectionOptions.value.length > 0 ? "?" : ""}${connectionOptions.value.join("&")}`;
+}
+
 const items = [
   {
     title: "Database type",
@@ -104,6 +138,19 @@ async function testConnection() {
     });
   }
 }
+
+const placeholders = {
+  [app.ConnectionType.MySQL]: {
+    connectionString: "mysql:mysql@tcp/mysql",
+    port: "3306",
+    database: "mysql",
+  },
+  [app.ConnectionType.PostgreSQL]: {
+    connectionString: "postgres://postgres:postgres@localhost:5432/postgres",
+    port: "5432",
+    database: "postgres",
+  },
+};
 </script>
 
 <template>
@@ -136,13 +183,16 @@ async function testConnection() {
           />
         </UFormField>
 
-        <UFormField label="File">
+        <UFormField
+          v-if="state.type === app.ConnectionType.SQLite"
+          label="File"
+        >
           <UInput
             v-model="state.connection_string"
             placeholder="Select a file"
             class="w-full"
           >
-            <template v-if="state.type === app.ConnectionType.SQLite" #trailing>
+            <template #trailing>
               <UButton
                 variant="link"
                 icon="lucide:upload"
@@ -151,6 +201,64 @@ async function testConnection() {
             </template>
           </UInput>
         </UFormField>
+
+        <template
+          v-if="
+            state.type &&
+            (state.type === app.ConnectionType.PostgreSQL ||
+              state.type === app.ConnectionType.MySQL)
+          "
+        >
+          <UFormField label="Connection string">
+            <UInput
+              v-model="state.connection_string"
+              :placeholder="placeholders[state.type].connectionString"
+              class="w-full"
+              @update:model-value="onConnectionStringChange"
+            />
+          </UFormField>
+          <UFormField label="Host">
+            <UInput
+              v-model="connectionHost"
+              placeholder="localhost"
+              class="w-full"
+              @update:model-value="onConnectionInfoChange"
+            />
+          </UFormField>
+          <UFormField label="Port">
+            <UInput
+              v-model="connectionPort"
+              :placeholder="placeholders[state.type].port"
+              class="w-full"
+              @update:model-value="onConnectionInfoChange"
+            />
+          </UFormField>
+          <UFormField label="User">
+            <UInput
+              v-model="connectionUser"
+              placeholder="user"
+              class="w-full"
+              @update:model-value="onConnectionInfoChange"
+            />
+          </UFormField>
+          <UFormField label="Password">
+            <UInput
+              v-model="connectionPass"
+              placeholder="pass"
+              type="password"
+              class="w-full"
+              @update:model-value="onConnectionInfoChange"
+            />
+          </UFormField>
+          <UFormField label="Database">
+            <UInput
+              v-model="connectionDatabase"
+              :placeholder="placeholders[state.type].database"
+              class="w-full"
+              @update:model-value="onConnectionInfoChange"
+            />
+          </UFormField>
+        </template>
 
         <div class="flex justify-end gap-4 pt-4">
           <UButton
