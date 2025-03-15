@@ -83,7 +83,11 @@ func (a *App) Connect(id string) (client.DatabaseMetadata, error) {
 	default:
 		return databaseMetadata, fmt.Errorf("unsupported database type: %s", dbType)
 	}
+	if err != nil {
+		return databaseMetadata, err
+	}
 
+	err = db.Ping()
 	if err != nil {
 		return databaseMetadata, err
 	}
@@ -101,6 +105,32 @@ func (a *App) Disconnect(id string) error {
 
 	delete(dbClients, id)
 	return conn.Close()
+}
+
+func (a *App) TestConnection(dbType ConnectionType, connectionString string) error {
+	var db *sql.DB
+	var err error
+
+	switch dbType {
+	case SQLite:
+		db, err = sql.Open("sqlite3", connectionString)
+	case MySQL:
+		db, err = sql.Open("mysql", connectionString)
+	case PostgreSQL:
+		db, err = sql.Open("postgres", connectionString)
+	default:
+		return fmt.Errorf("unsupported database type: %s", dbType)
+	}
+	if err != nil {
+		return err
+	}
+
+	err = db.Ping()
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 type ConnectionType string
