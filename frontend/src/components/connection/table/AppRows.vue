@@ -124,7 +124,8 @@ function onQueryEdit() {
         :ui="{
           th: 'pt-0 pb-2 px-4',
           td: 'p-0 min-w-max',
-          tbody: '[&>tr]:odd:bg-neutral-800',
+          tbody:
+            data && data.rows.length > 0 ? '[&>tr]:odd:bg-neutral-800' : '',
         }"
       >
         <template #action-cell="{ row: { original: row } }">
