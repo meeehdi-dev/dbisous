@@ -241,9 +241,9 @@ const disabled = computed(() => {
 
 <template>
   <UForm :schema="parser" :state="state" @submit="submit">
-    <div class="w-full p-4">
-      <div class="flex flex-col gap-4">
-        <div class="flex h-48 w-full gap-4">
+    <div class="w-full p-2">
+      <div class="flex flex-col gap-2">
+        <div class="flex h-48 w-full gap-2">
           <div class="flex max-h-96 flex-1 flex-col overflow-auto">
             <div
               v-for="schema of schemas"
@@ -328,7 +328,7 @@ const disabled = computed(() => {
         </div>
         <span class="text-2xl">Options</span>
         <USeparator />
-        <div class="flex h-32 flex-row gap-4">
+        <div class="flex h-32 flex-row gap-2">
           <div class="flex flex-col gap-2">
             <UFormField label="Type">
               <USelect

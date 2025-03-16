@@ -88,9 +88,15 @@ const changesCount = computed(
 
 <template>
   <div class="flex flex-auto flex-col justify-between overflow-hidden">
-    <div class="flex flex-auto flex-col gap-2 overflow-auto py-2">
-      <div v-if="query" class="mx-2 flex min-h-9">
-        <AppEditor v-model="query!" :default-value="query" full disabled />
+    <div class="flex flex-auto flex-col overflow-auto">
+      <div v-if="query" class="mx-2 flex min-h-9 items-center gap-2">
+        <AppEditor
+          v-model="query!"
+          :default-value="query"
+          height="full"
+          disabled
+        />
+        <UButton icon="lucide:edit" label="Edit query" :ui="{ base: 'h-8' }" />
       </div>
       <UTable
         :key="data?.key"
@@ -179,7 +185,7 @@ const changesCount = computed(
       }"
     >
       <template #body>
-        <AppEditor v-model="txQuery" full />
+        <AppEditor v-model="txQuery" height="full" />
       </template>
 
       <template #footer>

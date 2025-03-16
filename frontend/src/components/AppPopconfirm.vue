@@ -39,8 +39,8 @@ function onConfirm() {
       <UCard
         :ui="{
           footer: 'flex sm:p-2 gap-2 justify-end',
-          header: 'sm:p-4',
-          body: 'sm:p-4',
+          header: 'sm:p-2',
+          body: 'sm:p-2',
         }"
       >
         {{ text }}

@@ -260,7 +260,7 @@ const placeholders = {
           </UFormField>
         </template>
 
-        <div class="flex justify-end gap-4 pt-4">
+        <div class="flex justify-end gap-2 pt-2">
           <UButton
             icon="lucide:plug-zap"
             label="Test"

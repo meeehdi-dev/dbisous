@@ -5,11 +5,11 @@ import { editor } from "monaco-editor";
 
 const {
   defaultValue = "",
-  full = false,
+  height = 100,
   disabled = false,
 } = defineProps<{
   defaultValue?: string;
-  full?: boolean;
+  height?: number | "full";
   disabled?: boolean;
 }>();
 const value = defineModel<string>({ required: true });
@@ -40,7 +40,10 @@ watch(
   <div class="flex h-full w-full flex-auto rounded bg-neutral-950 py-2 pl-2">
     <div
       ref="container"
-      :class="`flex flex-auto h-${full ? 'full' : '[100px]'} w-full`"
+      :class="[
+        'flex w-full flex-auto',
+        `h-${height === 'full' ? 'full' : `[${height}px]`}`,
+      ]"
     />
   </div>
 </template>

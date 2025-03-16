@@ -4,7 +4,7 @@ const packageVersion = import.meta.env.PACKAGE_VERSION as string;
 
 <template>
   <div class="flex flex-initial">
-    <div class="flex flex-auto items-center justify-center p-4">
+    <div class="flex flex-auto items-center justify-center p-2">
       <UModal>
         <UButton
           icon="simple-icons:git"

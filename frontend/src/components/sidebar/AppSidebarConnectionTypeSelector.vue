@@ -15,7 +15,7 @@ const connectionTypes = Object.entries(app.ConnectionType).map(
 
 <template>
   <div class="flex justify-center">
-    <div class="flex flex-col gap-4">
+    <div class="flex flex-col gap-2">
       <UButton
         v-for="connectionType in connectionTypes"
         :key="connectionType.label"

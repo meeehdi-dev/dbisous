@@ -64,7 +64,7 @@ function onFilterConfirm() {
 
 <template>
   <div class="flex justify-between">
-    <div class="flex items-center gap-4">
+    <div class="flex items-center gap-2">
       <UDropdownMenu :items="items">
         <UButton
           :color="sort ? 'primary' : 'neutral'"
@@ -95,8 +95,8 @@ function onFilterConfirm() {
         <UCard
           :ui="{
             footer: 'flex sm:p-2 gap-2 justify-end',
-            header: 'sm:p-4',
-            body: 'sm:p-4',
+            header: 'sm:p-2',
+            body: 'sm:p-2',
           }"
         >
           <UInput v-model="filterValue" />

@@ -100,8 +100,8 @@ async function setQuery(q: string, execute = false) {
 </script>
 
 <template>
-  <div class="flex flex-auto flex-col overflow-hidden">
-    <div class="flex flex-auto flex-col gap-2 pt-2">
+  <div class="flex flex-auto flex-col gap-2 overflow-hidden">
+    <div class="flex flex-col gap-2">
       <div class="flex gap-2 px-2">
         <div class="flex flex-1/2">
           <AppEditor v-model="query" :default-value="defaultQuery" />

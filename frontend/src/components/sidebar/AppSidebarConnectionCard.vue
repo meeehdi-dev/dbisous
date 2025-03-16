@@ -62,13 +62,13 @@ async function onDisconnect(connection: app.Connection) {
           : connected
             ? 'cursor-pointer border-r-2 border-r-primary-400/50 hover:border-r-primary-400 transition-colors'
             : 'border-r-2 border-r-transparent transition-colors',
-      header: 'sm:p-4',
-      body: 'sm:p-4',
+      header: 'sm:p-2',
+      body: 'sm:p-2',
       footer: 'sm:p-2',
     }"
     @click="select(connection.id)"
   >
-    <div class="flex items-center gap-4">
+    <div class="flex items-center gap-2">
       <div class="flex flex-initial">
         <UIcon :name="`simple-icons:${connection.type}`" class="size-8" />
       </div>
