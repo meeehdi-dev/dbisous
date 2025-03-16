@@ -88,8 +88,8 @@ const changesCount = computed(
 
 <template>
   <div class="flex flex-auto flex-col justify-between overflow-hidden">
-    <div class="flex flex-auto flex-col gap-4 overflow-auto">
-      <div v-if="query" class="m-2 h-9">
+    <div class="flex flex-auto flex-col gap-2 overflow-auto py-2">
+      <div v-if="query" class="mx-2 flex min-h-9">
         <AppEditor v-model="query!" :default-value="query" full disabled />
       </div>
       <UTable
@@ -103,7 +103,7 @@ const changesCount = computed(
         :columns="data?.columns"
         :loading="loading"
         :ui="{
-          root: query ? '-mt-6' : '',
+          th: 'py-2 px-4',
           td: 'p-0 min-w-max',
           tbody: '[&>tr]:odd:bg-neutral-800',
         }"

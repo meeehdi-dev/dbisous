@@ -100,9 +100,9 @@ async function setQuery(q: string, execute = false) {
 </script>
 
 <template>
-  <div class="flex flex-auto flex-col">
-    <div class="flex flex-col gap-4 p-4">
-      <div class="flex gap-2">
+  <div class="flex flex-auto flex-col overflow-hidden">
+    <div class="flex flex-auto flex-col gap-2 pt-2">
+      <div class="flex gap-2 px-2">
         <div class="flex flex-1/2">
           <AppEditor v-model="query" :default-value="defaultQuery" />
         </div>
@@ -146,7 +146,7 @@ async function setQuery(q: string, execute = false) {
           </div>
         </div>
       </div>
-      <div class="flex items-center gap-2">
+      <div class="flex items-center gap-2 px-2">
         <UButton
           :disabled="!query || error !== ''"
           :icon="error ? 'lucide:triangle-alert' : 'lucide:terminal'"
