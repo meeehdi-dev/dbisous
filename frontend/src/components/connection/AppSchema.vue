@@ -7,17 +7,26 @@ import {
 } from "@/components/connection/table/table";
 import { useWails } from "@/composables/useWails";
 import { GetSchemaTables } from "_/go/app/App";
-import { ref } from "vue";
+import { ref, watch } from "vue";
 import { client } from "_/go/models";
 import { SortDirection } from "@/components/connection/table/column/AppColumnHeader.vue";
 import { useApp } from "@/composables/shared/useApp";
 import { Route } from "@/router";
 import { toSqlValue } from "@/utils/transaction";
+import { Tab } from "@/utils/tabs";
 
 const wails = useWails();
 const router = useRouter();
 const { database, schema, table } = useApp();
 table.value = ""; // FIXME: reset table var bc breadcrumb does not provide onclick
+
+const active = ref(Tab.Rows);
+const defaultQuery = ref<string>();
+watch(active, () => {
+  if (active.value !== Tab.Query) {
+    defaultQuery.value = undefined;
+  }
+});
 
 async function navigateToTable(t: string) {
   table.value = t;
@@ -96,10 +105,15 @@ async function fetchData(page = 1, itemsPerPage = 10) {
   };
 }
 await fetchData();
+
+function onQueryEdit(query: string) {
+  defaultQuery.value = query;
+  active.value = Tab.Query;
+}
 </script>
 
 <template>
-  <AppTabs>
+  <AppTabs v-model="active" :default-query="defaultQuery">
     <template #rows>
       <AppRows
         :loading="loading"
@@ -115,6 +129,7 @@ await fetchData();
             )
         "
         @pagination-change="fetchData"
+        @query-edit="onQueryEdit"
       />
     </template>
     <template #columns>

@@ -21,7 +21,7 @@ async function importFile() {
 </script>
 
 <template>
-  <div class="p-2">
+  <div class="flex flex-auto items-center justify-center">
     <UButton icon="lucide:download" label="Import" @click="importFile" />
   </div>
 </template>

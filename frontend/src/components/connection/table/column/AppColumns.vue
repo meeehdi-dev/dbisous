@@ -85,7 +85,7 @@ const columnPinning = ref({ right: ["action"] });
         :columns="columns"
         :loading="loading"
         :ui="{
-          th: 'py-2 px-4',
+          th: 'pt-0 pb-2 px-4',
           td: 'p-0 min-w-max',
           tbody: '[&>tr]:odd:bg-neutral-800',
         }"

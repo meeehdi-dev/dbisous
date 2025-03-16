@@ -10,7 +10,9 @@ import { useWails } from "@/composables/useWails";
 import { Execute } from "_/go/app/App";
 import { useApp } from "@/composables/shared/useApp";
 
-const emit = defineEmits<RowEmits<Record<string, unknown>>>();
+const emit = defineEmits<
+  RowEmits<Record<string, unknown>> & { queryEdit: [string] }
+>();
 const tx = useTransaction();
 
 const {
@@ -84,11 +86,17 @@ const changesCount = computed(
     tx.updateChanges.value.length +
     tx.deleteChanges.value.length,
 );
+
+function onQueryEdit() {
+  if (query) {
+    emit("queryEdit", query);
+  }
+}
 </script>
 
 <template>
   <div class="flex flex-auto flex-col justify-between overflow-hidden">
-    <div class="flex flex-auto flex-col overflow-auto">
+    <div class="flex flex-auto flex-col gap-2 overflow-auto">
       <div v-if="query" class="mx-2 flex min-h-9 items-center gap-2">
         <AppEditor
           v-model="query!"
@@ -96,7 +104,12 @@ const changesCount = computed(
           height="full"
           disabled
         />
-        <UButton icon="lucide:edit" label="Edit query" :ui="{ base: 'h-8' }" />
+        <UButton
+          icon="lucide:edit"
+          label="Edit query"
+          :ui="{ base: 'h-8' }"
+          @click="onQueryEdit"
+        />
       </div>
       <UTable
         :key="data?.key"
@@ -109,7 +122,7 @@ const changesCount = computed(
         :columns="data?.columns"
         :loading="loading"
         :ui="{
-          th: 'py-2 px-4',
+          th: 'pt-0 pb-2 px-4',
           td: 'p-0 min-w-max',
           tbody: '[&>tr]:odd:bg-neutral-800',
         }"

@@ -13,19 +13,27 @@ import { SortDirection } from "@/components/connection/table/column/AppColumnHea
 import { Route } from "@/router";
 import { useApp } from "@/composables/shared/useApp";
 import { toSqlValue } from "@/utils/transaction";
+import { Tab } from "@/utils/tabs";
 
 const router = useRouter();
+const wails = useWails();
 const { database, schema, table } = useApp();
 schema.value = ""; // FIXME: reset schema var bc breadcrumb does not provide onclick
 table.value = ""; // FIXME: reset table var bc breadcrumb does not provide onclick
+
+const active = ref(Tab.Rows);
+const defaultQuery = ref<string>();
+watch(active, () => {
+  if (active.value !== Tab.Query) {
+    defaultQuery.value = undefined;
+  }
+});
 
 async function navigateToSchema(s: string) {
   schema.value = s;
   table.value = "";
   await router.push({ name: Route.Schema });
 }
-
-const wails = useWails();
 
 const rows = ref<FormattedQueryResult & { key: number }>();
 const query = ref<string>();
@@ -99,10 +107,15 @@ await fetchData();
 watch(database, async () => {
   await fetchData();
 });
+
+function onQueryEdit(query: string) {
+  defaultQuery.value = query;
+  active.value = Tab.Query;
+}
 </script>
 
 <template>
-  <AppTabs>
+  <AppTabs v-model="active" :default-query="defaultQuery">
     <template #rows>
       <AppRows
         :loading="loading"
@@ -118,6 +131,7 @@ watch(database, async () => {
             )
         "
         @pagination-change="fetchData"
+        @query-edit="onQueryEdit"
       />
     </template>
     <template #columns>
