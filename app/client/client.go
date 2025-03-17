@@ -2,6 +2,7 @@ package client
 
 type DatabaseClient interface {
 	GetDatabaseMetadata() (DatabaseMetadata, error)
+	GetConnectionDatabases(QueryParams) (QueryResult, error)
 	GetDatabaseSchemas(QueryParams) (QueryResult, error)
 	GetSchemaTables(QueryParams, string) (QueryResult, error)
 	GetTableRows(QueryParams, string, string) (QueryResult, error)

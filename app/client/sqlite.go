@@ -109,6 +109,19 @@ func (c *SqliteClient) executeSelectQuery(query string, params QueryParams) (Que
 	return result, err
 }
 
+func (c *SqliteClient) GetConnectionDatabases(params QueryParams) (QueryResult, error) {
+	rows := make([]Row, 0)
+	row := make(Row)
+	row["name"] = "main"
+	rows = append(rows, row)
+	columns := make([]ColumnMetadata, 0)
+	columns = append(columns, ColumnMetadata{Name: "name"})
+	return QueryResult{
+		Rows:    rows,
+		Columns: columns,
+	}, nil
+}
+
 func (c *SqliteClient) GetDatabaseSchemas(params QueryParams) (QueryResult, error) {
 	return c.executeSelectQuery("sqlite_master WHERE type LIKE 'table'", params)
 }

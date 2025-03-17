@@ -1,9 +1,46 @@
 package app
 
 import (
+	"database/sql"
 	"dbisous/app/client"
 	"fmt"
 )
+
+func (a *App) GetConnectionDatabases(id string, params client.QueryParams) (client.QueryResult, error) {
+	dbClient, exists := dbClients[id]
+	if !exists {
+		return client.QueryResult{}, fmt.Errorf("no database client for database ID: %s", id)
+	}
+
+	return dbClient.GetConnectionDatabases(params)
+}
+
+func (a *App) UseDatabase(id string, connectionString string) error {
+	var dbType string
+	err := metadataDB.QueryRow(`SELECT type FROM connection WHERE id = ?`, id).Scan(&dbType)
+	if err != nil {
+		return err
+	}
+
+	var db *sql.DB
+	switch dbType {
+	case string(SQLite):
+	// NOTE: we do nothing in sqlite
+	case string(MySQL):
+		db, err = sql.Open("mysql", connectionString)
+		dbClients[id] = &client.MysqlClient{Db: db}
+	case string(PostgreSQL):
+		db, err = sql.Open("postgres", connectionString)
+		dbClients[id] = &client.PostgresClient{Db: db}
+	default:
+		return fmt.Errorf("unsupported database type: %s", dbType)
+	}
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
 
 func (a *App) GetDatabaseSchemas(id string, params client.QueryParams) (client.QueryResult, error) {
 	dbClient, exists := dbClients[id]

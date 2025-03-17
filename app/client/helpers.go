@@ -80,7 +80,7 @@ func fetchRows(rows *sql.Rows) (QueryResult, error) {
 	}, nil
 }
 
-func executeQuery(db *sql.DB, query string, args ...any) (QueryResult, error) {
+func executeQuery(db *sql.DB, query string) (QueryResult, error) {
 	result := QueryResult{Query: query}
 	result.Rows = make([]Row, 0)
 	result.Columns = make([]ColumnMetadata, 0)
@@ -92,7 +92,7 @@ func executeQuery(db *sql.DB, query string, args ...any) (QueryResult, error) {
 
 	if isMutate && !isReturning {
 		start := time.Now()
-		_, err := db.Exec(query, args...)
+		_, err := db.Exec(query)
 		duration := time.Since(start).String()
 		if err != nil {
 			return result, err
@@ -103,7 +103,7 @@ func executeQuery(db *sql.DB, query string, args ...any) (QueryResult, error) {
 		return result, nil
 	} else {
 		start := time.Now()
-		rows, err := db.Query(query, args...)
+		rows, err := db.Query(query)
 		duration := time.Since(start).String()
 		if err != nil {
 			return result, err
@@ -122,7 +122,7 @@ func executeQuery(db *sql.DB, query string, args ...any) (QueryResult, error) {
 	}
 }
 
-func executeSelectQuery(db *sql.DB, query string, params QueryParams, args ...any) (QueryResult, error) {
+func executeSelectQuery(db *sql.DB, query string, params QueryParams) (QueryResult, error) {
 	execQuery := fmt.Sprintf("SELECT * FROM %s", query)
 
 	if len(params.Filter) > 0 {
@@ -157,9 +157,9 @@ func executeSelectQuery(db *sql.DB, query string, params QueryParams, args ...an
 
 	execQuery += fmt.Sprintf(" LIMIT %d OFFSET %d", params.Limit, params.Offset)
 
-	result, err := executeQuery(db, execQuery, args...)
+	result, err := executeQuery(db, execQuery)
 
-	countRow := db.QueryRow(fmt.Sprintf("SELECT COUNT(*) FROM %s", query), args...)
+	countRow := db.QueryRow(fmt.Sprintf("SELECT COUNT(*) FROM %s", query))
 	err = countRow.Scan(&result.Total)
 	if err != nil {
 		return result, err

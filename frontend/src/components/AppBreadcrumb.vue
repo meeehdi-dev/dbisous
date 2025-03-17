@@ -16,14 +16,24 @@ const items = ref<Array<AppBreadcrumbItem>>([]);
 watchEffect(() => {
   const i: AppBreadcrumbItem[] = [];
   if (connection.value) {
+    const c = connections.value.find((c) => c.id === connection.value);
     i.push({
-      label:
-        connections.value.find((c) => c.id === connection.value)?.name ||
-        "Database",
+      label: c?.name || c?.connection_string || "Connection",
+      icon: "lucide:house-plug",
+      to: "/connection",
+      onClick: () => {
+        database.value = "";
+        schema.value = "";
+        table.value = "";
+      },
+    });
+  }
+  if (database.value) {
+    i.push({
+      label: database.value,
       icon: "lucide:database",
       to: "/database",
       onClick: () => {
-        database.value = "";
         schema.value = "";
         table.value = "";
       },

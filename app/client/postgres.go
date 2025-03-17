@@ -42,7 +42,7 @@ func (c *PostgresClient) GetDatabaseMetadata() (DatabaseMetadata, error) {
 func (c *PostgresClient) getColumns(schema string, table string) ([]string, error) {
 	columns := make([]string, 0)
 
-	rows, err := c.Db.Query("SELECT column_name FROM information_schema.columns WHERE table_schema = $1 AND table_name = $2", schema, table)
+	rows, err := c.Db.Query(fmt.Sprintf("SELECT column_name FROM information_schema.columns WHERE table_schema = '%s' AND table_name = '%s'", schema, table))
 	if err != nil {
 		return columns, err
 	}
@@ -64,7 +64,7 @@ func (c *PostgresClient) getColumns(schema string, table string) ([]string, erro
 func (c *PostgresClient) getTables(schema string) ([]string, error) {
 	tables := make([]string, 0)
 
-	rows, err := c.Db.Query("SELECT table_name FROM information_schema.tables WHERE table_schema = $1", schema)
+	rows, err := c.Db.Query(fmt.Sprintf("SELECT table_name FROM information_schema.tables WHERE table_schema = '%s'", schema))
 	if err != nil {
 		return tables, err
 	}
@@ -106,7 +106,13 @@ func (c *PostgresClient) getSchemas() ([]string, error) {
 func (c *PostgresClient) fetchColumnsMetadata(schema string, table string) ([]ColumnMetadata, error) {
 	var columnsMetadata []ColumnMetadata
 
-	columns, err := c.Db.Query("SELECT c.column_name AS name, c.data_type AS type, COALESCE(c.column_default, 'NULL') AS default_value, CASE c.is_nullable WHEN 'YES' THEN true ELSE false END nullable, COALESCE((SELECT TRUE FROM information_schema.table_constraints tc LEFT JOIN information_schema.key_column_usage kcu ON tc.constraint_name = kcu.constraint_name WHERE tc.table_schema = $1 AND tc.table_name = $2 AND tc.constraint_type = 'PRIMARY KEY' AND kcu.COLUMN_NAME = c.COLUMN_NAME GROUP BY tc.TABLE_SCHEMA, tc.TABLE_NAME, kcu.COLUMN_NAME), FALSE) AS primary_key FROM information_schema.columns c WHERE c.table_schema = $1 AND c.table_name = $2", schema, table)
+	tcSchema := ""
+	cSchema := ""
+	if len(schema) > 0 {
+		tcSchema = fmt.Sprintf(" tc.table_schema = '%s' AND", schema)
+		cSchema = fmt.Sprintf(" c.table_schema = '%s' AND", schema)
+	}
+	columns, err := c.Db.Query(fmt.Sprintf("SELECT c.column_name AS name, c.data_type AS type, COALESCE(c.column_default, 'NULL') AS default_value, CASE c.is_nullable WHEN 'YES' THEN true ELSE false END nullable, COALESCE((SELECT TRUE FROM information_schema.table_constraints tc LEFT JOIN information_schema.key_column_usage kcu ON tc.constraint_name = kcu.constraint_name WHERE%s tc.table_name = '%s' AND tc.constraint_type = 'PRIMARY KEY' AND kcu.COLUMN_NAME = c.COLUMN_NAME GROUP BY tc.TABLE_SCHEMA, tc.TABLE_NAME, kcu.COLUMN_NAME), FALSE) AS primary_key FROM information_schema.columns c WHERE%s c.table_name = '%s'", tcSchema, table, cSchema, table))
 	if err != nil {
 		return columnsMetadata, err
 	}
@@ -122,7 +128,7 @@ func (c *PostgresClient) executeSelectQuery(query string, params QueryParams) (Q
 	queryParts := strings.Split(query, " ")
 	table := queryParts[0]
 	tableParts := strings.Split(table, ".")
-	schema := "public"
+	schema := ""
 	tableName := tableParts[0]
 	if len(tableParts) > 1 {
 		schema = strings.ReplaceAll(tableParts[0], "`", "")
@@ -141,6 +147,10 @@ func (c *PostgresClient) executeSelectQuery(query string, params QueryParams) (Q
 	result.Columns = columnsMetadata
 
 	return result, err
+}
+
+func (c *PostgresClient) GetConnectionDatabases(params QueryParams) (QueryResult, error) {
+	return c.executeSelectQuery("pg_database WHERE datistemplate = FALSE", params)
 }
 
 func (c *PostgresClient) GetDatabaseSchemas(params QueryParams) (QueryResult, error) {

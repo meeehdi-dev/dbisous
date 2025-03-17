@@ -143,8 +143,12 @@ func (c *MysqlClient) executeSelectQuery(query string, params QueryParams) (Quer
 	return result, err
 }
 
+func (c *MysqlClient) GetConnectionDatabases(params QueryParams) (QueryResult, error) {
+	return executeQuery(c.Db, "SHOW DATABASES")
+}
+
 func (c *MysqlClient) GetDatabaseSchemas(params QueryParams) (QueryResult, error) {
-	return c.executeSelectQuery("information_schema.schemata", params)
+	return c.executeSelectQuery("information_schema.schemata WHERE schema_name = DATABASE()", params)
 }
 
 func (c *MysqlClient) GetSchemaTables(params QueryParams, schema string) (QueryResult, error) {

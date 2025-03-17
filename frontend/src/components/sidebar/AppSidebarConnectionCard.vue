@@ -59,9 +59,9 @@ async function onDisconnect(id: string) {
     :ui="{
       root:
         value.id === connection
-          ? 'border-r-2 border-r-primary-400 transition-colors'
+          ? 'border-r-primary-400 border-r-2 transition-colors'
           : connected
-            ? 'cursor-pointer border-r-2 border-r-primary-400/50 hover:border-r-primary-400 transition-colors'
+            ? 'border-r-primary-400/50 hover:border-r-primary-400 cursor-pointer border-r-2 transition-colors'
             : 'border-r-2 border-r-transparent transition-colors',
       header: 'sm:p-2',
       body: 'sm:p-2',
