@@ -370,14 +370,13 @@ const disabled = computed(() => {
             <URadioGroup v-model="state.drop_table" :items="drop" />
           </UFormField>
         </div>
-        <div class="flex justify-center">
-          <UButton
-            icon="lucide:upload"
-            type="submit"
-            label="Export"
-            :disabled="disabled"
-          />
-        </div>
+        <UButton
+          icon="lucide:upload"
+          type="submit"
+          label="Export"
+          :ui="{ base: 'self-center' }"
+          :disabled="disabled"
+        />
       </div>
     </div>
   </UForm>
