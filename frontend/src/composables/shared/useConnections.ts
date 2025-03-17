@@ -93,6 +93,7 @@ export const useConnections = createSharedComposable(() => {
       (connectionId) => connectionId !== id,
     );
     if (connection.value === id) {
+      connection.value = "";
       await router.push({ name: Route.Welcome });
     }
   }

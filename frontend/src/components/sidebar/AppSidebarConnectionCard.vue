@@ -49,7 +49,6 @@ async function onConnect(id: string) {
 async function onDisconnect(id: string) {
   connecting.value = true;
   await disconnect(id);
-  connection.value = "";
   connecting.value = false;
 }
 </script>
@@ -110,7 +109,7 @@ async function onDisconnect(id: string) {
             :color="connected ? 'warning' : 'primary'"
             :loading="connecting"
             variant="soft"
-            @click.prevent="
+            @click.stop="
               () => {
                 connected ? onDisconnect(value.id) : onConnect(value.id);
               }

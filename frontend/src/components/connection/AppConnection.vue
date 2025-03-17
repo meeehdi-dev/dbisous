@@ -15,6 +15,7 @@ import { useApp } from "@/composables/shared/useApp";
 import { toSqlValue } from "@/utils/transaction";
 import { Tab } from "@/utils/tabs";
 import { useConnections } from "@/composables/shared/useConnections";
+import { parseConnectionString } from "@/utils/connection";
 
 const router = useRouter();
 const wails = useWails();
@@ -43,29 +44,11 @@ async function navigateToDatabase(d: string) {
     return;
   }
 
-  let connectionString = c.connection_string;
-  if (
-    c.type === app.ConnectionType.PostgreSQL &&
-    connectionString.startsWith(postgresPrefix)
-  ) {
-    connectionString = connectionString.slice(postgresPrefix.length);
-  }
-  const [userInfo, connectionInfo] = connectionString.split("@");
-  const [user, pass] = userInfo.split(":");
-  const [hostInfo, params] = (connectionInfo || "").split("/");
-  const [host, port] = hostInfo.split(":");
-  const [, options] = (params || "").split("?");
+  const { host, port, user, pass, options } = parseConnectionString(
+    c.connection_string,
+  );
 
-  const connectionHost = host || "";
-  const connectionPort = port || "";
-  const connectionUser = user || "";
-  const connectionPass = pass || "";
-  const connectionOptions = (options || "").split("&").map((option) => {
-    const [name, value] = option.split("=");
-    return { name, value };
-  });
-
-  connectionString = `${c.type === app.ConnectionType.PostgreSQL ? postgresPrefix : ""}${connectionUser}:${connectionPass}@${connectionHost}${connectionPort ? `:${connectionPort}` : ""}/${d}${connectionOptions.length > 0 ? "?" : ""}${connectionOptions.map((option) => [option.name, option.value].join(option.value ? "=" : "")).join("&")}`;
+  const connectionString = `${c.type === app.ConnectionType.PostgreSQL ? postgresPrefix : ""}${user}:${pass}@${host}${port ? `:${port}` : ""}/${d}${options.length > 0 ? "?" : ""}${options.map((option) => [option.name, option.value].join(option.value ? "=" : "")).join("&")}`;
 
   database.value = d;
   const result = await wails(() =>

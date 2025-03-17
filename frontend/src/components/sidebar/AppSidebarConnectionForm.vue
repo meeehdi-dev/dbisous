@@ -6,6 +6,7 @@ import { SelectFile, TestConnection } from "_/go/app/App";
 import { useConnections } from "@/composables/shared/useConnections";
 import { app } from "_/go/models";
 import type { FormSubmitEvent } from "@nuxt/ui";
+import { parseConnectionString } from "@/utils/connection";
 
 const emit = defineEmits<{ connectionAdded: [] }>();
 const connection = defineModel<app.Connection>();
@@ -42,28 +43,16 @@ const connectionOptions = ref<Array<{ name: string; value: string }>>([]);
 
 const postgresPrefix = "postgres://";
 function onConnectionStringChange() {
-  let connectionString = state.connection_string;
-  if (
-    state.type === app.ConnectionType.PostgreSQL &&
-    connectionString.startsWith(postgresPrefix)
-  ) {
-    connectionString = connectionString.slice(postgresPrefix.length);
-  }
-  const [userInfo, connectionInfo] = connectionString.split("@");
-  const [user, pass] = userInfo.split(":");
-  const [hostInfo, params] = (connectionInfo || "").split("/");
-  const [host, port] = hostInfo.split(":");
-  const [database, options] = (params || "").split("?");
+  const { host, port, user, pass, database, options } = parseConnectionString(
+    state.connection_string,
+  );
 
-  connectionHost.value = host || "";
-  connectionPort.value = port || "";
-  connectionUser.value = user || "";
-  connectionPass.value = pass || "";
-  connectionDatabase.value = database || "";
-  connectionOptions.value = (options || "").split("&").map((option) => {
-    const [name, value] = option.split("=");
-    return { name, value };
-  });
+  connectionHost.value = host;
+  connectionPort.value = port;
+  connectionUser.value = user;
+  connectionPass.value = pass;
+  connectionDatabase.value = database;
+  connectionOptions.value = options;
 }
 onConnectionStringChange(); // NOTE: init vals on connection edit
 function onConnectionInfoChange() {

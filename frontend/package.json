@@ -9,6 +9,7 @@
     "preview": "vite preview",
     "lint": "eslint",
     "lint-staged": "lint-staged",
+    "test": "vitest",
     "typecheck": "vue-tsc --noEmit",
     "prepare": "cd .. && husky ./frontend/.husky"
   },
@@ -40,6 +41,7 @@
     "typescript-eslint": "^8.26.1",
     "valibot": "^1.0.0-rc.4",
     "vite": "^6.2.1",
+    "vitest": "^3.0.9",
     "vue": "^3.5.13",
     "vue-router": "^4.5.0",
     "vue-tsc": "^2.2.8"

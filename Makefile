@@ -7,7 +7,9 @@ dev:
 	wails dev
 
 test:
-	go test ./...
+	go test ./... &&\
+		cd frontend &&\
+		npm run test -- run
 
 tidy:
 	go mod tidy
