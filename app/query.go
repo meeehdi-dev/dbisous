@@ -24,8 +24,6 @@ func (a *App) UseDatabase(id string, connectionString string) error {
 
 	var db *sql.DB
 	switch dbType {
-	case string(SQLite):
-	// NOTE: we do nothing in sqlite
 	case string(MySQL):
 		db, err = sql.Open("mysql", connectionString)
 		dbClients[id] = &client.MysqlClient{Db: db}

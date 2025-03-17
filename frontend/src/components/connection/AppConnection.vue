@@ -19,7 +19,7 @@ import { useConnections } from "@/composables/shared/useConnections";
 const router = useRouter();
 const wails = useWails();
 const { connections } = useConnections();
-const { connection, database, schema, table } = useApp();
+const { connection, database } = useApp();
 
 const active = ref(Tab.Rows);
 const defaultQuery = ref<string>();
@@ -33,8 +33,16 @@ const postgresPrefix = "postgres://";
 async function navigateToDatabase(d: string) {
   const c = connections.value.find((c) => c.id === connection.value);
   if (!c) {
+    // TODO: should add a toast to notify of an unexpected error?
     return;
   }
+
+  if (c.type === app.ConnectionType.SQLite) {
+    database.value = d;
+    await router.push({ name: Route.Database });
+    return;
+  }
+
   let connectionString = c.connection_string;
   if (
     c.type === app.ConnectionType.PostgreSQL &&
@@ -60,8 +68,6 @@ async function navigateToDatabase(d: string) {
   connectionString = `${c.type === app.ConnectionType.PostgreSQL ? postgresPrefix : ""}${connectionUser}:${connectionPass}@${connectionHost}${connectionPort ? `:${connectionPort}` : ""}/${d}${connectionOptions.length > 0 ? "?" : ""}${connectionOptions.map((option) => [option.name, option.value].join(option.value ? "=" : "")).join("&")}`;
 
   database.value = d;
-  schema.value = "";
-  table.value = "";
   const result = await wails(() =>
     UseDatabase(connection.value, connectionString),
   );
