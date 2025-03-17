@@ -38,7 +38,7 @@ const connectionPort = ref("");
 const connectionUser = ref("");
 const connectionPass = ref("");
 const connectionDatabase = ref("");
-const connectionOptions = ref<Array<string>>([]);
+const connectionOptions = ref<Array<{ name: string; value: string }>>([]);
 
 const postgresPrefix = "postgres://";
 function onConnectionStringChange() {
@@ -60,11 +60,14 @@ function onConnectionStringChange() {
   connectionUser.value = user || "";
   connectionPass.value = pass || "";
   connectionDatabase.value = database || "";
-  connectionOptions.value = (options || "").split("&");
+  connectionOptions.value = (options || "").split("&").map((option) => {
+    const [name, value] = option.split("=");
+    return { name, value };
+  });
 }
 onConnectionStringChange(); // NOTE: init vals on connection edit
 function onConnectionInfoChange() {
-  state.connection_string = `${state.type === app.ConnectionType.PostgreSQL ? postgresPrefix : ""}${connectionUser.value}:${connectionPass.value}@${connectionHost.value}${connectionPort.value ? `:${connectionPort.value}` : ""}/${connectionDatabase.value}${connectionOptions.value.length > 0 ? "?" : ""}${connectionOptions.value.join("&")}`;
+  state.connection_string = `${state.type === app.ConnectionType.PostgreSQL ? postgresPrefix : ""}${connectionUser.value}:${connectionPass.value}@${connectionHost.value}${connectionPort.value ? `:${connectionPort.value}` : ""}/${connectionDatabase.value}${connectionOptions.value.length > 0 ? "?" : ""}${connectionOptions.value.map((option) => [option.name, option.value].join(option.value ? "=" : "")).join("&")}`;
 }
 
 const items = [
@@ -151,6 +154,10 @@ const placeholders = {
     database: "postgres",
   },
 };
+
+function onConnectionOptionAdd() {
+  connectionOptions.value.push({ name: "", value: "" });
+}
 </script>
 
 <template>
@@ -164,25 +171,25 @@ const placeholders = {
       </template>
 
       <template #details>
-        <div class="flex">
+        <div class="flex flex-col gap-2">
           <UButton
             v-if="!state.id"
             label="Back"
             color="neutral"
             variant="outline"
             icon="lucide:arrow-left"
-            :ui="{ base: 'p-2' }"
+            :ui="{ base: 'p-2 self-start' }"
             @click="active = 0"
           />
-        </div>
 
-        <UFormField label="Name">
-          <UInput
-            v-model="state.name"
-            placeholder="Optional name"
-            class="w-full"
-          />
-        </UFormField>
+          <UFormField label="Name">
+            <UInput
+              v-model="state.name"
+              placeholder="Optional name"
+              class="w-full"
+            />
+          </UFormField>
+        </div>
 
         <UFormField
           v-if="state.type === app.ConnectionType.SQLite"
@@ -257,6 +264,39 @@ const placeholders = {
               class="w-full"
               @update:model-value="onConnectionInfoChange"
             />
+          </UFormField>
+
+          <UFormField label="Options">
+            <div class="flex gap-2">
+              <div class="flex flex-auto">
+                <USeparator orientation="vertical" />
+              </div>
+              <div class="flex flex-col gap-2">
+                <div
+                  v-for="(connectionOption, i) in connectionOptions"
+                  :key="i"
+                  class="flex gap-2"
+                >
+                  <UInput
+                    v-model="connectionOption.name"
+                    placeholder="Name"
+                    @update:model-value="onConnectionInfoChange"
+                  />
+                  <UInput
+                    v-model="connectionOption.value"
+                    placeholder="Value"
+                    @update:model-value="onConnectionInfoChange"
+                  />
+                </div>
+                <UButton
+                  label="Add option"
+                  icon="lucide:plus"
+                  variant="soft"
+                  :ui="{ base: 'self-start' }"
+                  @click="onConnectionOptionAdd"
+                />
+              </div>
+            </div>
           </UFormField>
         </template>
 
