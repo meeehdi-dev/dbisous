@@ -13,7 +13,7 @@ import { useApp } from "@/composables/shared/useApp";
 const defaultQuery = defineModel<string>("defaultQuery");
 
 const wails = useWails();
-const { database } = useApp();
+const { connection } = useApp();
 
 const query = ref(defaultQuery.value ?? "");
 const error = ref("");
@@ -29,7 +29,7 @@ const filtering = ref<Array<{ id: string; value: unknown }>>([]);
 const fetchingData = ref(false);
 async function fetchData(reload = true) {
   fetchingData.value = true;
-  const result = await wails(() => ExecuteQuery(database.value, query.value));
+  const result = await wails(() => ExecuteQuery(connection.value, query.value));
   fetchingData.value = false;
   if (result instanceof Error) {
     error.value = result.message;

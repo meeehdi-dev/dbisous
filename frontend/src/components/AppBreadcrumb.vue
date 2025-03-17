@@ -4,20 +4,29 @@ import { useConnections } from "@/composables/shared/useConnections";
 import type { BreadcrumbItem } from "@nuxt/ui";
 import { useApp } from "@/composables/shared/useApp";
 
-const { database, schema, table } = useApp();
+const { connection, database, schema, table } = useApp();
 const { connections } = useConnections();
 
-const items = ref<Array<BreadcrumbItem>>([]);
+interface AppBreadcrumbItem extends BreadcrumbItem {
+  onClick?: () => void;
+}
+
+const items = ref<Array<AppBreadcrumbItem>>([]);
 
 watchEffect(() => {
-  const i: BreadcrumbItem[] = [];
-  if (database.value) {
+  const i: AppBreadcrumbItem[] = [];
+  if (connection.value) {
     i.push({
       label:
-        connections.value.find((c) => c.id === database.value)?.name ||
+        connections.value.find((c) => c.id === connection.value)?.name ||
         "Database",
       icon: "lucide:database",
       to: "/database",
+      onClick: () => {
+        database.value = "";
+        schema.value = "";
+        table.value = "";
+      },
     });
   }
   if (schema.value) {
@@ -25,6 +34,9 @@ watchEffect(() => {
       label: schema.value,
       icon: "lucide:table-of-contents",
       to: "/schema",
+      onClick: () => {
+        table.value = "";
+      },
     });
   }
   if (table.value) {
@@ -39,5 +51,14 @@ watchEffect(() => {
 </script>
 
 <template>
-  <UBreadcrumb :items="items" class="flex flex-initial p-2" />
+  <UBreadcrumb :items="items" class="flex flex-initial p-2">
+    <template #item="{ item }">
+      <ULink :to="item.to" class="flex gap-1.5" @click="item.onClick">
+        <UIcon v-if="item.icon" class="size-5" :name="item.icon" />
+        <span>
+          {{ item.label }}
+        </span>
+      </ULink>
+    </template>
+  </UBreadcrumb>
 </template>

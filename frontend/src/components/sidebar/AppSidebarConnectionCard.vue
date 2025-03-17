@@ -8,16 +8,16 @@ import { useRouter } from "vue-router";
 import { useApp } from "@/composables/shared/useApp";
 import { Route } from "@/router";
 
-const { connection } = defineProps<{ connection: app.Connection }>();
-const emit = defineEmits<{ connectionEdit: [app.Connection] }>();
+const { value } = defineProps<{ value: app.Connection }>();
+const emit = defineEmits<{ edit: [string] }>();
 
 const { isConnected, connect, disconnect, select, fetchConnections } =
   useConnections();
-const { database } = useApp();
+const { connection } = useApp();
 const wails = useWails();
 const router = useRouter();
 
-const connected = computed(() => isConnected(connection.id));
+const connected = computed(() => isConnected(value.id));
 
 const connecting = ref(false);
 
@@ -29,26 +29,27 @@ function getConnectionName(connection: app.Connection) {
   return parts[parts.length - 1];
 }
 
-async function removeConnection(connection: app.Connection) {
-  const result = await wails(() => DeleteConnection(connection.id));
+async function removeConnection(id: string) {
+  const result = await wails(() => DeleteConnection(id));
   if (result instanceof Error) {
     return;
   }
   await fetchConnections();
-  if (connection.id === database.value) {
+  if (id === connection.value) {
     await router.push({ name: Route.Welcome });
   }
 }
 
-async function onConnect(connection: app.Connection) {
+async function onConnect(id: string) {
   connecting.value = true;
-  await connect(connection.id);
+  await connect(id);
   connecting.value = false;
 }
 
-async function onDisconnect(connection: app.Connection) {
+async function onDisconnect(id: string) {
   connecting.value = true;
-  await disconnect(connection.id);
+  await disconnect(id);
+  connection.value = "";
   connecting.value = false;
 }
 </script>
@@ -57,7 +58,7 @@ async function onDisconnect(connection: app.Connection) {
   <UCard
     :ui="{
       root:
-        connection.id === database
+        value.id === connection
           ? 'border-r-2 border-r-primary-400 transition-colors'
           : connected
             ? 'cursor-pointer border-r-2 border-r-primary-400/50 hover:border-r-primary-400 transition-colors'
@@ -66,19 +67,19 @@ async function onDisconnect(connection: app.Connection) {
       body: 'sm:p-2',
       footer: 'sm:p-2',
     }"
-    @click="select(connection.id)"
+    @click="select(value.id)"
   >
     <div class="flex items-center gap-2">
       <div class="flex flex-initial">
-        <UIcon :name="`simple-icons:${connection.type}`" class="size-8" />
+        <UIcon :name="`simple-icons:${value.type}`" class="size-8" />
       </div>
       <div class="flex flex-auto flex-row justify-between gap-2">
-        <UTooltip :text="connection.name" :content="{ side: 'right' }">
+        <UTooltip :text="value.name" :content="{ side: 'right' }">
           <span class="line-clamp-1 text-ellipsis">
-            {{ getConnectionName(connection) }}
+            {{ getConnectionName(value) }}
           </span>
         </UTooltip>
-        <AppSidebarConnectionInfo :connection="connection" />
+        <AppSidebarConnectionInfo :connection="value" />
       </div>
     </div>
 
@@ -86,7 +87,7 @@ async function onDisconnect(connection: app.Connection) {
       <div class="flex justify-end gap-2">
         <AppPopconfirm
           text="Are you sure?"
-          @confirm="removeConnection(connection)"
+          @confirm="removeConnection(value.id)"
         >
           <UTooltip text="Remove" :content="{ side: 'left' }">
             <UButton icon="lucide:trash" color="error" variant="soft" />
@@ -97,7 +98,7 @@ async function onDisconnect(connection: app.Connection) {
             icon="lucide:edit"
             color="neutral"
             variant="soft"
-            @click="emit('connectionEdit', connection)"
+            @click="emit('edit', value.id)"
           />
         </UTooltip>
         <UTooltip
@@ -111,7 +112,7 @@ async function onDisconnect(connection: app.Connection) {
             variant="soft"
             @click.prevent="
               () => {
-                connected ? onDisconnect(connection) : onConnect(connection);
+                connected ? onDisconnect(value.id) : onConnect(value.id);
               }
             "
           />

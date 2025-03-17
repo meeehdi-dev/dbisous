@@ -1,13 +1,12 @@
 <script setup lang="ts">
 import { useConnections } from "@/composables/shared/useConnections";
-import { app } from "_/go/models";
 
-const emit = defineEmits<{ connectionEdit: [app.Connection] }>();
+const emit = defineEmits<{ edit: [string] }>();
 
 const { connections } = useConnections();
 
-function onConnectionEdit(connection: app.Connection) {
-  emit("connectionEdit", connection);
+function onConnectionEdit(id: string) {
+  emit("edit", id);
 }
 </script>
 
@@ -15,7 +14,7 @@ function onConnectionEdit(connection: app.Connection) {
   <AppSidebarConnectionCard
     v-for="connection in connections"
     :key="connection.id"
-    :connection="connection"
-    @connection-edit="onConnectionEdit"
+    :value="connection"
+    @edit="onConnectionEdit"
   />
 </template>

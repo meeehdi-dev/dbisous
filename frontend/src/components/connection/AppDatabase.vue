@@ -17,9 +17,7 @@ import { Tab } from "@/utils/tabs";
 
 const router = useRouter();
 const wails = useWails();
-const { database, schema, table } = useApp();
-schema.value = ""; // FIXME: reset schema var bc breadcrumb does not provide onclick
-table.value = ""; // FIXME: reset table var bc breadcrumb does not provide onclick
+const { connection, schema, table } = useApp();
 
 const active = ref(Tab.Rows);
 const defaultQuery = ref<string>();
@@ -46,7 +44,7 @@ async function fetchData(page = 1, itemsPerPage = 10) {
   loading.value = true;
   const result = await wails(() =>
     GetDatabaseSchemas(
-      database.value,
+      connection.value,
       new client.QueryParams({
         offset: (page - 1) * itemsPerPage,
         limit: itemsPerPage,
@@ -104,7 +102,7 @@ async function fetchData(page = 1, itemsPerPage = 10) {
   };
 }
 await fetchData();
-watch(database, async () => {
+watch(connection, async () => {
   await fetchData();
 });
 

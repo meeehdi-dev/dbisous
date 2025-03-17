@@ -17,8 +17,7 @@ import { Tab } from "@/utils/tabs";
 
 const wails = useWails();
 const router = useRouter();
-const { database, schema, table } = useApp();
-table.value = ""; // FIXME: reset table var bc breadcrumb does not provide onclick
+const { connection, schema, table } = useApp();
 
 const active = ref(Tab.Rows);
 const defaultQuery = ref<string>();
@@ -46,7 +45,7 @@ async function fetchData(page = 1, itemsPerPage = 10) {
   loading.value = true;
   const result = await wails(() =>
     GetSchemaTables(
-      database.value,
+      connection.value,
       new client.QueryParams({
         offset: (page - 1) * itemsPerPage,
         limit: itemsPerPage,

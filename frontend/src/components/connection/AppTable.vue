@@ -14,7 +14,7 @@ import { useApp } from "@/composables/shared/useApp";
 import { toSqlValue } from "@/utils/transaction";
 import { Tab } from "@/utils/tabs";
 
-const { database, schema, table } = useApp();
+const { connection, schema, table } = useApp();
 
 const wails = useWails();
 const tx = useTransaction();
@@ -41,7 +41,7 @@ async function fetchData(page = 1, itemsPerPage = 10) {
   loading.value = true;
   const result = await wails(() =>
     GetTableRows(
-      database.value,
+      connection.value,
       new client.QueryParams({
         offset: (page - 1) * itemsPerPage,
         limit: itemsPerPage,

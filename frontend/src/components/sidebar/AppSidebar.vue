@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { app } from "_/go/models";
+import { useConnections } from "@/composables/useConnections";
+
+const { connections } = useConnections();
 
 const slideoverOpen = ref(false);
 const editedConnection = ref<app.Connection>();
@@ -15,8 +18,8 @@ function onConnectionAdded() {
   editedConnection.value = undefined;
 }
 
-function onConnectionEdit(connection: app.Connection) {
-  editedConnection.value = connection;
+function onConnectionEdit(id: string) {
+  editedConnection.value = connections.value.find((c) => c.id === id);
   slideoverOpen.value = true;
 }
 </script>
@@ -27,7 +30,7 @@ function onConnectionEdit(connection: app.Connection) {
       class="flex flex-initial flex-col items-center gap-2 overflow-hidden px-2 py-2"
     >
       <div class="flex w-full flex-initial flex-col gap-2 overflow-auto">
-        <AppSidebarConnections @connection-edit="onConnectionEdit" />
+        <AppSidebarConnections @edit="onConnectionEdit" />
       </div>
 
       <UButton

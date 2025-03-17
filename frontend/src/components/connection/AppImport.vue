@@ -3,13 +3,13 @@ import { useApp } from "@/composables/shared/useApp";
 import { useWails } from "@/composables/useWails";
 import { Import } from "_/go/app/App";
 
-const { database } = useApp();
+const { connection } = useApp();
 const wails = useWails();
 // eslint-disable-next-line no-undef
 const toast = useToast();
 
 async function importFile() {
-  const result = await wails(() => Import(database.value));
+  const result = await wails(() => Import(connection.value));
   if (result instanceof Error) {
     return;
   }

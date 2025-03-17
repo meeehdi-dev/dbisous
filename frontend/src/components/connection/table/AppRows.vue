@@ -57,9 +57,9 @@ function commit() {
 }
 
 const wails = useWails();
-const { database } = useApp();
+const { connection } = useApp();
 async function execute() {
-  const db = database.value;
+  const db = connection.value;
   if (!db) {
     return;
   }

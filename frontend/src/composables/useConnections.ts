@@ -20,7 +20,7 @@ type DatabaseMetadata = Record<string, Record<string, Array<string>>>;
 export const useConnections = createSharedComposable(() => {
   const wails = useWails();
   const router = useRouter();
-  const { database } = useApp();
+  const { connection: database } = useApp();
 
   const connections = ref<Array<app.Connection>>([]);
   const activeConnections = ref<Array<string>>([]);

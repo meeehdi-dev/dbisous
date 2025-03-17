@@ -20,7 +20,7 @@ type DatabaseMetadata = Record<string, Record<string, Array<string>>>;
 export const useConnections = createSharedComposable(() => {
   const wails = useWails();
   const router = useRouter();
-  const { database } = useApp();
+  const { connection } = useApp();
 
   const connections = ref<Array<app.Connection>>([]);
   const activeConnections = ref<Array<string>>([]);
@@ -63,10 +63,10 @@ export const useConnections = createSharedComposable(() => {
   async function select(id: string) {
     if (
       activeConnections.value.some((c) => c === id) &&
-      database.value !== id
+      connection.value !== id
     ) {
       register(metadata.value[id].columns);
-      database.value = id;
+      connection.value = id;
       await router.push({ name: Route.Database });
     }
   }
@@ -89,7 +89,7 @@ export const useConnections = createSharedComposable(() => {
     activeConnections.value = activeConnections.value.filter(
       (connectionId) => connectionId !== id,
     );
-    if (database.value === id) {
+    if (connection.value === id) {
       await router.push({ name: Route.Welcome });
     }
   }

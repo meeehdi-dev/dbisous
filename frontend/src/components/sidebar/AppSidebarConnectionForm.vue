@@ -164,13 +164,14 @@ const placeholders = {
       </template>
 
       <template #details>
-        <div class="flex pb-4">
+        <div class="flex">
           <UButton
             v-if="!state.id"
             label="Back"
             color="neutral"
             variant="outline"
             icon="lucide:arrow-left"
+            :ui="{ base: 'p-2' }"
             @click="active = 0"
           />
         </div>
@@ -260,7 +261,7 @@ const placeholders = {
           </UFormField>
         </template>
 
-        <div class="flex justify-end gap-2 pt-2">
+        <div class="flex justify-end gap-2 pt-4">
           <UButton
             icon="lucide:plug-zap"
             label="Test"
