@@ -150,6 +150,7 @@ function onQueryEdit() {
           icon="lucide:plus"
           variant="soft"
           label="Add row"
+          :ui="{ base: 'mt-2' }"
           @click="emit(RowAction.Insert)"
         />
       </div>

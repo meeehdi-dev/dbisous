@@ -53,7 +53,11 @@ watchEffect(() => {
 <template>
   <UBreadcrumb :items="items" class="flex flex-initial p-2">
     <template #item="{ item }">
-      <ULink :to="item.to" class="flex gap-1.5" @click="item.onClick">
+      <ULink
+        :to="item.to"
+        class="flex items-center gap-1"
+        @click="item.onClick"
+      >
         <UIcon v-if="item.icon" class="size-5" :name="item.icon" />
         <span>
           {{ item.label }}

@@ -36,7 +36,7 @@ function onConnectionEdit(id: string) {
       <UButton
         icon="lucide:plus"
         label="Add connection"
-        class="flex flex-initial"
+        :ui="{ base: 'mt-2' }"
         @click="onConnectionAdd"
       />
 
