@@ -246,7 +246,6 @@ const placeholders = {
             <UInput
               v-model="connectionPass"
               placeholder="pass"
-              type="password"
               class="w-full"
               @update:model-value="onConnectionInfoChange"
             />
