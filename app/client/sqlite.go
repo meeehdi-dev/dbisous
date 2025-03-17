@@ -91,11 +91,11 @@ func (c *SqliteClient) fetchColumnsMetadata(table string) ([]ColumnMetadata, err
 	return columnsMetadata, nil
 }
 
-func (c *SqliteClient) executeSelectQuery(query string, params QueryParams, args ...any) (QueryResult, error) {
+func (c *SqliteClient) executeSelectQuery(query string, params QueryParams) (QueryResult, error) {
 	queryParts := strings.Split(query, " ")
 	table := queryParts[0]
 
-	result, err := executeSelectQuery(c.Db, query, params, args...)
+	result, err := executeSelectQuery(c.Db, query, params)
 	if err != nil {
 		return result, err
 	}
@@ -114,15 +114,15 @@ func (c *SqliteClient) GetDatabaseSchemas(params QueryParams) (QueryResult, erro
 }
 
 func (c *SqliteClient) GetSchemaTables(params QueryParams, schema string) (QueryResult, error) {
-	return c.executeSelectQuery("sqlite_master WHERE type LIKE 'table' AND name = ?", params, schema)
+	return c.executeSelectQuery(fmt.Sprintf("sqlite_master WHERE type LIKE 'table' AND name = '%s'", schema), params)
 }
 
 func (c *SqliteClient) GetTableRows(params QueryParams, schema string, table string) (QueryResult, error) {
 	return c.executeSelectQuery(table, params)
 }
 
-func (c *SqliteClient) ExecuteQuery(query string, args ...any) (QueryResult, error) {
-	return executeQuery(c.Db, query, args...)
+func (c *SqliteClient) ExecuteQuery(query string) (QueryResult, error) {
+	return executeQuery(c.Db, query)
 }
 
 func (c *SqliteClient) Execute(query string) error {

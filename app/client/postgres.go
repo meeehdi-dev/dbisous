@@ -118,7 +118,7 @@ func (c *PostgresClient) fetchColumnsMetadata(schema string, table string) ([]Co
 	return columnsMetadata, nil
 }
 
-func (c *PostgresClient) executeSelectQuery(query string, params QueryParams, args ...any) (QueryResult, error) {
+func (c *PostgresClient) executeSelectQuery(query string, params QueryParams) (QueryResult, error) {
 	queryParts := strings.Split(query, " ")
 	table := queryParts[0]
 	tableParts := strings.Split(table, ".")
@@ -129,7 +129,7 @@ func (c *PostgresClient) executeSelectQuery(query string, params QueryParams, ar
 		tableName = strings.ReplaceAll(tableParts[1], "`", "")
 	}
 
-	result, err := executeSelectQuery(c.Db, query, params, args...)
+	result, err := executeSelectQuery(c.Db, query, params)
 	if err != nil {
 		return result, err
 	}
@@ -148,15 +148,15 @@ func (c *PostgresClient) GetDatabaseSchemas(params QueryParams) (QueryResult, er
 }
 
 func (c *PostgresClient) GetSchemaTables(params QueryParams, schema string) (QueryResult, error) {
-	return c.executeSelectQuery("information_schema.tables WHERE table_schema = $1", params, schema)
+	return c.executeSelectQuery(fmt.Sprintf("information_schema.tables WHERE table_schema = '%s'", schema), params)
 }
 
 func (c *PostgresClient) GetTableRows(params QueryParams, schema string, table string) (QueryResult, error) {
 	return c.executeSelectQuery(fmt.Sprintf("%s.%s", schema, table), params)
 }
 
-func (c *PostgresClient) ExecuteQuery(query string, args ...any) (QueryResult, error) {
-	return executeQuery(c.Db, query, args...)
+func (c *PostgresClient) ExecuteQuery(query string) (QueryResult, error) {
+	return executeQuery(c.Db, query)
 }
 
 func (c *PostgresClient) Execute(query string) error {

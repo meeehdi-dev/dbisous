@@ -118,7 +118,7 @@ func (c *MysqlClient) fetchColumnsMetadata(schema string, table string) ([]Colum
 	return columnsMetadata, nil
 }
 
-func (c *MysqlClient) executeSelectQuery(query string, params QueryParams, args ...any) (QueryResult, error) {
+func (c *MysqlClient) executeSelectQuery(query string, params QueryParams) (QueryResult, error) {
 	queryParts := strings.Split(query, " ")
 	table := queryParts[0]
 	tableParts := strings.Split(table, ".")
@@ -129,7 +129,7 @@ func (c *MysqlClient) executeSelectQuery(query string, params QueryParams, args 
 		tableName = strings.ReplaceAll(tableParts[1], "`", "")
 	}
 
-	result, err := executeSelectQuery(c.Db, query, params, args...)
+	result, err := executeSelectQuery(c.Db, query, params)
 	if err != nil {
 		return result, err
 	}
@@ -148,15 +148,15 @@ func (c *MysqlClient) GetDatabaseSchemas(params QueryParams) (QueryResult, error
 }
 
 func (c *MysqlClient) GetSchemaTables(params QueryParams, schema string) (QueryResult, error) {
-	return c.executeSelectQuery("information_schema.tables WHERE table_schema = ?", params, schema)
+	return c.executeSelectQuery(fmt.Sprintf("information_schema.tables WHERE table_schema = '%s'", schema), params)
 }
 
 func (c *MysqlClient) GetTableRows(params QueryParams, schema string, table string) (QueryResult, error) {
 	return c.executeSelectQuery(fmt.Sprintf("`%s`.`%s`", schema, table), params)
 }
 
-func (c *MysqlClient) ExecuteQuery(query string, args ...any) (QueryResult, error) {
-	return executeQuery(c.Db, query, args...)
+func (c *MysqlClient) ExecuteQuery(query string) (QueryResult, error) {
+	return executeQuery(c.Db, query)
 }
 
 func (c *MysqlClient) Execute(query string) error {

@@ -5,7 +5,7 @@ type DatabaseClient interface {
 	GetDatabaseSchemas(QueryParams) (QueryResult, error)
 	GetSchemaTables(QueryParams, string) (QueryResult, error)
 	GetTableRows(QueryParams, string, string) (QueryResult, error)
-	ExecuteQuery(string, ...any) (QueryResult, error)
+	ExecuteQuery(string) (QueryResult, error)
 	Execute(string) error
 	Export(ExportOptions) (string, error)
 	Import(string) error
