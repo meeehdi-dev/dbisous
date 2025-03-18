@@ -58,7 +58,8 @@ jobs:
           path: frontend/node_modules
           key: ${{ runner.os }}-node-${{ hashFiles('frontend/package-lock.json') }}
       - shell: bash
-        run: make typecheck
+        working-directory: ./frontend
+        run: npm run typecheck
   lint:
     runs-on: ubuntu-latest
     needs: [build]
@@ -80,10 +81,38 @@ jobs:
           path: frontend/auto-imports.d.ts
           key: ${{ runner.os }}-wailsjs-${{ hashFiles('frontend/src/**') }}
       - shell: bash
-        run: make lint
-  # test:
-  #   runs-on: ubuntu-latest
-  #   needs: [build]
-  #   steps: 
-  #     - shell: bash
-  #       run: make test
+        working-directory: ./frontend
+        run: npm run lint
+  test-backend:
+    runs-on: ubuntu-latest
+    needs: [build]
+    steps: 
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+      - shell: bash
+        run: go test ./app
+  test-frontend:
+    runs-on: ubuntu-latest
+    needs: [build]
+    steps: 
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - uses: actions/cache@v4
+        with:
+          path: frontend/node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('frontend/package-lock.json') }}
+      - uses: actions/cache@v4
+        with:
+          path: frontend/wailsjs
+          key: ${{ runner.os }}-wailsjs-${{ hashFiles('app/**') }}
+      - uses: actions/cache@v4
+        with:
+          path: frontend/auto-imports.d.ts
+          key: ${{ runner.os }}-wailsjs-${{ hashFiles('frontend/src/**') }}
+      - shell: bash
+        working-directory: ./frontend
+        run: npm run test
