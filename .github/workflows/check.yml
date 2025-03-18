@@ -4,10 +4,13 @@ on:
       - '*'
 
 jobs:
-  check:
+  checkout:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
-      - uses: ./.github/workflows/setup.yml
-      - uses: ./.github/workflows/test.yml
+  setup:
+    needs: checkout
+    uses: ./.github/workflows/setup.yml
+  test:
+    needs: setup
+    uses: ./.github/workflows/test.yml
