@@ -27,12 +27,13 @@ export default [
   },
   {
     ignores: [
+      "*.d.ts",
+      "*.js",
       "dist/",
       "node_modules/",
       "src/assets/",
+      "src/vite-env.d.ts",
       "wailsjs/",
-      "*.d.ts",
-      "*.js",
     ],
   },
 ];
