@@ -58,8 +58,8 @@ test("parses connection string (postgres, port, database, options)", () => {
 });
 
 test("parses connection string (mysql)", () => {
-  expect(parseConnectionString("mysql://root:mysql@tcp")).toStrictEqual({
-    host: "tcp",
+  expect(parseConnectionString("mysql://root:mysql@/")).toStrictEqual({
+    host: "",
     port: "",
     user: "root",
     pass: "mysql",
@@ -68,10 +68,12 @@ test("parses connection string (mysql)", () => {
   });
 });
 
-test("parses connection string (mysql, port)", () => {
-  expect(parseConnectionString("mysql://root:mysql@tcp:5432")).toStrictEqual({
-    host: "tcp",
-    port: "5432",
+test("parses connection string (mysql, host, port)", () => {
+  expect(
+    parseConnectionString("mysql://root:mysql@tcp(localhost:3306)"),
+  ).toStrictEqual({
+    host: "localhost",
+    port: "3306",
     user: "root",
     pass: "mysql",
     database: "",
@@ -79,12 +81,12 @@ test("parses connection string (mysql, port)", () => {
   });
 });
 
-test("parses connection string (mysql, port, database)", () => {
+test("parses connection string (mysql, host, port, database)", () => {
   expect(
-    parseConnectionString("mysql://root:mysql@tcp:5432/mysql"),
+    parseConnectionString("mysql://root:mysql@tcp(localhost:3306)/mysql"),
   ).toStrictEqual({
-    host: "tcp",
-    port: "5432",
+    host: "localhost",
+    port: "3306",
     user: "root",
     pass: "mysql",
     database: "mysql",
@@ -92,12 +94,14 @@ test("parses connection string (mysql, port, database)", () => {
   });
 });
 
-test("parses connection string (mysql, port, database, options)", () => {
+test("parses connection string (mysql, host, port, database, options)", () => {
   expect(
-    parseConnectionString("mysql://root:mysql@tcp:5432/mysql?sslmode=disable"),
+    parseConnectionString(
+      "mysql://root:mysql@tcp(localhost:3306)/mysql?sslmode=disable",
+    ),
   ).toStrictEqual({
-    host: "tcp",
-    port: "5432",
+    host: "localhost",
+    port: "3306",
     user: "root",
     pass: "mysql",
     database: "mysql",

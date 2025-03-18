@@ -19,7 +19,15 @@ export function parseConnectionString(connectionString: string): Connection {
   }
   const [userInfo, connectionInfo] = connectionString.split("@");
   const [user, pass] = userInfo.split(":");
-  const [hostInfo, params] = (connectionInfo || "").split("/");
+  const connectionParts = (connectionInfo || "").split("/");
+  let hostInfo = connectionParts[0];
+  const params = connectionParts[1];
+  if (hostInfo.startsWith("tcp")) {
+    const matches = hostInfo.match(/tcp\((.*)\)/);
+    if (matches && matches.length > 0) {
+      hostInfo = matches[1];
+    }
+  }
   const [host, port] = hostInfo.split(":");
   const [database, options] = (params || "").split("?");
 
