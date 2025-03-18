@@ -31,7 +31,7 @@ function onConfirm() {
     }"
     arrow
   >
-    <div @click="open = true">
+    <div class="flex flex-col" @click="open = true">
       <slot />
     </div>
 

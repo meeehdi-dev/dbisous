@@ -112,6 +112,9 @@ export const useConnections = createSharedComposable(() => {
     if (connection.value === id) {
       await router.push({ name: Route.Welcome });
       connection.value = "";
+      database.value = "";
+      schema.value = "";
+      table.value = "";
     }
   }
 

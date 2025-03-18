@@ -8,13 +8,8 @@ const { copy } = useCopy();
 </script>
 
 <template>
-  <UPopover mode="hover" :content="{ side: 'right' }">
-    <div class="flex">
-      <UIcon
-        name="lucide:info"
-        class="text-secondary-400/50 hover:text-secondary-400 size-6 transition-colors"
-      />
-    </div>
+  <UPopover mode="hover" :content="{ align: 'start', side: 'right' }" arrow>
+    <UButton icon="lucide:info" variant="soft" color="secondary" />
     <template #content>
       <div class="flex flex-col gap-2 p-2 text-gray-400">
         <UTooltip text="Connection string" :content="{ side: 'left' }">

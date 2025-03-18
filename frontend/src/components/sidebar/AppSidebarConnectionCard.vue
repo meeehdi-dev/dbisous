@@ -9,7 +9,7 @@ import { useApp } from "@/composables/shared/useApp";
 import { Route } from "@/router";
 
 const { value } = defineProps<{ value: app.Connection }>();
-const emit = defineEmits<{ edit: [string] }>();
+const emit = defineEmits<{ edit: [string]; duplicate: [string] }>();
 
 const { isConnected, connect, disconnect, select, fetchConnections } =
   useConnections();
@@ -84,22 +84,6 @@ async function onDisconnect(id: string) {
 
     <template #footer>
       <div class="flex justify-end gap-2">
-        <AppPopconfirm
-          text="Are you sure?"
-          @confirm="removeConnection(value.id)"
-        >
-          <UTooltip text="Remove" :content="{ side: 'left' }">
-            <UButton icon="lucide:trash" color="error" variant="soft" />
-          </UTooltip>
-        </AppPopconfirm>
-        <UTooltip text="Edit" :content="{ side: 'top' }">
-          <UButton
-            icon="lucide:edit"
-            color="neutral"
-            variant="soft"
-            @click="emit('edit', value.id)"
-          />
-        </UTooltip>
         <UTooltip
           :text="connected ? 'Disconnect' : 'Connect'"
           :content="{ side: 'right' }"
@@ -116,6 +100,42 @@ async function onDisconnect(id: string) {
             "
           />
         </UTooltip>
+        <UPopover :content="{ side: 'right', align: 'start' }" arrow>
+          <UButton
+            icon="lucide:ellipsis-vertical"
+            variant="soft"
+            color="neutral"
+          />
+          <template #content>
+            <div class="flex flex-col gap-2 bg-neutral-900 p-2">
+              <UButton
+                icon="lucide:edit"
+                color="neutral"
+                variant="soft"
+                label="Edit"
+                @click="emit('edit', value.id)"
+              />
+              <UButton
+                icon="lucide:copy"
+                color="secondary"
+                variant="soft"
+                label="Duplicate"
+                @click="emit('duplicate', value.id)"
+              />
+              <AppPopconfirm
+                text="Are you sure?"
+                @confirm="removeConnection(value.id)"
+              >
+                <UButton
+                  icon="lucide:trash"
+                  color="error"
+                  variant="soft"
+                  label="Delete"
+                />
+              </AppPopconfirm>
+            </div>
+          </template>
+        </UPopover>
       </div>
     </template>
   </UCard>

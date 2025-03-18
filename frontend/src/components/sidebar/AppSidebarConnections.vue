@@ -16,5 +16,6 @@ function onConnectionEdit(id: string) {
     :key="connection.id"
     :value="connection"
     @edit="onConnectionEdit"
+    @duplicate="onConnectionDuplicate"
   />
 </template>

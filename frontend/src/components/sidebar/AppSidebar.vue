@@ -6,7 +6,7 @@ import { useConnections } from "@/composables/shared/useConnections";
 const { connections } = useConnections();
 
 const slideoverOpen = ref(false);
-const editedConnection = ref<app.Connection>();
+const editedConnection = ref<Omit<app.Connection, "id">>();
 
 function onConnectionAdd() {
   editedConnection.value = undefined;
@@ -22,6 +22,15 @@ function onConnectionEdit(id: string) {
   editedConnection.value = connections.value.find((c) => c.id === id);
   slideoverOpen.value = true;
 }
+
+function onConnectionDuplicate(id: string) {
+  const dup = connections.value.find((c) => c.id === id);
+  editedConnection.value = { ...dup, id: undefined } as Omit<
+    app.Connection,
+    "id"
+  >;
+  slideoverOpen.value = true;
+}
 </script>
 
 <template>
@@ -30,7 +39,13 @@ function onConnectionEdit(id: string) {
       class="flex flex-initial flex-col items-center gap-2 overflow-hidden px-2 py-2"
     >
       <div class="flex w-full flex-initial flex-col gap-2 overflow-auto">
-        <AppSidebarConnections @edit="onConnectionEdit" />
+        <AppSidebarConnectionCard
+          v-for="connection in connections"
+          :key="connection.id"
+          :value="connection"
+          @edit="onConnectionEdit"
+          @duplicate="onConnectionDuplicate"
+        />
       </div>
 
       <UButton

@@ -54,7 +54,7 @@ function onConnectionStringChange() {
   connectionDatabase.value = database;
   connectionOptions.value = options;
 }
-onConnectionStringChange(); // NOTE: init vals on connection edit
+onConnectionStringChange();
 function onConnectionInfoChange() {
   state.connection_string = `${state.type === app.ConnectionType.PostgreSQL ? postgresPrefix : ""}${connectionUser.value}:${connectionPass.value}@${connectionHost.value}${connectionPort.value ? `:${connectionPort.value}` : ""}/${connectionDatabase.value}${connectionOptions.value.length > 0 ? "?" : ""}${connectionOptions.value.map((option) => [option.name, option.value].join(option.value ? "=" : "")).join("&")}`;
 }
@@ -71,7 +71,7 @@ const items = [
     slot: "details",
   },
 ];
-const active = ref(state.id ? 1 : 0);
+const active = ref(state.type ? 1 : 0);
 const status = ref<"idle" | "loading" | "success" | "failed">("idle");
 watch([() => state.type, () => state.connection_string], () => {
   status.value = "idle";
