@@ -14,6 +14,7 @@ import {
 import { Route } from "@/router";
 import { useApp } from "./useApp";
 import { useCompletions } from "./useCompletions";
+import { parseConnectionString } from "@/utils/connection";
 
 type DatabaseMetadata = Record<string, Record<string, Array<string>>>;
 
@@ -61,16 +62,32 @@ export const useConnections = createSharedComposable(() => {
   const { register } = useCompletions();
 
   async function select(id: string) {
+    const currentConnection = connections.value.find((c) => c.id === id);
+    if (!currentConnection) {
+      // TODO: show error?
+      return;
+    }
     if (
       activeConnections.value.some((c) => c === id) &&
       connection.value !== id
     ) {
+      const { database: db } = parseConnectionString(
+        currentConnection.connection_string,
+      );
       register(metadata.value[id].columns);
       connection.value = id;
-      database.value = "";
       table.value = "";
       schema.value = "";
-      await router.push({ name: Route.Connection });
+      if (currentConnection.type === app.ConnectionType.SQLite) {
+        database.value = "main";
+        await router.push({ name: Route.Database });
+      } else if (db) {
+        database.value = db;
+        await router.push({ name: Route.Database });
+      } else {
+        database.value = "";
+        await router.push({ name: Route.Connection });
+      }
     }
   }
 
