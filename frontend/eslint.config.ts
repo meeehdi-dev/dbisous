@@ -6,7 +6,7 @@ import eslintPluginPrettierRecommended from "eslint-plugin-prettier/recommended"
 
 /** @type {import('eslint').Linter.Config[]} */
 export default [
-  { files: ["**/*.{ts,vue}"] },
+  { files: ["src/*.{ts,vue}"] },
   {
     languageOptions: {
       globals: globals.browser,
