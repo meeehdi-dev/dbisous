@@ -25,6 +25,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [setup-go, setup-node]
     steps:
+      - uses: actions/checkout@v4
       - uses: ./.github/actions/build
         with:
           go-version: ${{ env.GO_VERSION }}
