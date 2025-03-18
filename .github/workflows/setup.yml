@@ -2,13 +2,13 @@ on:
   workflow_call:
 
 jobs:
-  setup-go:
+  go:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/setup-go@v5
         with:
           go-version: '1.24'
-  setup-node:
+  node:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/setup-node@v4

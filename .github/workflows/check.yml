@@ -11,6 +11,9 @@ jobs:
   setup:
     needs: checkout
     uses: ./.github/workflows/setup.yml
+  install:
+    needs: checkout
+    uses: ./.github/workflows/install.yml
   test:
     needs: setup
     uses: ./.github/workflows/test.yml
