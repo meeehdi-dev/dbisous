@@ -9,5 +9,5 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - uses: ./.github/actions/setup
-      - uses: ./.github/actions/test
+      - uses: ./.github/workflows/setup.yml
+      - uses: ./.github/workflows/test.yml

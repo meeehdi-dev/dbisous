@@ -15,8 +15,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - uses: ./.github/actions/setup
-      - uses: ./.github/actions/build
+      - uses: ./.github/workflows/setup.yml
+      - uses: ./.github/workflows/build.yml
       - uses: softprops/action-gh-release@v2
         with:
           files: |
