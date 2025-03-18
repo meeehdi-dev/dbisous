@@ -6,7 +6,7 @@ import { useConnections } from "@/composables/shared/useConnections";
 const { connections } = useConnections();
 
 const slideoverOpen = ref(false);
-const editedConnection = ref<Omit<app.Connection, "id">>();
+const editedConnection = ref<Omit<app.Connection, "id"> & { id?: string }>();
 
 function onConnectionAdd() {
   editedConnection.value = undefined;

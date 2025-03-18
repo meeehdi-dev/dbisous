@@ -3,7 +3,7 @@ import { computed, ref } from "vue";
 import { useConnections } from "@/composables/shared/useConnections";
 import { app } from "_/go/models";
 import { useWails } from "@/composables/useWails";
-import { DeleteConnection } from "_/go/app/App";
+import { DeleteConnection, TestConnection } from "_/go/app/App";
 import { useRouter } from "vue-router";
 import { useApp } from "@/composables/shared/useApp";
 import { Route } from "@/router";
@@ -16,6 +16,8 @@ const { isConnected, connect, disconnect, select, fetchConnections } =
 const { connection } = useApp();
 const wails = useWails();
 const router = useRouter();
+// eslint-disable-next-line no-undef
+const toast = useToast();
 
 const connected = computed(() => isConnected(value.id));
 
@@ -50,6 +52,19 @@ async function onDisconnect(id: string) {
   connecting.value = true;
   await disconnect(id);
   connecting.value = false;
+}
+
+async function testConnection(connection: app.Connection) {
+  const result = await wails(() =>
+    TestConnection(connection.type, connection.connection_string),
+  );
+  if (result instanceof Error) {
+    return;
+  }
+  toast.add({
+    title: "Test connection",
+    description: "Successfully pinged database!",
+  });
 }
 </script>
 
@@ -108,6 +123,25 @@ async function onDisconnect(id: string) {
           />
           <template #content>
             <div class="flex flex-col gap-2 bg-neutral-900 p-2">
+              <!-- NOTE: too much? <UButton
+                :icon="connected ? 'lucide:unplug' : 'lucide:plug'"
+                :color="connected ? 'warning' : 'primary'"
+                :loading="connecting"
+                variant="soft"
+                :label="connected ? 'Disconnect' : 'Connect'"
+                @click.stop="
+                  () => {
+                    connected ? onDisconnect(value.id) : onConnect(value.id);
+                  }
+                "
+              /> -->
+              <UButton
+                icon="lucide:plug-zap"
+                variant="soft"
+                color="success"
+                label="Test"
+                @click="testConnection(value)"
+              />
               <UButton
                 icon="lucide:edit"
                 color="neutral"

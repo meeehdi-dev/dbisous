@@ -9,7 +9,7 @@ import type { FormSubmitEvent } from "@nuxt/ui";
 import { parseConnectionString } from "@/utils/connection";
 
 const emit = defineEmits<{ connectionAdded: [] }>();
-const connection = defineModel<app.Connection>();
+const connection = defineModel<Omit<app.Connection, "id"> & { id?: string }>();
 
 const wails = useWails();
 // eslint-disable-next-line no-undef
@@ -71,7 +71,7 @@ const items = [
     slot: "details",
   },
 ];
-const active = ref(state.type ? 1 : 0);
+const active = ref(state.id ? 1 : 0);
 const status = ref<"idle" | "loading" | "success" | "failed">("idle");
 watch([() => state.type, () => state.connection_string], () => {
   status.value = "idle";
