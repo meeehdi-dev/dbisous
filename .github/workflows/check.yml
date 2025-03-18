@@ -39,6 +39,10 @@ jobs:
           key: ${{ runner.os }}-node-${{ hashFiles('frontend/package-lock.json') }}
       - uses: actions/cache@v4
         with:
+          path: frontend/wailsjs
+          key: ${{ runner.os }}-wailsjs-${{ hashFiles('app/**') }}
+      - uses: actions/cache@v4
+        with:
           path: frontend/auto-imports.d.ts
           key: ${{ runner.os }}-imports-${{ hashFiles('frontend/src/**') }}
   typecheck:
@@ -70,6 +74,10 @@ jobs:
           key: ${{ runner.os }}-node-${{ hashFiles('frontend/package-lock.json') }}
       - uses: actions/cache@v4
         with:
+          path: frontend/wailsjs
+          key: ${{ runner.os }}-wailsjs-${{ hashFiles('app/**') }}
+      - uses: actions/cache@v4
+        with:
           path: frontend/auto-imports.d.ts
           key: ${{ runner.os }}-imports-${{ hashFiles('frontend/src/**') }}
       - shell: bash
@@ -97,6 +105,10 @@ jobs:
         with:
           path: frontend/node_modules
           key: ${{ runner.os }}-node-${{ hashFiles('frontend/package-lock.json') }}
+      - uses: actions/cache@v4
+        with:
+          path: frontend/wailsjs
+          key: ${{ runner.os }}-wailsjs-${{ hashFiles('app/**') }}
       - uses: actions/cache@v4
         with:
           path: frontend/auto-imports.d.ts
