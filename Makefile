@@ -7,32 +7,21 @@ dev:
 	wails dev
 
 test:
-	go test ./app &&\
-		cd frontend &&\
-		npm run test -- run
+	go test ./app
+	cd frontend && npm run test -- run
 
 install:
-	cd frontend &&\
-		npm install
+	cd frontend && npm install
 
 lint:
-	cd frontend &&\
-		npm run lint
+	cd frontend && npm run lint
 
 lintstaged:
-	cd frontend &&\
-		npm run lint-staged
+	cd frontend && npm run lint-staged
 
 typecheck:
-	cd frontend &&\
-		npm run typecheck
+	cd frontend && npm run typecheck
 
 up:
-	go get -u &&\
-		go mod tidy
-
-ci:
-	make install &&\
-		make typecheck &&\
-		make test &&\
-		make lint
+	go get -u
+	go mod tidy
