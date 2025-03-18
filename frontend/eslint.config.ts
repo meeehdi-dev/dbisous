@@ -22,10 +22,17 @@ export default [
   ...pluginVue.configs["flat/recommended"],
   eslintPluginPrettierRecommended,
   {
-    files: ["**/*.vue", "**/*.ts"],
+    files: ["src/*.vue", "src/*.ts"],
     languageOptions: { parserOptions: { parser: tseslint.parser } },
   },
   {
-    ignores: ["dist/", "node_modules/", "src/assets/", "wailsjs/", "**/*.d.ts"],
+    ignores: [
+      "dist/",
+      "node_modules/",
+      "src/assets/",
+      "wailsjs/",
+      "*.d.ts",
+      "*.js",
+    ],
   },
 ];
