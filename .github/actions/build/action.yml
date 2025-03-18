@@ -1,8 +1,22 @@
 name: "Build"
-description: "Installs Wails (+ dependencies) and builds"
+description: "Installs Wails (+ dependencies), builds and caches"
+inputs:
+  go-version:
+    description: "Go version"
+    required: true
+  node-version:
+    description: "Go version"
+    required: true
 runs:
   using: composite
   steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-go@v5
+      with:
+        go-version: ${{ inputs.go-version }}
+    - uses: actions/setup-node@v4
+      with:
+        node-version: ${{ inputs.node-version }}
     - uses: awalsh128/cache-apt-pkgs-action@latest
       if: runner.os == 'Linux'
       with:
@@ -22,3 +36,15 @@ runs:
       run: |
         go install github.com/wailsapp/wails/v2/cmd/wails@latest
         wails build -platform darwin/universal
+    - uses: actions/cache@v4
+      with:
+        path: frontend/node_modules
+        key: ${{ runner.os }}-node-${{ hashFiles('frontend/package-lock.json') }}
+    - uses: actions/cache@v4
+      with:
+        path: frontend/wailsjs
+        key: ${{ runner.os }}-wailsjs-${{ hashFiles('app/**') }}
+    - uses: actions/cache@v4
+      with:
+        path: frontend/auto-imports.d.ts
+        key: ${{ runner.os }}-imports-${{ hashFiles('frontend/src/**') }}
