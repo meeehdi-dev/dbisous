@@ -5,9 +5,12 @@ runs:
   steps:
     - shell: bash
       if: runner.os == 'Linux'
+      uses: awalsh128/cache-apt-pkgs-action@latest
+      with:
+        packages: libwebkit2gtk-4.1-dev
+    - shell: bash
+      if: runner.os == 'Linux'
       run: |
-        sudo apt update
-        sudo apt install libwebkit2gtk-4.1-dev
         go install github.com/wailsapp/wails/v2/cmd/wails@latest
         wails build -tags webkit2_41
     - shell: pwsh
