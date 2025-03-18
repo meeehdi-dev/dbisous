@@ -9,6 +9,7 @@ jobs:
       - shell: bash
         if: runner.os == 'Linux'
         run: |
+          echo "GOPATH=/home/runner/go" >> $GITHUB_ENV
           sudo apt update
           sudo apt install libwebkit2gtk-4.1-dev
           go install github.com/wailsapp/wails/v2/cmd/wails@latest
