@@ -1,0 +1,11 @@
+name: 'Test'
+description: 'Test and lint'
+runs:
+  using: 'composite'
+  steps:
+    - shell: bash
+      run: |
+        make ci
+        make test
+        make typecheck
+        make lint

@@ -11,9 +11,6 @@ test:
 		cd frontend &&\
 		npm run test -- run
 
-tidy:
-	go mod tidy
-
 install:
 	cd frontend &&\
 		npm install
@@ -31,4 +28,11 @@ typecheck:
 		npm run typecheck
 
 up:
-	go get -u
+	go get -u &&\
+		go mod tidy
+
+ci:
+	make install &&\
+		make typecheck &&\
+		make test &&\
+		make lint
