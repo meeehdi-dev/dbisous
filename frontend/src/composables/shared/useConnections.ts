@@ -79,14 +79,14 @@ export const useConnections = createSharedComposable(() => {
       table.value = "";
       schema.value = "";
       if (currentConnection.type === app.ConnectionType.SQLite) {
+        await router.push({ name: Route.Database });
         database.value = "main";
-        await router.push({ name: Route.Database });
       } else if (db) {
-        database.value = db;
         await router.push({ name: Route.Database });
+        database.value = db;
       } else {
-        database.value = "";
         await router.push({ name: Route.Connection });
+        database.value = "";
       }
     }
   }
@@ -110,8 +110,8 @@ export const useConnections = createSharedComposable(() => {
       (connectionId) => connectionId !== id,
     );
     if (connection.value === id) {
-      connection.value = "";
       await router.push({ name: Route.Welcome });
+      connection.value = "";
     }
   }
 

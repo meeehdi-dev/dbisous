@@ -28,10 +28,10 @@ watch(active, () => {
 });
 
 async function navigateToTable(t: string) {
-  table.value = t;
   await router.push({
     name: Route.Table,
   });
+  table.value = t;
 }
 
 const rows = ref<FormattedQueryResult & { key: number }>();

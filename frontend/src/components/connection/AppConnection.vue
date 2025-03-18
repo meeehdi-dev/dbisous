@@ -39,8 +39,8 @@ async function navigateToDatabase(d: string) {
   }
 
   if (c.type === app.ConnectionType.SQLite) {
-    database.value = d;
     await router.push({ name: Route.Database });
+    database.value = d;
     return;
   }
 
@@ -50,7 +50,6 @@ async function navigateToDatabase(d: string) {
 
   const connectionString = `${c.type === app.ConnectionType.PostgreSQL ? postgresPrefix : ""}${user}:${pass}@${host}${port ? `:${port}` : ""}/${d}${options.length > 0 ? "?" : ""}${options.map((option) => [option.name, option.value].join(option.value ? "=" : "")).join("&")}`;
 
-  database.value = d;
   const result = await wails(() =>
     UseDatabase(connection.value, connectionString),
   );
@@ -58,6 +57,7 @@ async function navigateToDatabase(d: string) {
     return;
   }
   await router.push({ name: Route.Database });
+  database.value = d;
 }
 
 const rows = ref<FormattedQueryResult & { key: number }>();

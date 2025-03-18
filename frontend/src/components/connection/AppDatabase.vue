@@ -28,9 +28,9 @@ watch(active, () => {
 });
 
 async function navigateToSchema(s: string) {
+  await router.push({ name: Route.Schema });
   schema.value = s;
   table.value = "";
-  await router.push({ name: Route.Schema });
 }
 
 const rows = ref<FormattedQueryResult & { key: number }>();
