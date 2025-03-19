@@ -3,12 +3,8 @@ on:
     inputs:
       go-version:
         type: string
-        description: "Go version"
-        required: true
       node-version:
         type: string
-        description: "Go version"
-        required: true
 
 jobs:
   go:
@@ -17,10 +13,10 @@ jobs:
       - uses: actions/checkout@v4 # checkout to get go.sum and enable caching
       - uses: actions/setup-go@v5
         with:
-          go-version: ${{ github.event.inputs.go-version }}
+          go-version: ${{ inputs.go-version }}
   node:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/setup-node@v4
       with:
-        node-version: ${{ github.event.inputs.node-version }}
+        node-version: ${{ inputs.node-version }}

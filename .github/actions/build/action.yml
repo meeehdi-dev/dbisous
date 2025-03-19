@@ -3,10 +3,8 @@ description: "Installs Wails (+ dependencies), builds and caches"
 inputs:
   go-version:
     description: "Go version"
-    required: true
   node-version:
-    description: "Go version"
-    required: true
+    description: "Node version"
 runs:
   using: composite
   steps:
