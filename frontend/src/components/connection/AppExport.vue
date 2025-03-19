@@ -130,6 +130,7 @@ function selectSchema(schema: string) {
         state.selected[`${schema}.${table}.${column}`] = true;
       });
     });
+    viewSchema(schema);
   } else {
     Object.keys(state.selected).forEach((key) => {
       if (key.startsWith(`${schema}.`)) {
@@ -156,6 +157,7 @@ function selectTable(table: string) {
     columns.forEach((column) => {
       state.selected[`${activeSchema.value}.${table}.${column}`] = true;
     });
+    viewTable(table);
   } else {
     if (state.selected[activeSchema.value] !== false) {
       const schemaTables = Object.keys(md[activeSchema.value]);
