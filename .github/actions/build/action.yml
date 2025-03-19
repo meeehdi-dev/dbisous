@@ -11,6 +11,10 @@ runs:
     - uses: actions/setup-go@v5
       with:
         go-version: ${{ inputs.go-version }}
+    - uses: actions/cache@v4
+      with:
+        path: /home/runner/go/bin
+        key: ${{ runner.os }}-wails-${{ hashFiles('go.sum') }}
     - uses: actions/setup-node@v4
       with:
         node-version: ${{ inputs.node-version }}
