@@ -8,6 +8,11 @@ inputs:
 runs:
   using: composite
   steps:
+    - shell: bash
+      if: runner.os == 'Linux'
+      run: |
+        echo go ${{ inputs.go-version }}
+        echo node ${{ inputs.node-version }}
     - uses: actions/setup-go@v5
       with:
         go-version: ${{ inputs.go-version }}
