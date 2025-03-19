@@ -115,15 +115,18 @@ async function testConnection(connection: app.Connection) {
             "
           />
         </UTooltip>
-        <UPopover :content="{ side: 'right', align: 'start' }" arrow>
+        <UPopover
+          :content="{ side: 'right', align: 'start' }"
+          :ui="{ content: 'flex flex-col gap-2 p-2' }"
+          arrow
+        >
           <UButton
             icon="lucide:ellipsis-vertical"
             variant="soft"
             color="neutral"
           />
           <template #content>
-            <div class="flex flex-col gap-2 p-2">
-              <!-- NOTE: too much? <UButton
+            <!-- NOTE: too much? <UButton
                 :icon="connected ? 'lucide:unplug' : 'lucide:plug'"
                 :color="connected ? 'warning' : 'primary'"
                 :loading="connecting"
@@ -135,39 +138,38 @@ async function testConnection(connection: app.Connection) {
                   }
                 "
               /> -->
+            <UButton
+              icon="lucide:plug-zap"
+              variant="soft"
+              color="success"
+              label="Test"
+              @click="testConnection(value)"
+            />
+            <UButton
+              icon="lucide:edit"
+              color="neutral"
+              variant="soft"
+              label="Edit"
+              @click="emit('edit', value.id)"
+            />
+            <UButton
+              icon="lucide:copy"
+              color="secondary"
+              variant="soft"
+              label="Duplicate"
+              @click="emit('duplicate', value.id)"
+            />
+            <AppPopconfirm
+              text="Are you sure?"
+              @confirm="removeConnection(value.id)"
+            >
               <UButton
-                icon="lucide:plug-zap"
+                icon="lucide:trash"
+                color="error"
                 variant="soft"
-                color="success"
-                label="Test"
-                @click="testConnection(value)"
+                label="Delete"
               />
-              <UButton
-                icon="lucide:edit"
-                color="neutral"
-                variant="soft"
-                label="Edit"
-                @click="emit('edit', value.id)"
-              />
-              <UButton
-                icon="lucide:copy"
-                color="secondary"
-                variant="soft"
-                label="Duplicate"
-                @click="emit('duplicate', value.id)"
-              />
-              <AppPopconfirm
-                text="Are you sure?"
-                @confirm="removeConnection(value.id)"
-              >
-                <UButton
-                  icon="lucide:trash"
-                  color="error"
-                  variant="soft"
-                  label="Delete"
-                />
-              </AppPopconfirm>
-            </div>
+            </AppPopconfirm>
           </template>
         </UPopover>
       </div>
