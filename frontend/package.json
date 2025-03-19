@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "lint": "eslint",
+    "lint": "eslint --cache",
     "lint-staged": "lint-staged",
     "test": "vitest",
     "typecheck": "vue-tsc --noEmit",
