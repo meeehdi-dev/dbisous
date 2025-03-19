@@ -14,3 +14,4 @@ frontend/components.d.ts
 
 # misc
 frontend/node_modules
+frontend/.eslintcache
