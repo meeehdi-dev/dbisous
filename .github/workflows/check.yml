@@ -15,7 +15,7 @@ jobs:
       node-version: "22"
   build:
     runs-on: ubuntu-latest
-    needs: [setup-go, setup-node]
+    needs: [setup]
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/build
