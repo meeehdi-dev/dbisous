@@ -71,7 +71,7 @@ jobs:
       - uses: actions/cache@v4
         with:
           path: frontend/.eslintcache
-          key: ${{ runner.os }}-eslint_cache-${{ hashFiles('frontend/src/**') }}
+          key: ${{ runner.os }}-eslint-${{ hashFiles('frontend/src/**') }}
       - shell: bash
         working-directory: ./frontend
         run: npm run lint
