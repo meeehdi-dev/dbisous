@@ -20,8 +20,8 @@ jobs:
     steps:
       - id: set-version
         run: |
-          echo "go-version=1.24" >> $GITHUB_ENV
-          echo "node-version=22" >> $GITHUB_ENV
+          echo "go-version=1.24" >> $GITHUB_OUPUT
+          echo "node-version=22" >> $GITHUB_OUTPUT
   setup:
     needs: [set-version]
     uses: ./.github/workflows/setup.yml
