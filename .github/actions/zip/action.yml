@@ -22,4 +22,4 @@ runs:
       shell: bash
       working-directory: build/bin
       run: |
-        zip -r dbisous-linux.zip *
+        zip -r dbisous-macos.zip *
