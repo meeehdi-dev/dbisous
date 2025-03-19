@@ -6,17 +6,35 @@ env:
   NODE_OPTIONS: '--max-old-space-size=4096'
 
 jobs:
+  set-version:
+    runs-on: ubuntu-latest
+    outputs:
+      go-version: ${{ steps.set-version.outputs.go-version }}
+      node-version: ${{ steps.set-version.outputs.node-version }}
+    steps:
+      - id: set-version
+        run: |
+          echo "go-version=1.24.1" >> $GITHUB_OUTPUT
+          echo "node-version=22.14.0" >> $GITHUB_OUTPUT
+  setup:
+    needs: [set-version]
+    uses: ./.github/workflows/setup.yml
+    with:
+      go-version: ${{ needs.set-version.outputs.go-version }}
+      node-version: ${{ needs.set-version.outputs.node-version }}
   build:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-
     runs-on: ${{ matrix.os }}
-
+    needs: [set-version, setup]
     steps:
       - uses: actions/checkout@v4
-      - uses: ./.github/workflows/setup.yml
-      - uses: ./.github/workflows/build.yml
+      - uses: ./.github/actions/build
+        with:
+          go-version: ${{ needs.set-version.outputs.go-version }}
+          node-version: ${{ needs.set-version.outputs.node-version }}
+      - uses: ./.github/actions/zip
       - uses: softprops/action-gh-release@v2
         with:
           files: |
