@@ -7,6 +7,11 @@ on:
         type: string
 
 jobs:
+  tmp:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo go ${{ inputs.go-version }}
+      - run: echo node ${{ inputs.node-version }}
   go:
     runs-on: ubuntu-latest
     steps:
