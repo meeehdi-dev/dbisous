@@ -20,7 +20,7 @@ jobs:
     steps:
       - id: set-version
         run: |
-          echo "go-version=1.24" >> $GITHUB_OUPUT
+          echo "go-version=1.24" >> $GITHUB_OUTPUT
           echo "node-version=22" >> $GITHUB_OUTPUT
   setup:
     needs: [set-version]
