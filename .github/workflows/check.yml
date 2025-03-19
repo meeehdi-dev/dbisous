@@ -8,19 +8,11 @@ env:
   NODE_VERSION: "22"
 
 jobs:
-  setup-go:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4 # checkout to get go.sum and enable caching
-      - uses: actions/setup-go@v5
-        with:
-          go-version: ${{ env.GO_VERSION }}
-  setup-node:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/setup-node@v4
-      with:
-        node-version: ${{ env.NODE_VERSION }}
+  setup:
+    uses: ./.github/workflows/setup.yml
+    with:
+      go-version: ${{ env.GO_VERSION }}
+      node-version: ${{ env.NODE_VERSION }}
   build:
     runs-on: ubuntu-latest
     needs: [setup-go, setup-node]

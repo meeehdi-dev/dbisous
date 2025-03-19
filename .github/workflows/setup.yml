@@ -1,16 +1,26 @@
 on:
   workflow_call:
+    inputs:
+      go-version:
+        type: string
+        description: "Go version"
+        required: true
+      node-version:
+        type: string
+        description: "Go version"
+        required: true
 
 jobs:
   go:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4 # checkout to get go.sum and enable caching
       - uses: actions/setup-go@v5
         with:
-          go-version: '1.24'
+          go-version: ${{ github.event.inputs.go-version }}
   node:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/setup-node@v4
       with:
-        node-version: '22'
+        node-version: ${{ github.event.inputs.node-version }}
