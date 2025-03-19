@@ -122,7 +122,7 @@ async function testConnection(connection: app.Connection) {
             color="neutral"
           />
           <template #content>
-            <div class="flex flex-col gap-2 bg-neutral-900 p-2">
+            <div class="flex flex-col gap-2 p-2">
               <!-- NOTE: too much? <UButton
                 :icon="connected ? 'lucide:unplug' : 'lucide:plug'"
                 :color="connected ? 'warning' : 'primary'"
