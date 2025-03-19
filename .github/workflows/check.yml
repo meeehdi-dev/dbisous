@@ -8,11 +8,20 @@ env:
   NODE_VERSION: "22"
 
 jobs:
+  set-versions:
+    runs-on: ubuntu-latest
+    outputs:
+      go-version: ${{ steps.set-version.outputs.go-version }}
+      node-version: ${{ steps.set-version.outputs.go-version }}
+    steps:
+      - run: echo "go-version=1.24" >> $GITHUB_ENV
+      - run: echo "node-version=22" >> $GITHUB_ENV
   setup:
+    needs: [set-versions]
     uses: ./.github/workflows/setup.yml
     with:
-      go-version: ${{ env.GO_VERSION }}
-      node-version: ${{ env.NODE_VERSION }}
+      go-version: ${{ needs.set-versions.outputs.go-version }}
+      node-version: ${{ needs.set-versions.outputs.node-version }}
   build:
     runs-on: ubuntu-latest
     needs: [setup]
