@@ -114,35 +114,31 @@ async function setQuery(q: string, execute = false) {
             :key="past_query.id"
             class="w-full"
           >
-            <UTooltip :text="past_query.query" :content="{ side: 'left' }">
-              <UButton
-                color="neutral"
-                variant="soft"
-                size="xs"
-                :label="past_query.query"
-                class="w-full"
-                :ui="{ label: 'flex flex-auto' }"
-                @click="setQuery(past_query.query)"
-              >
-                <template #trailing>
-                  <div class="flex gap-1">
-                    <UButton
-                      variant="ghost"
-                      size="xs"
-                      icon="lucide:play"
-                      @click.stop="setQuery(past_query.query, true)"
-                    />
-                    <UButton
-                      color="warning"
-                      variant="ghost"
-                      size="xs"
-                      icon="lucide:trash"
-                      @click.stop="removePastQuery(past_query)"
-                    />
-                  </div>
-                </template>
-              </UButton>
-            </UTooltip>
+            <UButton
+              color="neutral"
+              variant="soft"
+              size="xs"
+              :label="past_query.query"
+              class="w-full"
+              :ui="{ label: 'flex flex-auto', trailingIcon: 'flex gap-1' }"
+              @click="setQuery(past_query.query)"
+            >
+              <template #trailing>
+                <UButton
+                  variant="ghost"
+                  size="xs"
+                  icon="lucide:play"
+                  @click.stop="setQuery(past_query.query, true)"
+                />
+                <UButton
+                  color="warning"
+                  variant="ghost"
+                  size="xs"
+                  icon="lucide:trash"
+                  @click.stop="removePastQuery(past_query)"
+                />
+              </template>
+            </UButton>
           </div>
         </div>
       </div>

@@ -9,6 +9,7 @@ import { useTransaction } from "@/composables/shared/useTransaction";
 import { useWails } from "@/composables/useWails";
 import { Execute } from "_/go/app/App";
 import { useApp } from "@/composables/shared/useApp";
+import { useStorage } from "@vueuse/core";
 
 const emit = defineEmits<
   RowEmits<Record<string, unknown>> & { queryEdit: [string] }
@@ -36,7 +37,7 @@ const {
 }>();
 
 const page = ref(1);
-const itemsPerPage = ref(10);
+const itemsPerPage = useStorage("items-per-page", 10);
 
 watch(page, () => {
   emit("paginationChange", page.value, itemsPerPage.value);
