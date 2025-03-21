@@ -12,6 +12,6 @@ frontend/wailsjs
 frontend/auto-imports.d.ts
 frontend/components.d.ts
 
-# misc
+# frontend
 frontend/node_modules
 frontend/.eslintcache

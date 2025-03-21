@@ -86,3 +86,17 @@ func (a *App) ExecuteQuery(id string, query string) (client.QueryResult, error) 
 
 	return result, nil
 }
+
+func (a *App) Execute(id string, query string) error {
+	dbClient, exists := dbClients[id]
+	if !exists {
+		return fmt.Errorf("no database client for database ID: %s", id)
+	}
+
+	err := dbClient.Execute(query)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

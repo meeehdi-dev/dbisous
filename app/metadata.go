@@ -3,60 +3,39 @@ package app
 import (
 	"database/sql"
 
-	"github.com/adrg/xdg"
 	_ "github.com/mattn/go-sqlite3"
 )
 
-var metadataDB *sql.DB
-
-const path = "DBisous/metadata.db"
-
-func InitMetadataDB() error {
-	dataFilePath, err := xdg.DataFile(path)
+func InitMetadataDB(path string) (*sql.DB, error) {
+	db, err := sql.Open("sqlite3", path)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	metadataDB, err = sql.Open("sqlite3", dataFilePath)
+	err = db.Ping()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	err = metadataDB.Ping()
+	err = createConnectionTable(db)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	err = createConnectionTable()
+	err = createPastQueryTable(db)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	err = createPastQueryTable()
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return db, nil
 }
 
 func CloseMetadataDB() {
-	if metadataDB != nil {
-		metadataDB.Close()
-	}
+	metadataDB.Close()
 }
 
-type Connection struct {
-	ID               string         `json:"id"`
-	CreatedAt        string         `json:"created_at"`
-	UpdatedAt        string         `json:"updated_at"`
-	Name             string         `json:"name"`
-	Type             ConnectionType `json:"type"`
-	ConnectionString string         `json:"connection_string"`
-}
-
-func createConnectionTable() error {
-	_, err := metadataDB.Exec(`
+func createConnectionTable(db *sql.DB) error {
+	_, err := db.Exec(`
 CREATE TABLE IF NOT EXISTS connection (
   id TEXT NOT NULL PRIMARY KEY,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -64,6 +43,20 @@ CREATE TABLE IF NOT EXISTS connection (
   name TEXT NOT NULL,
   type TEXT NOT NULL,
   connection_string TEXT NOT NULL
+)`)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func createPastQueryTable(db *sql.DB) error {
+	_, err := db.Exec(`
+CREATE TABLE IF NOT EXISTS past_query (
+  id TEXT NOT NULL PRIMARY KEY,
+  query TEXT NOT NULL UNIQUE,
+  last_used TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 )`)
 	if err != nil {
 		return err

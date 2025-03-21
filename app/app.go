@@ -2,8 +2,10 @@ package app
 
 import (
 	"context"
-	"fmt"
+	"database/sql"
+	"log"
 
+	"github.com/adrg/xdg"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
@@ -15,37 +17,23 @@ func NewApp() *App {
 	return &App{}
 }
 
+var metadataDB *sql.DB
+
 func (a *App) Startup(ctx context.Context) {
 	a.Ctx = ctx
-	err := InitMetadataDB()
+
+	dataFilePath, err := xdg.DataFile("DBisous/metadata.db")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	metadataDB, err = InitMetadataDB(dataFilePath)
 	if err != nil {
 		runtime.MessageDialog(a.Ctx, runtime.MessageDialogOptions{Title: err.Error()})
+		log.Fatal(err)
 	}
 }
 
 func (a *App) Shutdown(ctx context.Context) {
 	CloseMetadataDB()
-}
-
-func (a *App) SelectFile() (string, error) {
-	file, err := runtime.OpenFileDialog(a.Ctx, runtime.OpenDialogOptions{})
-	if err != nil {
-		return "", err
-	}
-
-	return file, nil
-}
-
-func (a *App) Execute(id string, query string) error {
-	dbClient, exists := dbClients[id]
-	if !exists {
-		return fmt.Errorf("no database client for database ID: %s", id)
-	}
-
-	err := dbClient.Execute(query)
-	if err != nil {
-		return err
-	}
-
-	return nil
 }

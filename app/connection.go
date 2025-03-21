@@ -14,8 +14,8 @@ import (
 var activeConnections = make(map[string]*sql.DB)
 var dbClients = make(map[string]client.DatabaseClient)
 
-func (a *App) GetConnections() ([]Connection, error) {
-	rows, err := metadataDB.Query(`SELECT id, created_at, updated_at, name, type, connection_string FROM connection`)
+func getConnections(db *sql.DB) ([]Connection, error) {
+	rows, err := db.Query(`SELECT id, created_at, updated_at, name, type, connection_string FROM connection`)
 	if err != nil {
 		return nil, err
 	}
@@ -32,6 +32,10 @@ func (a *App) GetConnections() ([]Connection, error) {
 	}
 
 	return connections, nil
+}
+
+func (a *App) GetConnections() ([]Connection, error) {
+	return getConnections(metadataDB)
 }
 
 func (a *App) CreateConnection(connection Connection) error {
@@ -131,6 +135,15 @@ func (a *App) TestConnection(dbType ConnectionType, connectionString string) err
 	}
 
 	return nil
+}
+
+type Connection struct {
+	ID               string         `json:"id"`
+	CreatedAt        string         `json:"created_at"`
+	UpdatedAt        string         `json:"updated_at"`
+	Name             string         `json:"name"`
+	Type             ConnectionType `json:"type"`
+	ConnectionString string         `json:"connection_string"`
 }
 
 type ConnectionType string

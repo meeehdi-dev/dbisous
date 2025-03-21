@@ -90,3 +90,12 @@ func (a *App) Import(id string) (string, error) {
 
 	return file, nil
 }
+
+func (a *App) SelectFile() (string, error) {
+	file, err := runtime.OpenFileDialog(a.Ctx, runtime.OpenDialogOptions{})
+	if err != nil {
+		return "", err
+	}
+
+	return file, nil
+}

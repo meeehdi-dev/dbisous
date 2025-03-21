@@ -10,20 +10,6 @@ type PastQuery struct {
 	LastUsed string `json:"last_used"`
 }
 
-func createPastQueryTable() error {
-	_, err := metadataDB.Exec(`
-CREATE TABLE IF NOT EXISTS past_query (
-  id TEXT NOT NULL PRIMARY KEY,
-  query TEXT NOT NULL UNIQUE,
-  last_used TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-)`)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func (a *App) GetPastQueries() ([]PastQuery, error) {
 	rows, err := metadataDB.Query(`SELECT id, query, last_used FROM past_query ORDER BY last_used DESC`)
 	if err != nil {
