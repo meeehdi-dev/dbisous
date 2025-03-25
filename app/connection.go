@@ -11,6 +11,32 @@ import (
 	_ "github.com/lib/pq"
 )
 
+type Connection struct {
+	ID               string         `json:"id"`
+	CreatedAt        string         `json:"created_at"`
+	UpdatedAt        string         `json:"updated_at"`
+	Name             string         `json:"name"`
+	Type             ConnectionType `json:"type"`
+	ConnectionString string         `json:"connection_string"`
+}
+
+type ConnectionType string
+
+const (
+	SQLite     ConnectionType = "sqlite"
+	PostgreSQL ConnectionType = "postgresql"
+	MySQL      ConnectionType = "mysql"
+)
+
+var AllConnectionTypes = []struct {
+	Value  ConnectionType
+	TSName string
+}{
+	{SQLite, "SQLite"},
+	{PostgreSQL, "PostgreSQL"},
+	{MySQL, "MySQL"},
+}
+
 var activeConnections = make(map[string]*sql.DB)
 var dbClients = make(map[string]client.DatabaseClient)
 
@@ -34,11 +60,7 @@ func getConnections(db *sql.DB) ([]Connection, error) {
 	return connections, nil
 }
 
-func (a *App) GetConnections() ([]Connection, error) {
-	return getConnections(metadataDB)
-}
-
-func (a *App) CreateConnection(connection Connection) error {
+func createConnection(db *sql.DB, connection Connection) error {
 	id, err := uuid.NewRandom()
 	if err != nil {
 		return err
@@ -46,72 +68,25 @@ func (a *App) CreateConnection(connection Connection) error {
 
 	connection.ID = id.String()
 
-	_, err = metadataDB.Exec(`INSERT INTO connection (id, name, type, connection_string)
+	_, err = db.Exec(`INSERT INTO connection (id, name, type, connection_string)
   VALUES (?, ?, ?, ?)`, connection.ID, connection.Name, connection.Type, connection.ConnectionString)
 
 	return err
 }
 
-func (a *App) UpdateConnection(connection Connection) error {
-	_, err := metadataDB.Exec(`UPDATE connection
+func updateConnection(db *sql.DB, connection Connection) error {
+	_, err := db.Exec(`UPDATE connection
   SET name = ?, type = ?, connection_string = ?, updated_at = CURRENT_TIMESTAMP
   WHERE id = ?`, connection.Name, connection.Type, connection.ConnectionString, connection.ID)
 	return err
 }
 
-func (a *App) DeleteConnection(id string) error {
-	_, err := metadataDB.Exec(`DELETE FROM connection WHERE id = ?`, id)
+func deleteConnection(db *sql.DB, id string) error {
+	_, err := db.Exec(`DELETE FROM connection WHERE id = ?`, id)
 	return err
 }
 
-func (a *App) Connect(id string) (client.DatabaseMetadata, error) {
-	var databaseMetadata client.DatabaseMetadata
-
-	var dbType, connectionString string
-	err := metadataDB.QueryRow(`SELECT type, connection_string FROM connection WHERE id = ?`, id).Scan(&dbType, &connectionString)
-	if err != nil {
-		return databaseMetadata, err
-	}
-
-	var db *sql.DB
-	switch dbType {
-	case string(SQLite):
-		db, err = sql.Open("sqlite3", connectionString)
-		dbClients[id] = &client.SqliteClient{Db: db}
-	case string(MySQL):
-		db, err = sql.Open("mysql", connectionString)
-		dbClients[id] = &client.MysqlClient{Db: db}
-	case string(PostgreSQL):
-		db, err = sql.Open("postgres", connectionString)
-		dbClients[id] = &client.PostgresClient{Db: db}
-	default:
-		return databaseMetadata, fmt.Errorf("unsupported database type: %s", dbType)
-	}
-	if err != nil {
-		return databaseMetadata, err
-	}
-
-	err = db.Ping()
-	if err != nil {
-		return databaseMetadata, err
-	}
-
-	activeConnections[id] = db
-
-	return dbClients[id].GetDatabaseMetadata()
-}
-
-func (a *App) Disconnect(id string) error {
-	conn, exists := activeConnections[id]
-	if !exists {
-		return fmt.Errorf("no active connection for database ID: %s", id)
-	}
-
-	delete(dbClients, id)
-	return conn.Close()
-}
-
-func (a *App) TestConnection(dbType ConnectionType, connectionString string) error {
+func testConnection(dbType ConnectionType, connectionString string) error {
 	var db *sql.DB
 	var err error
 
@@ -137,28 +112,49 @@ func (a *App) TestConnection(dbType ConnectionType, connectionString string) err
 	return nil
 }
 
-type Connection struct {
-	ID               string         `json:"id"`
-	CreatedAt        string         `json:"created_at"`
-	UpdatedAt        string         `json:"updated_at"`
-	Name             string         `json:"name"`
-	Type             ConnectionType `json:"type"`
-	ConnectionString string         `json:"connection_string"`
+func connect(activeConnections map[string]*sql.DB, db *sql.DB, id string) (client.DatabaseMetadata, error) {
+	var databaseMetadata client.DatabaseMetadata
+
+	var dbType, connectionString string
+	err := db.QueryRow(`SELECT type, connection_string FROM connection WHERE id = ?`, id).Scan(&dbType, &connectionString)
+	if err != nil {
+		return databaseMetadata, err
+	}
+
+	var connectionDb *sql.DB
+	switch dbType {
+	case string(SQLite):
+		connectionDb, err = sql.Open("sqlite3", connectionString)
+		dbClients[id] = &client.SqliteClient{Db: connectionDb}
+	case string(MySQL):
+		connectionDb, err = sql.Open("mysql", connectionString)
+		dbClients[id] = &client.MysqlClient{Db: connectionDb}
+	case string(PostgreSQL):
+		connectionDb, err = sql.Open("postgres", connectionString)
+		dbClients[id] = &client.PostgresClient{Db: connectionDb}
+	default:
+		return databaseMetadata, fmt.Errorf("unsupported database type: %s", dbType)
+	}
+	if err != nil {
+		return databaseMetadata, err
+	}
+
+	err = connectionDb.Ping()
+	if err != nil {
+		return databaseMetadata, err
+	}
+
+	activeConnections[id] = connectionDb
+
+	return dbClients[id].GetDatabaseMetadata()
 }
 
-type ConnectionType string
+func disconnect(activeConnections map[string]*sql.DB, id string) error {
+	conn, exists := activeConnections[id]
+	if !exists {
+		return fmt.Errorf("no active connection for database ID: %s", id)
+	}
 
-const (
-	SQLite     ConnectionType = "sqlite"
-	PostgreSQL ConnectionType = "postgresql"
-	MySQL      ConnectionType = "mysql"
-)
-
-var AllConnectionTypes = []struct {
-	Value  ConnectionType
-	TSName string
-}{
-	{SQLite, "SQLite"},
-	{PostgreSQL, "PostgreSQL"},
-	{MySQL, "MySQL"},
+	delete(dbClients, id)
+	return conn.Close()
 }

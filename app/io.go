@@ -21,9 +21,6 @@ func (a *App) Export(id string, options client.ExportOptions) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	if err != nil {
-		return "", err
-	}
 
 	file, err := runtime.SaveFileDialog(a.Ctx, runtime.SaveDialogOptions{})
 	if err != nil {
