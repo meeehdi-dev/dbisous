@@ -2,11 +2,9 @@ on:
   push:
     branches:
       - '*'
-
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
-
 jobs:
   set-version:
     runs-on: ubuntu-latest
@@ -36,7 +34,7 @@ jobs:
   typecheck:
     runs-on: ubuntu-latest
     needs: [set-version, build]
-    steps: 
+    steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
@@ -51,7 +49,7 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     needs: [set-version, build]
-    steps: 
+    steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
@@ -79,33 +77,21 @@ jobs:
     runs-on: ubuntu-latest
     services:
       postgres:
-        image: postgres:latest
+        image: postgres
         env:
-          POSTGRES_DB: dbisous_test
-          POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-          services:
+          POSTGRES_DB: dbisous_test
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
       mysql:
-        image: mysql:latest
+        image: mysql
         env:
-          MYSQL_DATABASE: dbisous_test
           MYSQL_ROOT_PASSWORD: mysql
+          MYSQL_DATABASE: dbisous_test
         ports:
           - 3306:3306
-        options: >-
-          --health-cmd="mysqladmin ping"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=3
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
     needs: [set-version, build]
-    steps: 
+    steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
         with:
@@ -115,7 +101,7 @@ jobs:
   test-frontend:
     runs-on: ubuntu-latest
     needs: [set-version, build]
-    steps: 
+    steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
