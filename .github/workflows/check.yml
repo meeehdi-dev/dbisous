@@ -85,8 +85,8 @@ jobs:
       mysql:
         image: mariadb
         env:
-          MARIADB_ROOT_PASSWORD: mysql
-          MARIADB_DATABASE: dbisous_test
+          MYSQL_ROOT_PASSWORD: mysql
+          MYSQL_DATABASE: dbisous_test
         ports:
           - 3306:3306
         options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
