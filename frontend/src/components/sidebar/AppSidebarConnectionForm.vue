@@ -147,6 +147,11 @@ const placeholders = {
 function onConnectionOptionAdd() {
   connectionOptions.value.push({ name: "", value: "" });
 }
+
+function onConnectionOptionDelete(index: number) {
+  connectionOptions.value.splice(index, 1);
+  onConnectionInfoChange();
+}
 </script>
 
 <template>
@@ -275,6 +280,12 @@ function onConnectionOptionAdd() {
                     v-model="connectionOption.value"
                     placeholder="Value"
                     @update:model-value="onConnectionInfoChange"
+                  />
+                  <UButton
+                    icon="lucide:x"
+                    color="error"
+                    variant="soft"
+                    @click="onConnectionOptionDelete(i)"
                   />
                 </div>
                 <UButton
