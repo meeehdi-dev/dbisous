@@ -19,7 +19,7 @@ func TestConnection(t *testing.T) {
 	var activeConnections = make(map[string]*sql.DB)
 
 	err = createConnection(db, Connection{Type: PostgreSQL, Name: "Inexisting DB", ConnectionString: "postgres://postgres:postgres@localhost:5432/inexisting?sslmode=disable"})
-	assert.Equal(t, err, nil, "Couldn't create connection")
+	assert.Equal(t, err, nil, err)
 
 	connections, err := getConnections(db)
 	assert.Equal(t, len(connections), 1, "Couldn't get connection")
@@ -33,7 +33,7 @@ func TestConnection(t *testing.T) {
 	connection.ConnectionString = "postgres://postgres:postgres@localhost:5432/dbisous_test?sslmode=disable"
 
 	err = updateConnection(db, connection)
-	assert.Equal(t, err, nil, "Couldn't update connection")
+	assert.Equal(t, err, nil, err)
 
 	connections, err = getConnections(db)
 	assert.Equal(t, len(connections), 1, "Couldn't get connection")
@@ -44,31 +44,31 @@ func TestConnection(t *testing.T) {
 
 	// SQLite
 	err = testConnection(SQLite, ":memory:")
-	assert.Equal(t, err, nil, "Couldn't test connection")
+	assert.Equal(t, err, nil, err)
 	// err = testConnection(SQLite, "./inexisting.db") // doesn't work bc sqlite creates db file automatically
 	// assert.NotEqual(t, err, nil, "Tested inexisting connection")
 	// PostgreSQL
 	err = testConnection(PostgreSQL, "postgres://postgres:postgres@localhost:5432/dbisous_test?sslmode=disable")
-	assert.Equal(t, err, nil, "Couldn't test connection")
+	assert.Equal(t, err, nil, err)
 	err = testConnection(PostgreSQL, "postgres://postgres:postgres@localhost:5432/inexisting?sslmode=disable")
 	assert.NotEqual(t, err, nil, "Tested inexisting connection")
 	// MySQL
 	err = testConnection(MySQL, "root:mysql@tcp(localhost:3306)/dbisous_test")
-	assert.Equal(t, err, nil, "Couldn't test connection")
+	assert.Equal(t, err, nil, err)
 	err = testConnection(MySQL, "root:mysql@tcp(localhost:3306)/inexisting")
 	assert.NotEqual(t, err, nil, "Tested inexisting connection")
 
 	_, err = connect(activeConnections, db, connection.ID)
-	assert.Equal(t, err, nil, "Couldn't connect to database")
+	assert.Equal(t, err, nil, err)
 	_, err = connect(activeConnections, db, "")
 	assert.NotEqual(t, err, nil, "Connected to inexisting database")
 	err = disconnect(activeConnections, connection.ID)
-	assert.Equal(t, err, nil, "Couldn't disconnect from database")
+	assert.Equal(t, err, nil, err)
 	err = disconnect(activeConnections, "")
 	assert.NotEqual(t, err, nil, "Disconnected from inexisting database")
 
 	err = deleteConnection(db, connection.ID)
-	assert.Equal(t, err, nil, "Couldn't delete connection")
+	assert.Equal(t, err, nil, err)
 
 	connections, err = getConnections(db)
 	assert.Equal(t, len(connections), 0, "Connection still exists")
