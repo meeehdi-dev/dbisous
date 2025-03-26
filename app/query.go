@@ -79,7 +79,7 @@ func (a *App) ExecuteQuery(id string, query string) (client.QueryResult, error) 
 		return result, err
 	}
 
-	err = InsertPastQuery(query)
+	err = insertPastQuery(metadataDB, query)
 	if err != nil {
 		return result, err
 	}

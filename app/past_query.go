@@ -1,6 +1,8 @@
 package app
 
 import (
+	"database/sql"
+
 	"github.com/google/uuid"
 )
 
@@ -10,8 +12,8 @@ type PastQuery struct {
 	LastUsed string `json:"last_used"`
 }
 
-func (a *App) GetPastQueries() ([]PastQuery, error) {
-	rows, err := metadataDB.Query(`SELECT id, query, last_used FROM past_query ORDER BY last_used DESC`)
+func getPastQueries(db *sql.DB) ([]PastQuery, error) {
+	rows, err := db.Query(`SELECT id, query, last_used FROM past_query ORDER BY last_used DESC`)
 	if err != nil {
 		return nil, err
 	}
@@ -30,13 +32,13 @@ func (a *App) GetPastQueries() ([]PastQuery, error) {
 	return pastQueries, nil
 }
 
-func InsertPastQuery(query string) error {
+func insertPastQuery(db *sql.DB, query string) error {
 	queryId, err := uuid.NewRandom()
 	if err != nil {
 		return err
 	}
 
-	_, err = metadataDB.Exec(`INSERT INTO past_query (id, query) VALUES (?, ?) ON CONFLICT(query) DO UPDATE SET last_used = CURRENT_TIMESTAMP`, queryId.String(), query)
+	_, err = db.Exec(`INSERT INTO past_query (id, query) VALUES (?, ?) ON CONFLICT(query) DO UPDATE SET last_used = CURRENT_TIMESTAMP`, queryId.String(), query)
 	if err != nil {
 		return err
 	}
@@ -44,7 +46,7 @@ func InsertPastQuery(query string) error {
 	return nil
 }
 
-func (a *App) DeletePastQuery(id string) error {
-	_, err := metadataDB.Exec(`DELETE FROM past_query WHERE id = ?`, id)
+func deletePastQuery(db *sql.DB, id string) error {
+	_, err := db.Exec(`DELETE FROM past_query WHERE id = ?`, id)
 	return err
 }

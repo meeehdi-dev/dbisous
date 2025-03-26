@@ -15,9 +15,7 @@ var testMysqlConnectionString = "root:mysql@tcp(localhost:3306)/dbisous_test"
 
 func TestCreateConnection(t *testing.T) {
 	db, err := InitMetadataDB(":memory:")
-	if err != nil {
-		t.Fatal(err)
-	}
+	assert.Equal(t, err, nil, err)
 	defer db.Close()
 
 	err = createConnection(db, Connection{Type: PostgreSQL, Name: testConnectionName, ConnectionString: testPostgresConnectionString})

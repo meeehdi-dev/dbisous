@@ -29,3 +29,11 @@ func (a *App) Disconnect(id string) error {
 func (a *App) TestConnection(dbType ConnectionType, connectionString string) error {
 	return testConnection(dbType, connectionString)
 }
+
+func (a *App) GetPastQueries() ([]PastQuery, error) {
+	return getPastQueries(metadataDB)
+}
+
+func (a *App) DeletePastQuery(id string) error {
+	return deletePastQuery(metadataDB, id)
+}
