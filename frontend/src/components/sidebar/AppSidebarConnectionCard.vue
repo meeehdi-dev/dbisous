@@ -126,18 +126,6 @@ async function testConnection(connection: app.Connection) {
             color="neutral"
           />
           <template #content>
-            <!-- NOTE: too much? <UButton
-                :icon="connected ? 'lucide:unplug' : 'lucide:plug'"
-                :color="connected ? 'warning' : 'primary'"
-                :loading="connecting"
-                variant="soft"
-                :label="connected ? 'Disconnect' : 'Connect'"
-                @click.stop="
-                  () => {
-                    connected ? onDisconnect(value.id) : onConnect(value.id);
-                  }
-                "
-              /> -->
             <UButton
               icon="lucide:plug-zap"
               variant="soft"

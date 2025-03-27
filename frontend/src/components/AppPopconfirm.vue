@@ -39,15 +39,19 @@ function onConfirm() {
       <UCard
         :ui="{
           footer: 'flex sm:p-2 gap-2 justify-end',
-          header: 'sm:p-2',
-          body: 'sm:p-2',
+          body: 'sm:p-2 sm:px-4',
         }"
       >
         {{ text }}
 
         <template #footer>
-          <UButton icon="lucide:x" color="error" @click="open = false" />
-          <UButton icon="lucide:check" @click="onConfirm" />
+          <UButton
+            icon="lucide:x"
+            color="error"
+            variant="soft"
+            @click="open = false"
+          />
+          <UButton icon="lucide:check" variant="soft" @click="onConfirm" />
         </template>
       </UCard>
     </template>

@@ -25,7 +25,6 @@ const connectionTypes = Object.entries(app.ConnectionType).map(
         :value="connectionType.value"
         :active="value === connectionType.value"
         :icon="`simple-icons:${connectionType.value}`"
-        :trailing-icon="`lucide:square${value === connectionType.value ? '-check-big' : ''}`"
         @click="emit('select', connectionType.value)"
       />
     </div>

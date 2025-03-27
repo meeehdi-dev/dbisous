@@ -1,13 +1,12 @@
 <script setup lang="ts">
-import { ref } from "vue";
 import { app } from "_/go/models";
 import { useConnections } from "@/composables/shared/useConnections";
 import AppCommandPalette from "@/components/AppCommandPalette.vue";
+import { useSidebar } from "@/composables/shared/useSidebar";
 
 const { connections } = useConnections();
 
-const slideoverOpen = ref(false);
-const editedConnection = ref<Omit<app.Connection, "id"> & { id?: string }>();
+const { slideoverOpen, editedConnection } = useSidebar();
 
 function onConnectionAdd() {
   editedConnection.value = undefined;

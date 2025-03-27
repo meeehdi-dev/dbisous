@@ -59,19 +59,25 @@ function onConnectionInfoChange() {
   state.connection_string = `${state.type === app.ConnectionType.PostgreSQL ? postgresPrefix : ""}${connectionUser.value}:${connectionPass.value}@${connectionHost.value}${connectionPort.value ? `:${connectionPort.value}` : ""}/${connectionDatabase.value}${connectionOptions.value.length > 0 ? "?" : ""}${connectionOptions.value.map((option) => [option.name, option.value].join(option.value ? "=" : "")).join("&")}`;
 }
 
-const items = [
-  {
-    title: "Database type",
-    icon: "lucide:database",
-    slot: "type",
-  },
-  {
-    title: "Connection details",
-    icon: "lucide:link",
-    slot: "details",
-  },
-];
-const active = ref(state.id ? 1 : 0);
+const items = computed(() => {
+  const current = Object.entries(app.ConnectionType).find(
+    ([, value]) => value === state.type,
+  );
+
+  return [
+    {
+      title: current?.[0] ?? "Database type",
+      icon: current ? "simple-icons:" + current[1] : "lucide:database",
+      slot: "type",
+    },
+    {
+      title: "Connection details",
+      icon: "lucide:link",
+      slot: "details",
+    },
+  ];
+});
+const active = ref(state.type ? 1 : 0);
 const status = ref<"idle" | "loading" | "success" | "failed">("idle");
 watch([() => state.type, () => state.connection_string], () => {
   status.value = "idle";
@@ -152,6 +158,11 @@ function onConnectionOptionDelete(index: number) {
   connectionOptions.value.splice(index, 1);
   onConnectionInfoChange();
 }
+
+function onBack() {
+  active.value = 0;
+  state.type = undefined;
+}
 </script>
 
 <template>
@@ -173,7 +184,7 @@ function onConnectionOptionDelete(index: number) {
             variant="outline"
             icon="lucide:arrow-left"
             :ui="{ base: 'p-2 self-start' }"
-            @click="active = 0"
+            @click="onBack"
           />
 
           <UFormField label="Name">

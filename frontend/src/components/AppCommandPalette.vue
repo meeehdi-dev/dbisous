@@ -1,38 +1,30 @@
 <script setup lang="ts">
 import { useConnections } from "@/composables/shared/useConnections";
+import { useSidebar } from "@/composables/shared/useSidebar";
 import { CommandPaletteGroup, CommandPaletteItem } from "@nuxt/ui";
-import { computed, watch } from "vue";
+import { app } from "_/go/models";
+import { computed } from "vue";
 
 const emit = defineEmits<{ close: [] }>();
 
 const { connect, disconnect, connections, activeConnections } =
   useConnections();
+const { slideoverOpen, editedConnection } = useSidebar();
 
-watch([connections, activeConnections], ([a, b]) => {
-  console.log({ a, b });
-});
+const connectable = connections.value.filter(
+  (connection) => !activeConnections.value.includes(connection.id),
+);
+const disconnectable = connections.value.filter((connection) =>
+  activeConnections.value.includes(connection.id),
+);
+const groups = computed(() => {
+  const groups: CommandPaletteGroup<CommandPaletteItem>[] = [];
 
-const groups = computed<CommandPaletteGroup<CommandPaletteItem>[]>(() => [
-  {
-    id: "connect",
-    label: "Connect to database",
-    items: connections.value
-      .filter((connection) => !activeConnections.value.includes(connection.id))
-      .map((connection) => ({
-        prefix: "Connect to",
-        label: connection.name || connection.connection_string,
-        onSelect: async () => {
-          await connect(connection.id);
-          emit("close");
-        },
-      })),
-  },
-  {
-    id: "disconnect",
-    label: "Disconnect from database",
-    items: connections.value
-      .filter((connection) => activeConnections.value.includes(connection.id))
-      .map((connection) => ({
+  if (disconnectable.length > 0) {
+    groups.push({
+      id: "disconnect",
+      label: "Disconnect from database",
+      items: disconnectable.map((connection) => ({
         prefix: "Disconnect from",
         label: connection.name || connection.connection_string,
         onSelect: async () => {
@@ -40,51 +32,71 @@ const groups = computed<CommandPaletteGroup<CommandPaletteItem>[]>(() => [
           emit("close");
         },
       })),
-  },
-  {
-    id: "add_connection",
-    label: "Add connection",
-    items: [
-      {
+    });
+  }
+  if (connectable.length > 0) {
+    groups.push({
+      id: "connect",
+      label: "Connect to database",
+      items: connectable.map((connection) => ({
+        prefix: "Connect to",
+        label: connection.name || connection.connection_string,
+        onSelect: async () => {
+          await connect(connection.id);
+          emit("close");
+        },
+      })),
+    });
+  }
+  groups.push(
+    {
+      id: "add_connection",
+      label: "Add connection",
+      items: Object.entries(app.ConnectionType).map(([key, value]) => ({
         prefix: "Add",
-        label: "SQLite",
+        label: key,
         suffix: "database",
         onSelect: () => {
-          // TODO:
+          editedConnection.value = {
+            type: value,
+            name: "",
+            connection_string: "",
+          };
+          slideoverOpen.value = true;
           emit("close");
         },
-      },
-    ],
-  },
-  {
-    id: "edit_connection",
-    label: "Edit connection",
-    items: [
-      {
+      })),
+    },
+    {
+      id: "edit_connection",
+      label: "Edit connection",
+      items: connections.value.map((connection) => ({
         prefix: "Edit",
-        label: "local pg",
+        label: connection.name,
         onSelect: () => {
-          // TODO:
+          editedConnection.value = connection;
+          slideoverOpen.value = true;
           emit("close");
         },
-      },
-    ],
-  },
-  {
-    id: "delete_connection",
-    label: "Delete connection",
-    items: [
-      {
+      })),
+    },
+    {
+      id: "delete_connection",
+      label: "Delete connection",
+      items: connections.value.map((connection) => ({
         prefix: "Delete",
-        label: "local pg",
+        label: connection.name,
         onSelect: () => {
-          // TODO:
+          // TODO: delete
           emit("close");
         },
-      },
-    ],
-  },
-]);
+      })),
+    },
+  );
+
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+  return groups;
+});
 </script>
 
 <template>
