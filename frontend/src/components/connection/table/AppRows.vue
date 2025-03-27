@@ -93,6 +93,33 @@ function onQueryEdit() {
     emit("queryEdit", query);
   }
 }
+
+// eslint-disable-next-line no-undef
+defineShortcuts({
+  meta_e: () => {
+    onQueryEdit();
+  },
+  meta_s: {
+    usingInput: true,
+    handler: () => {
+      if (open.value) {
+        void execute();
+      } else if (changesCount.value > 0) {
+        commit();
+      }
+    },
+  },
+  meta_i: () => {
+    emit(RowAction.Insert);
+  },
+  escape: () => {
+    if (open.value) {
+      open.value = false;
+    } else if (changesCount.value > 0) {
+      abort();
+    }
+  },
+});
 </script>
 
 <template>
@@ -105,12 +132,14 @@ function onQueryEdit() {
           height="full"
           disabled
         />
-        <UButton
-          icon="lucide:edit"
-          label="Edit query"
-          :ui="{ base: 'h-8' }"
-          @click="onQueryEdit"
-        />
+        <AppKbdTooltip :kbds="['meta', 'E']" placement="top">
+          <UButton
+            icon="lucide:edit"
+            label="Edit query"
+            :ui="{ base: 'h-8' }"
+            @click="onQueryEdit"
+          />
+        </AppKbdTooltip>
       </div>
       <UTable
         :key="data?.key"
@@ -147,13 +176,15 @@ function onQueryEdit() {
         v-if="actions.some((a) => a === RowAction.Insert)"
         class="flex flex-initial justify-center"
       >
-        <UButton
-          icon="lucide:plus"
-          variant="soft"
-          label="Add row"
-          :ui="{ base: 'mt-2' }"
-          @click="emit(RowAction.Insert)"
-        />
+        <AppKbdTooltip :kbds="['meta', 'n']" placement="bottom">
+          <UButton
+            icon="lucide:plus"
+            variant="soft"
+            label="Add row"
+            :ui="{ base: 'mt-2 mb-4' }"
+            @click="emit(RowAction.Insert)"
+          />
+        </AppKbdTooltip>
       </div>
     </div>
     <AppPagination
@@ -170,25 +201,33 @@ function onQueryEdit() {
         icon="lucide:triangle-alert"
         :title="`${changesCount} pending change${changesCount > 1 ? 's' : ''}...`"
         orientation="horizontal"
-        :actions="[
-          {
-            size: 'md',
-            label: 'Cancel',
-            color: 'secondary',
-            variant: 'soft',
-            icon: 'lucide:x',
-            onClick: abort,
-          },
-          {
-            size: 'md',
-            label: 'Apply',
-            color: 'warning',
-            variant: 'soft',
-            icon: 'lucide:check',
-            onClick: commit,
-          },
-        ]"
-      />
+        :actions="[{}]"
+      >
+        <template #actions>
+          <template v-if="changesCount > 0">
+            <AppKbdTooltip :kbds="['escape']" placement="top">
+              <UButton
+                size="md"
+                label="Cancel"
+                color="secondary"
+                variant="soft"
+                icon="lucide:x"
+                @click="abort"
+              />
+            </AppKbdTooltip>
+            <AppKbdTooltip :kbds="['meta', 'S']" placement="top">
+              <UButton
+                size="md"
+                label="Apply"
+                color="warning"
+                variant="soft"
+                icon="lucide:check"
+                @click="commit"
+              />
+            </AppKbdTooltip>
+          </template>
+        </template>
+      </UAlert>
     </div>
     <UModal
       v-model:open="open"
@@ -205,14 +244,18 @@ function onQueryEdit() {
       </template>
 
       <template #footer>
-        <UButton
-          label="Cancel"
-          variant="soft"
-          color="neutral"
-          icon="lucide:x"
-          @click="open = false"
-        />
-        <UButton icon="lucide:check" label="Apply" @click="execute" />
+        <AppKbdTooltip :kbds="['escape']" placement="top">
+          <UButton
+            label="Cancel"
+            variant="soft"
+            color="neutral"
+            icon="lucide:x"
+            @click="open = false"
+          />
+        </AppKbdTooltip>
+        <AppKbdTooltip :kbds="['meta', 'S']" placement="top">
+          <UButton icon="lucide:check" label="Apply" @click="execute" />
+        </AppKbdTooltip>
       </template>
     </UModal>
   </div>

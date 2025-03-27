@@ -2,6 +2,7 @@
 import { ref } from "vue";
 import { app } from "_/go/models";
 import { useConnections } from "@/composables/shared/useConnections";
+import AppCommandPalette from "@/components/AppCommandPalette.vue";
 
 const { connections } = useConnections();
 
@@ -30,6 +31,23 @@ function onConnectionDuplicate(id: string) {
     "id"
   >;
   slideoverOpen.value = true;
+}
+
+// eslint-disable-next-line no-undef
+defineShortcuts({
+  meta_k: () => {
+    onCommandPaletteTrigger();
+  },
+  meta_d: () => {
+    // TODO: popconfirm disconnect
+  },
+});
+
+// eslint-disable-next-line no-undef
+const overlay = useOverlay();
+const modal = overlay.create(AppCommandPalette);
+function onCommandPaletteTrigger() {
+  void modal.open();
 }
 </script>
 
@@ -69,6 +87,12 @@ function onConnectionDuplicate(id: string) {
         </template>
       </USlideover>
     </div>
-    <AppVersion />
+    <div class="flex flex-col items-center justify-center">
+      <UButton variant="soft" color="neutral" @click="onCommandPaletteTrigger">
+        <UKbd value="meta" />
+        <UKbd value="K"></UKbd>
+      </UButton>
+      <AppVersion />
+    </div>
   </div>
 </template>

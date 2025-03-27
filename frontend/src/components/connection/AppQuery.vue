@@ -97,6 +97,13 @@ async function setQuery(q: string, execute = false) {
     await fetchData(false);
   }
 }
+
+// eslint-disable-next-line no-undef
+defineShortcuts({
+  meta_enter: () => {
+    void fetchData();
+  },
+});
 </script>
 
 <template>
@@ -143,13 +150,15 @@ async function setQuery(q: string, execute = false) {
         </div>
       </div>
       <div class="flex items-center gap-2 px-2">
-        <UButton
-          :disabled="!query || error !== ''"
-          :icon="error ? 'lucide:triangle-alert' : 'lucide:terminal'"
-          label="Execute"
-          :color="error ? 'warning' : 'primary'"
-          @click="() => fetchData()"
-        />
+        <AppKbdTooltip :kbds="['meta', 'enter']" placement="right">
+          <UButton
+            :disabled="!query || error !== ''"
+            :icon="error ? 'lucide:triangle-alert' : 'lucide:terminal'"
+            label="Run query"
+            :color="error ? 'warning' : 'primary'"
+            @click="() => fetchData()"
+          />
+        </AppKbdTooltip>
         <!-- TODO: add button to execute script from sql file -->
         <span
           :class="`pointer-events-none text-sm text-neutral-400 transition-opacity ${data && data.duration ? 'opacity-100' : 'opacity-0'}`"

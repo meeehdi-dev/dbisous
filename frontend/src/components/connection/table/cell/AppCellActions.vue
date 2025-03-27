@@ -81,6 +81,7 @@ onClickOutside(null, (event) => {
       variant="ghost"
       size="sm"
       :class="`${open ? 'opacity-100' : 'opacity-0'} transition-opacity group-hover:opacity-100`"
+      tabindex="-1"
     />
   </UDropdownMenu>
 </template>
