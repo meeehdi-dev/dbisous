@@ -6,11 +6,9 @@ import (
 	"fmt"
 	"io"
 	"os"
-
-	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
-func (a *App) Export(id string, options client.ExportOptions) (string, error) {
+func exportDatabase(file string, id string, options client.ExportOptions) (string, error) {
 	// TODO: savefiledialog before exporting to make use of buffered writes and avoid memory issues
 	dbClient, exists := dbClients[id]
 	if !exists {
@@ -20,14 +18,6 @@ func (a *App) Export(id string, options client.ExportOptions) (string, error) {
 	contents, err := dbClient.Export(options)
 	if err != nil {
 		return "", err
-	}
-
-	file, err := runtime.SaveFileDialog(a.Ctx, runtime.SaveDialogOptions{})
-	if err != nil {
-		return "", err
-	}
-	if file == "" {
-		return "", fmt.Errorf("No file selected")
 	}
 
 	f, err := os.Create(file)
@@ -46,16 +36,7 @@ func (a *App) Export(id string, options client.ExportOptions) (string, error) {
 	return file, nil
 }
 
-func (a *App) Import(id string) (string, error) {
-	// TODO: buffered read and do it step by step to avoid memory overload
-	file, err := runtime.SaveFileDialog(a.Ctx, runtime.SaveDialogOptions{})
-	if err != nil {
-		return "", err
-	}
-	if file == "" {
-		return "", fmt.Errorf("No file selected")
-	}
-
+func importDatabase(file string, id string) (string, error) {
 	f, err := os.Open(file)
 	if err != nil {
 		return "", err
@@ -81,15 +62,6 @@ func (a *App) Import(id string) (string, error) {
 	}
 
 	err = dbClient.Import(contents)
-	if err != nil {
-		return "", err
-	}
-
-	return file, nil
-}
-
-func (a *App) SelectFile() (string, error) {
-	file, err := runtime.OpenFileDialog(a.Ctx, runtime.OpenDialogOptions{})
 	if err != nil {
 		return "", err
 	}

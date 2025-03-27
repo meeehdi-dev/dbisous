@@ -3,37 +3,40 @@ package app
 import (
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 var pastQuery = "SELECT * FROM connection;"
 
 func TestInsertPastQuery(t *testing.T) {
+	r := require.New(t)
 	db, err := InitMetadataDB(":memory:")
-	assert.Equal(t, err, nil, err)
+	r.Equal(err, nil, err)
 	defer db.Close()
 
 	err = insertPastQuery(db, pastQuery)
-	assert.Equal(t, err, nil, err)
+	r.Equal(err, nil, err)
 }
 
 func TestGetPastQueries(t *testing.T) {
+	r := require.New(t)
 	db, err := InitMetadataDB(":memory:")
-	assert.Equal(t, err, nil, err)
+	r.Equal(err, nil, err)
 	defer db.Close()
 
 	insertPastQuery(db, pastQuery)
 
 	queries, err := getPastQueries(db)
-	assert.Equal(t, err, nil, err)
+	r.Equal(err, nil, err)
 
 	query := queries[0]
-	assert.Equal(t, query.Query, pastQuery, "Wrong past query")
+	r.Equal(query.Query, pastQuery, "Wrong past query")
 }
 
 func TestDeletePastQuery(t *testing.T) {
+	r := require.New(t)
 	db, err := InitMetadataDB(":memory:")
-	assert.Equal(t, err, nil, err)
+	r.Equal(err, nil, err)
 	defer db.Close()
 
 	insertPastQuery(db, pastQuery)
@@ -44,5 +47,5 @@ func TestDeletePastQuery(t *testing.T) {
 	err = deletePastQuery(db, query.ID)
 
 	queries, err = getPastQueries(db)
-	assert.Equal(t, len(queries), 0, "Past query still exists")
+	r.Equal(len(queries), 0, "Past query still exists")
 }
