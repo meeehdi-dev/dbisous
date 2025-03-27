@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useApp } from "@/composables/shared/useApp";
 import { useWails } from "@/composables/useWails";
-import { Import } from "_/go/app/App";
+import { ImportDatabase } from "_/go/app/App";
 
 const { connection } = useApp();
 const wails = useWails();
@@ -9,7 +9,7 @@ const wails = useWails();
 const toast = useToast();
 
 async function importFile() {
-  const result = await wails(() => Import(connection.value));
+  const result = await wails(() => ImportDatabase(connection.value));
   if (result instanceof Error) {
     return;
   }

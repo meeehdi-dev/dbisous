@@ -3,7 +3,7 @@ import { useApp } from "@/composables/shared/useApp";
 import { useConnections } from "@/composables/shared/useConnections";
 import { useWails } from "@/composables/useWails";
 import type { FormSubmitEvent } from "@nuxt/ui";
-import { Export } from "_/go/app/App";
+import { ExportDatabase } from "_/go/app/App";
 import { client } from "_/go/models";
 import * as v from "valibot";
 import { computed, reactive, ref } from "vue";
@@ -74,7 +74,7 @@ const columns = computed(() => {
 
 async function submit(event: FormSubmitEvent<ExportSchema>) {
   const result = await wails(() =>
-    Export(connection.value, {
+    ExportDatabase(connection.value, {
       ...event.data,
       selected: Object.entries(state.selected)
         .filter(([, value]) => value !== false)
