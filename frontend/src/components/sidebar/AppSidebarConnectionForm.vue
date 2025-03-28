@@ -56,7 +56,7 @@ function onConnectionStringChange() {
 }
 onConnectionStringChange();
 function onConnectionInfoChange() {
-  state.connection_string = `${state.type === app.ConnectionType.PostgreSQL ? postgresPrefix : ""}${connectionUser.value}:${connectionPass.value}@${connectionHost.value}${connectionPort.value ? `:${connectionPort.value}` : ""}/${connectionDatabase.value}${connectionOptions.value.length > 0 ? "?" : ""}${connectionOptions.value.map((option) => [option.name, option.value].join(option.value ? "=" : "")).join("&")}`;
+  state.connection_string = `${state.type === app.ConnectionType.PostgreSQL ? postgresPrefix : ""}${connectionUser.value}:${connectionPass.value}@${connectionHost.value || "localhost"}${connectionPort.value ? `:${connectionPort.value}` : ""}/${connectionDatabase.value}${connectionOptions.value.length > 0 ? "?" : ""}${connectionOptions.value.map((option) => [option.name, option.value].join(option.value ? "=" : "")).join("&")}`;
 }
 
 const items = computed(() => {
@@ -116,6 +116,7 @@ async function selectFile() {
 
 function selectType(type: app.ConnectionType) {
   state.type = type;
+  state.connection_string = "";
   active.value = 1;
 }
 
@@ -190,7 +191,7 @@ function onBack() {
           <UFormField label="Name">
             <UInput
               v-model="state.name"
-              placeholder="Optional name"
+              placeholder="My awesome db"
               class="w-full"
             />
           </UFormField>
@@ -246,7 +247,7 @@ function onBack() {
               @update:model-value="onConnectionInfoChange"
             />
           </UFormField>
-          <UFormField label="User">
+          <UFormField label="User" required>
             <UInput
               v-model="connectionUser"
               placeholder="user"
@@ -254,7 +255,7 @@ function onBack() {
               @update:model-value="onConnectionInfoChange"
             />
           </UFormField>
-          <UFormField label="Password">
+          <UFormField label="Password" required>
             <UInput
               v-model="connectionPass"
               placeholder="pass"
@@ -273,7 +274,7 @@ function onBack() {
 
           <UFormField label="Options">
             <div class="flex gap-2">
-              <div class="flex flex-auto">
+              <div class="flex">
                 <USeparator orientation="vertical" />
               </div>
               <div class="flex flex-col gap-2">
@@ -318,7 +319,12 @@ function onBack() {
             variant="soft"
             :loading="status === 'loading'"
             :disabled="
-              status !== 'idle' || !state.type || !state.connection_string
+              status !== 'idle' ||
+              !state.type ||
+              !state.connection_string ||
+              ((state.type === app.ConnectionType.PostgreSQL ||
+                state.type === app.ConnectionType.MySQL) &&
+                (!connectionUser || !connectionPass))
             "
             @click="testConnection()"
           >
@@ -326,7 +332,16 @@ function onBack() {
               <UChip class="ml-1" standalone inset :color="statusColor" />
             </template>
           </UButton>
-          <UButton type="submit" icon="lucide:save" label="Save" />
+          <UButton
+            type="submit"
+            icon="lucide:save"
+            label="Save"
+            :disabled="
+              state.type === app.ConnectionType.SQLite
+                ? false
+                : !connectionUser || !connectionPass
+            "
+          />
         </div>
       </template>
     </UStepper>
