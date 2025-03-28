@@ -9,7 +9,8 @@ import { useTransaction } from "@/composables/shared/useTransaction";
 import { useWails } from "@/composables/useWails";
 import { Execute } from "_/go/app/App";
 import { useApp } from "@/composables/shared/useApp";
-import { useStorage } from "@vueuse/core";
+import { useMagicKeys, useStorage } from "@vueuse/core";
+import { useSidebar } from "@/composables/shared/useSidebar";
 
 const emit = defineEmits<
   RowEmits<Record<string, unknown>> & { queryEdit: [string] }
@@ -94,6 +95,21 @@ function onQueryEdit() {
   }
 }
 
+const keys = useMagicKeys();
+const { slideoverOpen } = useSidebar();
+
+watch(keys["escape"], (esc) => {
+  if (!esc || slideoverOpen.value) {
+    return;
+  }
+
+  if (open.value) {
+    open.value = false;
+  } else if (changesCount.value > 0) {
+    abort();
+  }
+});
+
 // eslint-disable-next-line no-undef
 defineShortcuts({
   meta_e: () => {
@@ -111,13 +127,6 @@ defineShortcuts({
   },
   meta_i: () => {
     emit(RowAction.Insert);
-  },
-  escape: () => {
-    if (open.value) {
-      open.value = false;
-    } else if (changesCount.value > 0) {
-      abort();
-    }
   },
 });
 </script>
