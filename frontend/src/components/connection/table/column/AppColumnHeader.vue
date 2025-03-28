@@ -99,7 +99,7 @@ function onFilterConfirm() {
             body: 'sm:p-2',
           }"
         >
-          <UInput v-model="filterValue" />
+          <UInput v-model="filterValue" spellcheck="false" />
 
           <template #footer>
             <UButton icon="lucide:x" color="error" @click="onFilterCancel" />

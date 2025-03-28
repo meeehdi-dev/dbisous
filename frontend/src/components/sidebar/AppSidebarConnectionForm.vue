@@ -192,6 +192,7 @@ function onBack() {
               v-model="state.name"
               placeholder="Optional name"
               class="w-full"
+              spellcheck="false"
             />
           </UFormField>
         </div>
@@ -204,6 +205,7 @@ function onBack() {
             v-model="state.connection_string"
             placeholder="Select a file"
             class="w-full"
+            spellcheck="false"
           >
             <template #trailing>
               <UButton
@@ -227,6 +229,7 @@ function onBack() {
               v-model="state.connection_string"
               :placeholder="placeholders[state.type].connectionString"
               class="w-full"
+              spellcheck="false"
               @update:model-value="onConnectionStringChange"
             />
           </UFormField>
@@ -235,6 +238,7 @@ function onBack() {
               v-model="connectionHost"
               placeholder="localhost"
               class="w-full"
+              spellcheck="false"
               @update:model-value="onConnectionInfoChange"
             />
           </UFormField>
@@ -243,6 +247,7 @@ function onBack() {
               v-model="connectionPort"
               :placeholder="placeholders[state.type].port"
               class="w-full"
+              spellcheck="false"
               @update:model-value="onConnectionInfoChange"
             />
           </UFormField>
@@ -251,6 +256,7 @@ function onBack() {
               v-model="connectionUser"
               placeholder="user"
               class="w-full"
+              spellcheck="false"
               @update:model-value="onConnectionInfoChange"
             />
           </UFormField>
@@ -259,6 +265,7 @@ function onBack() {
               v-model="connectionPass"
               placeholder="pass"
               class="w-full"
+              spellcheck="false"
               @update:model-value="onConnectionInfoChange"
             />
           </UFormField>
@@ -267,6 +274,7 @@ function onBack() {
               v-model="connectionDatabase"
               :placeholder="placeholders[state.type].database"
               class="w-full"
+              spellcheck="false"
               @update:model-value="onConnectionInfoChange"
             />
           </UFormField>
@@ -285,11 +293,13 @@ function onBack() {
                   <UInput
                     v-model="connectionOption.name"
                     placeholder="Name"
+                    spellcheck="false"
                     @update:model-value="onConnectionInfoChange"
                   />
                   <UInput
                     v-model="connectionOption.value"
                     placeholder="Value"
+                    spellcheck="false"
                     @update:model-value="onConnectionInfoChange"
                   />
                   <UButton
