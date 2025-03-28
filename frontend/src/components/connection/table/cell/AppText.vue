@@ -9,6 +9,7 @@ const { disabled } = defineProps<{
 <template>
   <UInput
     v-model="value"
+    spellcheck="false"
     variant="ghost"
     :disabled="disabled"
     :ui="{
