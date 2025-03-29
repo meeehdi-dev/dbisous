@@ -15,7 +15,10 @@ import { useSidebar } from "@/composables/shared/useSidebar";
 const emit = defineEmits<
   RowEmits<Record<string, unknown>> & { queryEdit: [string] }
 >();
+
 const tx = useTransaction();
+const keys = useMagicKeys();
+const { slideoverOpen } = useSidebar();
 
 const {
   loading,
@@ -94,9 +97,6 @@ function onQueryEdit() {
     emit("queryEdit", query);
   }
 }
-
-const keys = useMagicKeys();
-const { slideoverOpen } = useSidebar();
 
 watch(keys["escape"], (esc) => {
   if (!esc || slideoverOpen.value) {
