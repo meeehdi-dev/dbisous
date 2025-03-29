@@ -57,6 +57,9 @@ export const useConnections = createSharedComposable(() => {
       return;
     }
     await fetchConnections();
+    if (id === connection.value) {
+      await router.push({ name: Route.Welcome });
+    }
   }
 
   const { register } = useCompletions();

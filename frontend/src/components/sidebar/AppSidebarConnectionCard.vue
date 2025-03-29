@@ -3,19 +3,16 @@ import { computed, ref } from "vue";
 import { useConnections } from "@/composables/shared/useConnections";
 import { app } from "_/go/models";
 import { useWails } from "@/composables/useWails";
-import { DeleteConnection, TestConnection } from "_/go/app/App";
-import { useRouter } from "vue-router";
+import { TestConnection } from "_/go/app/App";
 import { useApp } from "@/composables/shared/useApp";
-import { Route } from "@/router";
 
 const { value } = defineProps<{ value: app.Connection }>();
 const emit = defineEmits<{ edit: [string]; duplicate: [string] }>();
 
-const { isConnected, connect, disconnect, select, fetchConnections } =
+const { isConnected, connect, disconnect, select, removeConnection } =
   useConnections();
 const { connection } = useApp();
 const wails = useWails();
-const router = useRouter();
 // eslint-disable-next-line no-undef
 const toast = useToast();
 
@@ -29,17 +26,6 @@ function getConnectionName(connection: app.Connection) {
   }
   const parts = connection.connection_string.replace(/\\/g, "/").split("/");
   return parts[parts.length - 1];
-}
-
-async function removeConnection(id: string) {
-  const result = await wails(() => DeleteConnection(id));
-  if (result instanceof Error) {
-    return;
-  }
-  await fetchConnections();
-  if (id === connection.value) {
-    await router.push({ name: Route.Welcome });
-  }
 }
 
 async function onConnect(id: string) {

@@ -2,14 +2,24 @@
 import { useConnections } from "@/composables/shared/useConnections";
 import { useSidebar } from "@/composables/shared/useSidebar";
 import { CommandPaletteGroup, CommandPaletteItem } from "@nuxt/ui";
+import { useMagicKeys } from "@vueuse/core";
 import { app } from "_/go/models";
-import { computed } from "vue";
+import { computed, ref, watch } from "vue";
 
 const emit = defineEmits<{ close: [] }>();
 
-const { connect, disconnect, connections, activeConnections } =
-  useConnections();
+const {
+  connect,
+  disconnect,
+  removeConnection,
+  connections,
+  activeConnections,
+} = useConnections();
 const { slideoverOpen, editedConnection } = useSidebar();
+const keys = useMagicKeys();
+
+const open = ref(false);
+const onConfirm = ref<() => void | Promise<void>>();
 
 const connectable = connections.value.filter(
   (connection) => !activeConnections.value.includes(connection.id),
@@ -81,14 +91,17 @@ const groups = computed(() => {
       })),
     },
     {
-      id: "delete_connection",
-      label: "Delete connection",
+      id: "remove_connection",
+      label: "Remove connection",
       items: connections.value.map((connection) => ({
-        prefix: "Delete",
+        prefix: "Remove",
         label: connection.name,
         onSelect: () => {
-          // TODO: delete
-          emit("close");
+          onConfirm.value = async () => {
+            await removeConnection(connection.id);
+            emit("close");
+          };
+          open.value = true;
         },
       })),
     },
@@ -96,6 +109,14 @@ const groups = computed(() => {
 
   // eslint-disable-next-line @typescript-eslint/no-unsafe-return
   return groups;
+});
+
+watch(keys["enter"], async (enter) => {
+  if (!enter || !open.value || !onConfirm.value) {
+    return;
+  }
+
+  await onConfirm.value();
 });
 </script>
 
@@ -114,6 +135,27 @@ const groups = computed(() => {
             'text-(--ui-text-dimmed) [&>mark]:text-(--ui-bg) [&>mark]:bg-(--ui-primary)',
         }"
       />
+      <UModal
+        v-model:open="open"
+        title="Are you sure?"
+        :ui="{ footer: 'justify-end' }"
+      >
+        <template #footer>
+          <UButton
+            icon="lucide:x"
+            color="error"
+            variant="soft"
+            label="Cancel"
+            @click="open = false"
+          />
+          <UButton
+            icon="lucide:check"
+            variant="soft"
+            label="Confirm"
+            @click="onConfirm"
+          />
+        </template>
+      </UModal>
     </template>
   </UModal>
 </template>
