@@ -3,7 +3,7 @@
 **Cross-platform database manager built with Wails (Golang) and Vue.js for viewing, editing, and querying databases.**
 
 <p align="center">
-<img width="1136" alt="Screenshot 2025-02-17 at 00 12 56" src="https://github.com/user-attachments/assets/0afdf0a8-b70d-4fbe-9f38-68901f166695" />
+  <img width="1608" alt="Screenshot 2025-03-29 at 22 21 42" src="https://github.com/user-attachments/assets/23f511e0-7811-42c8-9dd0-5507538d3ba8" />
 </p>
 
 ## Features
