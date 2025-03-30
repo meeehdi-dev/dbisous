@@ -9,7 +9,7 @@ import (
 
 func TestMetadata(t *testing.T) {
 	r := require.New(t)
-	db, err := InitMetadataDB("file:test.db?mode=memory")
+	db, err := InitMetadataDB(":memory:")
 	r.NoError(err)
 	defer db.Close()
 
