@@ -15,3 +15,6 @@ frontend/components.d.ts
 # frontend
 frontend/node_modules
 frontend/.eslintcache
+
+# aider
+.aider*
