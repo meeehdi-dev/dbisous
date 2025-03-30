@@ -10,7 +10,7 @@ import (
 func TestGetConnectionDatabases(t *testing.T) {
 	r := require.New(t)
 	db, err := InitMetadataDB(":memory:")
-	r.Equal(err, nil, err)
+	r.NoError(err)
 	defer db.Close()
 
 	_ = createConnection(db, Connection{Type: PostgreSQL, Name: testConnectionName, ConnectionString: testPostgresConnectionString})
@@ -21,7 +21,7 @@ func TestGetConnectionDatabases(t *testing.T) {
 	filters := make([]client.QueryFilter, 0)
 	filters = append(filters, client.QueryFilter{Column: "datname", Value: "'dbisous_test'"})
 	result, err := getConnectionDatabases(connection.ID, client.QueryParams{Offset: 0, Limit: 10, Filter: filters})
-	r.Equal(nil, err, err)
+	r.NoError(err)
 	r.Equal(1, len(result.Rows), "Couldn't get databases")
 
 	// TODO: add separate tests for each param (offset, limit, filters, order)

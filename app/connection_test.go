@@ -16,11 +16,11 @@ var testMysqlConnectionString = "root:mysql@tcp(localhost:3306)/dbisous_test"
 func TestCreateConnection(t *testing.T) {
 	r := require.New(t)
 	db, err := InitMetadataDB(":memory:")
-	r.Equal(err, nil, err)
+	r.NoError(err)
 	defer db.Close()
 
 	err = createConnection(db, Connection{Type: PostgreSQL, Name: testConnectionName, ConnectionString: testPostgresConnectionString})
-	r.Equal(err, nil, err)
+	r.NoError(err)
 
 	connections, err := getConnections(db)
 	r.Equal(len(connections), 1, "Couldn't get connection")
@@ -33,7 +33,7 @@ func TestCreateConnection(t *testing.T) {
 func TestUpdateConnection(t *testing.T) {
 	r := require.New(t)
 	db, err := InitMetadataDB(":memory:")
-	r.Equal(err, nil, err)
+	r.NoError(err)
 	defer db.Close()
 
 	_ = createConnection(db, Connection{Type: PostgreSQL, Name: "Inexisting DB", ConnectionString: "postgres://postgres:postgres@localhost:5432/inexisting?sslmode=disable"})
@@ -46,7 +46,7 @@ func TestUpdateConnection(t *testing.T) {
 	connection.ConnectionString = testPostgresConnectionString
 
 	err = updateConnection(db, connection)
-	r.Equal(err, nil, err)
+	r.NoError(err)
 
 	connections, err = getConnections(db)
 	r.Equal(len(connections), 1, "Couldn't get connection")
@@ -59,22 +59,22 @@ func TestUpdateConnection(t *testing.T) {
 func TestTestConnection(t *testing.T) {
 	r := require.New(t)
 	db, err := InitMetadataDB(":memory:")
-	r.Equal(err, nil, err)
+	r.NoError(err)
 	defer db.Close()
 
 	// SQLite
 	err = testConnection(SQLite, ":memory:")
-	r.Equal(err, nil, err)
+	r.NoError(err)
 	// err = testConnection(SQLite, "./inexisting.db") // doesn't work bc sqlite creates db file automatically
 	// r.NotEqual(err, nil, "Tested inexisting connection")
 	// PostgreSQL
 	err = testConnection(PostgreSQL, testPostgresConnectionString)
-	r.Equal(err, nil, err)
+	r.NoError(err)
 	err = testConnection(PostgreSQL, "postgres://postgres:postgres@localhost:5432/inexisting?sslmode=disable")
 	r.NotEqual(err, nil, "Tested inexisting connection")
 	// MySQL
 	err = testConnection(MySQL, testMysqlConnectionString)
-	r.Equal(err, nil, err)
+	r.NoError(err)
 	err = testConnection(MySQL, "root:mysql@tcp(localhost:3306)/inexisting")
 	r.NotEqual(err, nil, "Tested inexisting connection")
 }
@@ -82,7 +82,7 @@ func TestTestConnection(t *testing.T) {
 func TestConnectConnection(t *testing.T) {
 	r := require.New(t)
 	db, err := InitMetadataDB(":memory:")
-	r.Equal(err, nil, err)
+	r.NoError(err)
 	defer db.Close()
 
 	var activeConnections = make(map[string]*sql.DB)
@@ -93,7 +93,7 @@ func TestConnectConnection(t *testing.T) {
 	connection := connections[0]
 
 	_, err = connect(activeConnections, db, connection.ID)
-	r.Equal(err, nil, err)
+	r.NoError(err)
 	_, err = connect(activeConnections, db, "")
 	r.NotEqual(err, nil, "Connected to inexisting database")
 }
@@ -101,7 +101,7 @@ func TestConnectConnection(t *testing.T) {
 func TestDisconnectConnection(t *testing.T) {
 	r := require.New(t)
 	db, err := InitMetadataDB(":memory:")
-	r.Equal(err, nil, err)
+	r.NoError(err)
 	defer db.Close()
 
 	var activeConnections = make(map[string]*sql.DB)
@@ -114,7 +114,7 @@ func TestDisconnectConnection(t *testing.T) {
 	_, _ = connect(activeConnections, db, connection.ID)
 
 	err = disconnect(activeConnections, connection.ID)
-	r.Equal(err, nil, err)
+	r.NoError(err)
 	err = disconnect(activeConnections, "")
 	r.NotEqual(err, nil, "Disconnected from inexisting database")
 }
@@ -122,7 +122,7 @@ func TestDisconnectConnection(t *testing.T) {
 func TestDeleteConnection(t *testing.T) {
 	r := require.New(t)
 	db, err := InitMetadataDB(":memory:")
-	r.Equal(err, nil, err)
+	r.NoError(err)
 	defer db.Close()
 
 	_ = createConnection(db, Connection{Type: PostgreSQL, Name: testConnectionName, ConnectionString: testPostgresConnectionString})
@@ -131,7 +131,7 @@ func TestDeleteConnection(t *testing.T) {
 	connection := connections[0]
 
 	err = deleteConnection(db, connection.ID)
-	r.Equal(err, nil, err)
+	r.NoError(err)
 
 	connections, err = getConnections(db)
 	r.Equal(len(connections), 0, "Connection still exists")

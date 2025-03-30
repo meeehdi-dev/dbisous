@@ -11,23 +11,23 @@ var pastQuery = "SELECT * FROM connection;"
 func TestInsertPastQuery(t *testing.T) {
 	r := require.New(t)
 	db, err := InitMetadataDB(":memory:")
-	r.Equal(err, nil, err)
+	r.NoError(err)
 	defer db.Close()
 
 	err = insertPastQuery(db, pastQuery)
-	r.Equal(err, nil, err)
+	r.NoError(err)
 }
 
 func TestGetPastQueries(t *testing.T) {
 	r := require.New(t)
 	db, err := InitMetadataDB(":memory:")
-	r.Equal(err, nil, err)
+	r.NoError(err)
 	defer db.Close()
 
 	insertPastQuery(db, pastQuery)
 
 	queries, err := getPastQueries(db)
-	r.Equal(err, nil, err)
+	r.NoError(err)
 
 	query := queries[0]
 	r.Equal(query.Query, pastQuery, "Wrong past query")
@@ -36,7 +36,7 @@ func TestGetPastQueries(t *testing.T) {
 func TestDeletePastQuery(t *testing.T) {
 	r := require.New(t)
 	db, err := InitMetadataDB(":memory:")
-	r.Equal(err, nil, err)
+	r.NoError(err)
 	defer db.Close()
 
 	insertPastQuery(db, pastQuery)

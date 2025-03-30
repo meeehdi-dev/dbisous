@@ -10,15 +10,15 @@ import (
 func TestMetadata(t *testing.T) {
 	r := require.New(t)
 	db, err := InitMetadataDB("file:test.db?mode=memory")
-	r.Equal(err, nil, err)
+	r.NoError(err)
 	defer db.Close()
 
 	err = db.Ping()
-	r.Equal(err, nil, err)
+	r.NoError(err)
 
 	err = createConnectionTable(db)
-	r.Equal(err, nil, err)
+	r.NoError(err)
 
 	err = createPastQueryTable(db)
-	r.Equal(err, nil, err)
+	r.NoError(err)
 }
