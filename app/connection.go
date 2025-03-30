@@ -156,5 +156,6 @@ func disconnect(activeConnections map[string]*sql.DB, id string) error {
 	}
 
 	delete(dbClients, id)
+	delete(activeConnections, id) // Add this line
 	return conn.Close()
 }
