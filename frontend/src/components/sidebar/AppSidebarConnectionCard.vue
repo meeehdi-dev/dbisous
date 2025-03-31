@@ -19,6 +19,7 @@ const toast = useToast();
 const connected = computed(() => isConnected(value.id));
 
 const connecting = ref(false);
+const testingConnection = ref(false);
 
 function getConnectionName(connection: app.Connection) {
   if (connection.name) {
@@ -41,12 +42,14 @@ async function onDisconnect(id: string) {
 }
 
 async function testConnection(connection: app.Connection) {
+  testingConnection.value = true;
   const result = await wails(() =>
     TestConnection(connection.type, connection.connection_string),
   );
   if (result instanceof Error) {
     return;
   }
+  testingConnection.value = false;
   toast.add({
     title: "Test connection",
     description: "Successfully pinged database!",
@@ -117,6 +120,7 @@ async function testConnection(connection: app.Connection) {
               variant="soft"
               color="success"
               label="Test"
+              :loading="testingConnection"
               @click="testConnection(value)"
             />
             <UButton
