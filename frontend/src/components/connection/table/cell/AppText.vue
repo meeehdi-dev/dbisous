@@ -13,7 +13,7 @@ const { disabled } = defineProps<{
     variant="ghost"
     :disabled="disabled"
     :ui="{
-      base: 'pr-8 w-full overflow-ellipsis',
+      base: 'w-full overflow-ellipsis',
       trailing: 'pr-1',
     }"
   />
