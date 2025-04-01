@@ -4,7 +4,7 @@ import { ref } from "vue";
 
 export const useSidebar = createSharedComposable(() => {
   const slideoverOpen = ref(false);
-  const editedConnection = ref<Partial<app.Connection>>();
+  const editedConnection = ref<Omit<app.Connection, "id"> & { id?: string }>();
 
   return { slideoverOpen, editedConnection };
 });
