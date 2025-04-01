@@ -64,7 +64,7 @@ function openLink(url: string) {
 <template>
   <div class="flex flex-initial">
     <div class="flex flex-auto items-center justify-center p-2">
-      <UModal>
+      <UModal :ui="{ content: 'max-w-4xl' }">
         <UButton
           icon="simple-icons:git"
           color="neutral"
