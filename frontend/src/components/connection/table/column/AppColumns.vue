@@ -87,7 +87,7 @@ const columnPinning = ref({ right: ["action"] });
         :ui="{
           th: 'pt-0 pb-2 px-4',
           td: 'p-0 min-w-max',
-          tbody: data && data.length > 0 ? '[&>tr]:odd:bg-neutral-800' : '',
+          tbody: data && data.length > 0 ? '[&>tr]:even:bg-neutral-950/50' : '',
         }"
       >
         <template #action-cell="{ row: { original: row } }">
