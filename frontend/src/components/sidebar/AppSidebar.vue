@@ -37,9 +37,6 @@ defineShortcuts({
   meta_k: () => {
     onCommandPaletteTrigger();
   },
-  meta_d: () => {
-    // TODO: popconfirm disconnect
-  },
 });
 
 // eslint-disable-next-line no-undef
