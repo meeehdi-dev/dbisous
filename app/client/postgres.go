@@ -164,6 +164,7 @@ func (c *PostgresClient) GetDatabaseSchemas(params QueryParams) (QueryResult, er
 }
 
 func (c *PostgresClient) GetSchemaTables(params QueryParams, schema string) (QueryResult, error) {
+	params.Columns = []string{"table_name"}
 	return c.executeSelectQuery(fmt.Sprintf("information_schema.tables WHERE table_schema = '%s'", schema), params)
 }
 
