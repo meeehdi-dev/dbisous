@@ -60,10 +60,11 @@ type QueryFilter struct {
 }
 
 type QueryParams struct {
-	Limit  int           `json:"limit"`
-	Offset int           `json:"offset"`
-	Order  []QueryOrder  `json:"order"`
-	Filter []QueryFilter `json:"filter"`
+	Columns []string      `json:"columns"`
+	Limit   int           `json:"limit"`
+	Offset  int           `json:"offset"`
+	Order   []QueryOrder  `json:"order"`
+	Filter  []QueryFilter `json:"filter"`
 }
 
 type ExportType string

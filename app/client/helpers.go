@@ -123,7 +123,11 @@ func executeQuery(db *sql.DB, query string) (QueryResult, error) {
 }
 
 func executeSelectQuery(db *sql.DB, query string, params QueryParams) (QueryResult, error) {
-	execQuery := fmt.Sprintf("SELECT * FROM %s", query)
+	columns := "*"
+	if len(params.Columns) > 0 {
+		columns = strings.Join(params.Columns, ", ")
+	}
+	execQuery := fmt.Sprintf("SELECT %s FROM %s", columns, query)
 
 	if len(params.Filter) > 0 {
 		if !strings.Contains(execQuery, "WHERE") {

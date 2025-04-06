@@ -103,20 +103,24 @@ func (c *PostgresClient) getSchemas() ([]string, error) {
 	return schemas, nil
 }
 
-func (c *PostgresClient) fetchColumnsMetadata(schema string, table string) ([]ColumnMetadata, error) {
+func (c *PostgresClient) fetchColumnsMetadata(schema string, table string, columns []string) ([]ColumnMetadata, error) {
 	var columnsMetadata []ColumnMetadata
 
 	tcSchema := ""
 	cSchema := ""
+	cColumns := ""
 	if len(schema) > 0 {
 		tcSchema = fmt.Sprintf(" tc.table_schema = '%s' AND", schema)
 		cSchema = fmt.Sprintf(" c.table_schema = '%s' AND", schema)
 	}
-	columns, err := c.Db.Query(fmt.Sprintf("SELECT c.column_name AS name, c.data_type AS type, COALESCE(c.column_default, 'NULL') AS default_value, CASE c.is_nullable WHEN 'YES' THEN true ELSE false END nullable, COALESCE((SELECT TRUE FROM information_schema.table_constraints tc LEFT JOIN information_schema.key_column_usage kcu ON tc.constraint_name = kcu.constraint_name WHERE%s tc.table_name = '%s' AND tc.constraint_type = 'PRIMARY KEY' AND kcu.COLUMN_NAME = c.COLUMN_NAME GROUP BY tc.TABLE_SCHEMA, tc.TABLE_NAME, kcu.COLUMN_NAME), FALSE) AS primary_key FROM information_schema.columns c WHERE%s c.table_name = '%s'", tcSchema, table, cSchema, table))
+	if len(columns) > 0 {
+		cColumns = fmt.Sprintf(" AND c.column_name IN (%s)", "'"+strings.Join(columns, "', '")+"'")
+	}
+	queryColumns, err := c.Db.Query(fmt.Sprintf("SELECT c.column_name AS name, c.data_type AS type, COALESCE(c.column_default, 'NULL') AS default_value, CASE c.is_nullable WHEN 'YES' THEN true ELSE false END nullable, COALESCE((SELECT TRUE FROM information_schema.table_constraints tc LEFT JOIN information_schema.key_column_usage kcu ON tc.constraint_name = kcu.constraint_name WHERE%s tc.table_name = '%s' AND tc.constraint_type = 'PRIMARY KEY' AND kcu.COLUMN_NAME = c.COLUMN_NAME GROUP BY tc.TABLE_SCHEMA, tc.TABLE_NAME, kcu.COLUMN_NAME), FALSE) AS primary_key FROM information_schema.columns c WHERE%s c.table_name = '%s'%s", tcSchema, table, cSchema, table, cColumns))
 	if err != nil {
 		return columnsMetadata, err
 	}
-	columnsMetadata, err = fetchColumns(columns)
+	columnsMetadata, err = fetchColumns(queryColumns)
 	if err != nil {
 		return columnsMetadata, err
 	}
@@ -140,7 +144,7 @@ func (c *PostgresClient) executeSelectQuery(query string, params QueryParams) (Q
 		return result, err
 	}
 
-	columnsMetadata, err := c.fetchColumnsMetadata(schema, tableName)
+	columnsMetadata, err := c.fetchColumnsMetadata(schema, tableName, params.Columns)
 	if err != nil {
 		return result, err
 	}
@@ -150,10 +154,12 @@ func (c *PostgresClient) executeSelectQuery(query string, params QueryParams) (Q
 }
 
 func (c *PostgresClient) GetConnectionDatabases(params QueryParams) (QueryResult, error) {
+	params.Columns = []string{"datname"}
 	return c.executeSelectQuery("pg_database WHERE datistemplate = FALSE", params)
 }
 
 func (c *PostgresClient) GetDatabaseSchemas(params QueryParams) (QueryResult, error) {
+	params.Columns = []string{"schema_name"}
 	return c.executeSelectQuery("information_schema.schemata", params)
 }
 
@@ -198,7 +204,7 @@ func (c *PostgresClient) Export(options ExportOptions) (string, error) {
 				table := parts[1]
 				if table != currentTable {
 					var err error
-					currentTableMetadata, err = c.fetchColumnsMetadata(schema, table)
+					currentTableMetadata, err = c.fetchColumnsMetadata(schema, table, []string{}) // FIXME: do we have to specify columns here?
 					if err != nil {
 						return "", err
 					}
