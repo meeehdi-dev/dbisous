@@ -103,14 +103,25 @@ func (c *MysqlClient) getSchemas() ([]string, error) {
 	return schemas, nil
 }
 
-func (c *MysqlClient) fetchColumnsMetadata(schema string, table string) ([]ColumnMetadata, error) {
+func (c *MysqlClient) fetchColumnsMetadata(schema string, table string, columns []string) ([]ColumnMetadata, error) {
 	var columnsMetadata []ColumnMetadata
 
-	columns, err := c.Db.Query("SELECT c.COLUMN_NAME AS name, c.DATA_TYPE AS type, COALESCE(c.COLUMN_DEFAULT, 'NULL') AS default_value, CASE c.IS_NULLABLE WHEN 'YES' THEN true ELSE false END nullable, COALESCE((SELECT TRUE FROM information_schema.TABLE_CONSTRAINTS tc LEFT JOIN information_schema.KEY_COLUMN_USAGE kcu ON tc.CONSTRAINT_NAME = kcu.CONSTRAINT_NAME WHERE tc.TABLE_SCHEMA = ? AND tc.TABLE_NAME = ? AND tc.CONSTRAINT_TYPE = 'PRIMARY KEY' AND kcu.COLUMN_NAME = c.COLUMN_NAME GROUP BY tc.TABLE_SCHEMA, tc.TABLE_NAME, kcu.COLUMN_NAME), FALSE) AS primary_key FROM information_schema.COLUMNS c WHERE c.TABLE_SCHEMA = ? AND c.TABLE_NAME = ?", schema, table, schema, table)
+	tcSchema := ""
+	cSchema := ""
+	cColumns := ""
+	if len(schema) > 0 {
+		tcSchema = fmt.Sprintf(" tc.table_schema = '%s' AND", schema)
+		cSchema = fmt.Sprintf(" c.table_schema = '%s' AND", schema)
+	}
+	if len(columns) > 0 {
+		cColumns = fmt.Sprintf(" AND c.column_name IN (%s)", "'"+strings.Join(columns, "', '")+"'")
+	}
+
+	queryColumns, err := c.Db.Query(fmt.Sprintf("SELECT c.column_name AS name, c.data_type AS type, COALESCE(c.column_default, 'NULL') AS default_value, CASE c.is_nullable WHEN 'YES' THEN true ELSE false END nullable, COALESCE((SELECT TRUE FROM information_schema.table_constraints tc LEFT JOIN information_schema.key_column_usage kcu ON tc.constraint_name = kcu.constraint_name WHERE%s tc.table_name = '%s' AND tc.constraint_type = 'PRIMARY KEY' AND kcu.COLUMN_NAME = c.COLUMN_NAME GROUP BY tc.TABLE_SCHEMA, tc.TABLE_NAME, kcu.COLUMN_NAME), FALSE) AS primary_key FROM information_schema.columns c WHERE%s c.table_name = '%s'%s", tcSchema, table, cSchema, table, cColumns))
 	if err != nil {
 		return columnsMetadata, err
 	}
-	columnsMetadata, err = fetchColumns(columns)
+	columnsMetadata, err = fetchColumns(queryColumns)
 	if err != nil {
 		return columnsMetadata, err
 	}
@@ -134,7 +145,7 @@ func (c *MysqlClient) executeSelectQuery(query string, params QueryParams) (Quer
 		return result, err
 	}
 
-	columnsMetadata, err := c.fetchColumnsMetadata(schema, tableName)
+	columnsMetadata, err := c.fetchColumnsMetadata(schema, tableName, params.Columns)
 	if err != nil {
 		return result, err
 	}
@@ -148,11 +159,13 @@ func (c *MysqlClient) GetConnectionDatabases(params QueryParams) (QueryResult, e
 }
 
 func (c *MysqlClient) GetDatabaseSchemas(params QueryParams) (QueryResult, error) {
-	return c.executeSelectQuery("information_schema.schemata WHERE schema_name = DATABASE()", params)
+	params.Columns = []string{"SCHEMA_NAME"}
+	return c.executeSelectQuery("information_schema.schemata WHERE SCHEMA_NAME = DATABASE()", params)
 }
 
 func (c *MysqlClient) GetSchemaTables(params QueryParams, schema string) (QueryResult, error) {
-	return c.executeSelectQuery(fmt.Sprintf("information_schema.tables WHERE table_schema = '%s'", schema), params)
+	params.Columns = []string{"TABLE_NAME"}
+	return c.executeSelectQuery(fmt.Sprintf("information_schema.tables WHERE TABLE_SCHEMA = '%s'", schema), params)
 }
 
 func (c *MysqlClient) GetTableRows(params QueryParams, schema string, table string) (QueryResult, error) {
@@ -192,7 +205,7 @@ func (c *MysqlClient) Export(options ExportOptions) (string, error) {
 				table := parts[1]
 				if table != currentTable {
 					var err error
-					currentTableMetadata, err = c.fetchColumnsMetadata(schema, table)
+					currentTableMetadata, err = c.fetchColumnsMetadata(schema, table, []string{})
 					if err != nil {
 						return "", err
 					}
