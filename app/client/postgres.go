@@ -116,7 +116,7 @@ func (c *PostgresClient) fetchColumnsMetadata(schema string, table string, colum
 	if len(columns) > 0 {
 		cColumns = fmt.Sprintf(" AND c.column_name IN (%s)", "'"+strings.Join(columns, "', '")+"'")
 	}
-	queryColumns, err := c.Db.Query(fmt.Sprintf("SELECT c.column_name AS name, c.data_type AS type, COALESCE(c.column_default, 'NULL') AS default_value, CASE c.is_nullable WHEN 'YES' THEN true ELSE false END nullable, COALESCE((SELECT TRUE FROM information_schema.table_constraints tc LEFT JOIN information_schema.key_column_usage kcu ON tc.constraint_name = kcu.constraint_name WHERE%s tc.table_name = '%s' AND tc.constraint_type = 'PRIMARY KEY' AND kcu.COLUMN_NAME = c.COLUMN_NAME GROUP BY tc.TABLE_SCHEMA, tc.TABLE_NAME, kcu.COLUMN_NAME), FALSE) AS primary_key FROM information_schema.columns c WHERE%s c.table_name = '%s'%s", tcSchema, table, cSchema, table, cColumns))
+	queryColumns, err := c.Db.Query(fmt.Sprintf("SELECT c.column_name AS name, c.data_type AS type, COALESCE(c.column_default, 'NULL') AS default_value, CASE c.is_nullable WHEN 'YES' THEN true ELSE false END nullable, COALESCE((SELECT TRUE FROM information_schema.table_constraints tc LEFT JOIN information_schema.key_column_usage kcu ON tc.constraint_name = kcu.constraint_name WHERE%s tc.table_name ILIKE '%s' AND tc.constraint_type ILIKE 'PRIMARY KEY' AND kcu.COLUMN_NAME ILIKE c.COLUMN_NAME GROUP BY tc.TABLE_SCHEMA, tc.TABLE_NAME, kcu.COLUMN_NAME), FALSE) AS primary_key FROM information_schema.columns c WHERE%s c.table_name ILIKE '%s'%s", tcSchema, table, cSchema, table, cColumns))
 	if err != nil {
 		return columnsMetadata, err
 	}
@@ -144,22 +144,40 @@ func (c *PostgresClient) executeSelectQuery(query string, params QueryParams) (Q
 		return result, err
 	}
 
-	columnsMetadata, err := c.fetchColumnsMetadata(schema, tableName, params.Columns)
+	columns := []string{}
+	aliases := make(map[string]string)
+	for _, col := range params.Columns {
+		tokens := strings.Split(col, " AS ")
+		columns = append(columns, tokens[0])
+		if len(tokens) > 1 {
+			aliases[tokens[0]] = tokens[1]
+		}
+	}
+
+	columnsMetadata, err := c.fetchColumnsMetadata(schema, tableName, columns)
 	if err != nil {
 		return result, err
 	}
 	result.Columns = columnsMetadata
 
+	// handle aliases
+	for i, col := range result.Columns {
+		result.Columns[i].OriginalName = col.Name
+		if aliases[col.Name] != "" {
+			result.Columns[i].Name = aliases[col.Name]
+		}
+	}
+
 	return result, err
 }
 
 func (c *PostgresClient) GetConnectionDatabases(params QueryParams) (QueryResult, error) {
-	params.Columns = []string{"datname"}
+	params.Columns = []string{"datname AS name"}
 	return c.executeSelectQuery("pg_database WHERE datistemplate = FALSE", params)
 }
 
 func (c *PostgresClient) GetDatabaseSchemas(params QueryParams) (QueryResult, error) {
-	params.Columns = []string{"schema_name"}
+	params.Columns = []string{"schema_name AS name"}
 	return c.executeSelectQuery("information_schema.schemata", params)
 }
 

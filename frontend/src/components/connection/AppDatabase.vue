@@ -123,10 +123,7 @@ function onQueryEdit(query: string) {
         :filtering="filtering"
         :actions="[RowAction.View]"
         @view="
-          (row: Record<string, unknown>) =>
-            navigateToSchema(
-              (row.SCHEMA_NAME || row.schema_name || row.name) as string,
-            )
+          (row: Record<string, unknown>) => navigateToSchema(row.name as string)
         "
         @pagination-change="fetchData"
         @query-edit="onQueryEdit"

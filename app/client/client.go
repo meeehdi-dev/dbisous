@@ -13,6 +13,7 @@ type DatabaseClient interface {
 }
 
 type ColumnMetadata struct {
+	OriginalName string `json:"original_name"`
 	Name         string `json:"name"`
 	Type         string `json:"type"`
 	DefaultValue string `json:"default_value"`

@@ -145,26 +145,45 @@ func (c *MysqlClient) executeSelectQuery(query string, params QueryParams) (Quer
 		return result, err
 	}
 
-	columnsMetadata, err := c.fetchColumnsMetadata(schema, tableName, params.Columns)
+	columns := []string{}
+	aliases := make(map[string]string)
+	for _, col := range params.Columns {
+		tokens := strings.Split(col, " AS ")
+		columns = append(columns, tokens[0])
+		if len(tokens) > 1 {
+			aliases[tokens[0]] = tokens[1]
+		}
+	}
+
+	columnsMetadata, err := c.fetchColumnsMetadata(schema, tableName, columns)
 	if err != nil {
 		return result, err
 	}
 	result.Columns = columnsMetadata
 
+	// handle aliases
+	for i, col := range result.Columns {
+		result.Columns[i].OriginalName = col.Name
+		if aliases[col.Name] != "" {
+			result.Columns[i].Name = aliases[col.Name]
+		}
+	}
+
 	return result, err
 }
 
 func (c *MysqlClient) GetConnectionDatabases(params QueryParams) (QueryResult, error) {
-	return executeQuery(c.Db, "SHOW DATABASES")
+	params.Columns = []string{"SCHEMA_NAME AS name"}
+	return c.executeSelectQuery("information_schema.schemata", params)
 }
 
 func (c *MysqlClient) GetDatabaseSchemas(params QueryParams) (QueryResult, error) {
-	params.Columns = []string{"SCHEMA_NAME"}
+	params.Columns = []string{"SCHEMA_NAME AS name"}
 	return c.executeSelectQuery("information_schema.schemata WHERE SCHEMA_NAME = DATABASE()", params)
 }
 
 func (c *MysqlClient) GetSchemaTables(params QueryParams, schema string) (QueryResult, error) {
-	params.Columns = []string{"TABLE_NAME"}
+	params.Columns = []string{"TABLE_NAME AS name"}
 	return c.executeSelectQuery(fmt.Sprintf("information_schema.tables WHERE TABLE_SCHEMA = '%s'", schema), params)
 }
 

@@ -151,9 +151,7 @@ function onQueryEdit(query: string) {
         :actions="[RowAction.View]"
         @view="
           (row: Record<string, unknown>) =>
-            navigateToDatabase(
-              (row.name || row.datname || row.Database) as string,
-            )
+            navigateToDatabase(row.name as string)
         "
         @pagination-change="fetchData"
         @query-edit="onQueryEdit"

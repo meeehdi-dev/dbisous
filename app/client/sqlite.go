@@ -76,14 +76,19 @@ func (c *SqliteClient) getTables() ([]string, error) {
 	return tables, nil
 }
 
-func (c *SqliteClient) fetchColumnsMetadata(table string) ([]ColumnMetadata, error) {
+func (c *SqliteClient) fetchColumnsMetadata(table string, columns []string) ([]ColumnMetadata, error) {
 	columnsMetadata := make([]ColumnMetadata, 0)
 
-	columns, err := c.Db.Query("SELECT name, type, COALESCE(dflt_value, 'NULL') AS default_value, CASE \"notnull\" WHEN 1 THEN false ELSE true END nullable, pk AS primary_key FROM pragma_table_info(?)", table)
+	cColumns := ""
+	if len(columns) > 0 {
+		cColumns = fmt.Sprintf(" WHERE name IN (%s)", "'"+strings.Join(columns, "', '")+"'")
+	}
+
+	queryColumns, err := c.Db.Query(fmt.Sprintf("SELECT name, type, COALESCE(dflt_value, 'NULL') AS default_value, CASE \"notnull\" WHEN 1 THEN false ELSE true END nullable, pk AS primary_key FROM pragma_table_info('%s')%s", table, cColumns))
 	if err != nil {
 		return columnsMetadata, err
 	}
-	columnsMetadata, err = fetchColumns(columns)
+	columnsMetadata, err = fetchColumns(queryColumns)
 	if err != nil {
 		return columnsMetadata, err
 	}
@@ -100,11 +105,29 @@ func (c *SqliteClient) executeSelectQuery(query string, params QueryParams) (Que
 		return result, err
 	}
 
-	columnsMetadata, err := c.fetchColumnsMetadata(table)
+	columns := []string{}
+	aliases := make(map[string]string)
+	for _, col := range params.Columns {
+		tokens := strings.Split(col, " AS ")
+		columns = append(columns, tokens[0])
+		if len(tokens) > 1 {
+			aliases[tokens[0]] = tokens[1]
+		}
+	}
+
+	columnsMetadata, err := c.fetchColumnsMetadata(table, columns)
 	if err != nil {
 		return result, err
 	}
 	result.Columns = columnsMetadata
+
+	// handle aliases
+	for i, col := range result.Columns {
+		result.Columns[i].OriginalName = col.Name
+		if aliases[col.Name] != "" {
+			result.Columns[i].Name = aliases[col.Name]
+		}
+	}
 
 	return result, err
 }
@@ -123,10 +146,12 @@ func (c *SqliteClient) GetConnectionDatabases(params QueryParams) (QueryResult, 
 }
 
 func (c *SqliteClient) GetDatabaseSchemas(params QueryParams) (QueryResult, error) {
+	params.Columns = []string{"name"}
 	return c.executeSelectQuery("sqlite_master WHERE type LIKE 'table'", params)
 }
 
 func (c *SqliteClient) GetSchemaTables(params QueryParams, schema string) (QueryResult, error) {
+	params.Columns = []string{"name"}
 	return c.executeSelectQuery(fmt.Sprintf("sqlite_master WHERE type LIKE 'table' AND name = '%s'", schema), params)
 }
 
@@ -167,7 +192,7 @@ func (c *SqliteClient) Export(options ExportOptions) (string, error) {
 				table := parts[1]
 				if table != currentTable {
 					var err error
-					currentTableMetadata, err = c.fetchColumnsMetadata(table)
+					currentTableMetadata, err = c.fetchColumnsMetadata(table, []string{})
 					if err != nil {
 						return "", err
 					}
