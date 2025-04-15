@@ -5,7 +5,7 @@ import { editor } from "monaco-editor";
 
 const {
   defaultValue = "",
-  height = 100,
+  height = 200,
   disabled = false,
 } = defineProps<{
   defaultValue?: string;

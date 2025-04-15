@@ -110,11 +110,12 @@ defineShortcuts({
   <div class="flex flex-auto flex-col gap-2 overflow-hidden">
     <div class="flex flex-col gap-2">
       <div class="flex gap-2 px-2">
+        <!-- TODO: handle height here and children as h-full -->
         <div class="flex flex-1/2">
           <AppEditor v-model="query" :default-value="defaultQuery" />
         </div>
         <div
-          class="flex h-[116px] flex-1/2 flex-col gap-2 overflow-auto rounded bg-neutral-950 p-2"
+          class="flex h-[216px] flex-1/2 flex-col gap-2 overflow-auto rounded bg-neutral-950 p-2"
         >
           <div
             v-for="past_query in pastQueries"
