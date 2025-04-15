@@ -129,6 +129,32 @@ func (c *MysqlClient) fetchColumnsMetadata(schema string, table string, columns 
 	return columnsMetadata, nil
 }
 
+func (c *MysqlClient) getEnumValues(db *sql.DB, schema string, table string, column string) ([]string, error) {
+	result := []string{}
+	rows, err := db.Query(fmt.Sprintf("SELECT column_type FROM information_schema.columns WHERE table_schema = '%s' AND table_name = '%s' AND column_name = '%s'", schema, table, column))
+	if err != nil {
+		return result, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var enum string
+		err := rows.Scan(&enum)
+		if err != nil {
+			return result, err
+		}
+		enum = strings.TrimPrefix(enum, "enum(")
+		enum = strings.TrimSuffix(enum, ")")
+		values := strings.Split(enum, ",")
+		for _, value := range values {
+			value = strings.TrimPrefix(value, "'")
+			value = strings.TrimSuffix(value, "'")
+			result = append(result, value)
+		}
+	}
+	return result, nil
+}
+
 func (c *MysqlClient) executeSelectQuery(query string, params QueryParams) (QueryResult, error) {
 	queryParts := strings.Split(query, " ")
 	table := queryParts[0]
@@ -160,6 +186,17 @@ func (c *MysqlClient) executeSelectQuery(query string, params QueryParams) (Quer
 		return result, err
 	}
 	result.Columns = columnsMetadata
+
+	result.Enums = []EnumMetadata{}
+	for _, col := range columnsMetadata {
+		if col.Type == "enum" {
+			values, err := c.getEnumValues(c.Db, schema, tableName, col.Name)
+			if err != nil {
+				return result, err
+			}
+			result.Enums = append(result.Enums, EnumMetadata{Column: col.Name, Values: values})
+		}
+	}
 
 	// handle aliases
 	for i, col := range result.Columns {

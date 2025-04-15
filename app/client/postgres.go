@@ -128,7 +128,7 @@ func (c *PostgresClient) fetchColumnsMetadata(schema string, table string, colum
 	return columnsMetadata, nil
 }
 
-func getEnumValues(db *sql.DB, schema string, table string, column string) ([]string, error) {
+func (c *PostgresClient) getEnumValues(db *sql.DB, schema string, table string, column string) ([]string, error) {
 	result := []string{}
 
 	rows, err := db.Query(fmt.Sprintf("SELECT enumlabel FROM pg_enum WHERE enumtypid = (SELECT atttypid FROM pg_attribute WHERE attrelid = '%s.%s'::regclass AND attname = '%s')", schema, table, column))
@@ -183,7 +183,7 @@ func (c *PostgresClient) executeSelectQuery(query string, params QueryParams) (Q
 	result.Enums = []EnumMetadata{}
 	for _, col := range columnsMetadata {
 		if col.Type == "USER-DEFINED" {
-			values, err := getEnumValues(c.Db, schema, tableName, col.Name)
+			values, err := c.getEnumValues(c.Db, schema, tableName, col.Name)
 			if err != nil {
 				return result, err
 			}

@@ -69,8 +69,14 @@ export const cell =
     });
 
 export const booleanTypes = ["bool", "boolean"];
-export const textTypes = ["name", "text", "varchar", "character varying"];
-export const enumTypes = ["user-defined"];
+export const textTypes = [
+  "name",
+  "text",
+  "varchar",
+  "character varying",
+  "longtext",
+];
+export const enumTypes = ["user-defined", "enum"];
 export const dateTypes = [
   "timestamp",
   "datetime",
