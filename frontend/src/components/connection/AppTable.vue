@@ -96,6 +96,7 @@ async function fetchData(page = 1, itemsPerPage = 10) {
         return fetchData();
       },
       table.value,
+      result.enums,
       primaryKey.value,
       false,
     ),

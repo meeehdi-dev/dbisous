@@ -3,6 +3,7 @@ import { computed, ref } from "vue";
 import {
   booleanTypes,
   dateTypes,
+  enumTypes,
   numberTypes,
   textTypes,
 } from "@/components/connection/table/table";
@@ -15,6 +16,7 @@ const {
   row,
   initialValue,
   type = "",
+  items = [],
   defaultValue = undefined,
   nullable = false,
   disabled,
@@ -25,6 +27,7 @@ const {
   row?: Record<string, unknown>;
   initialValue: unknown;
   type?: string;
+  items?: string[];
   defaultValue?: unknown;
   nullable?: boolean;
   disabled: boolean;
@@ -124,6 +127,12 @@ const isDirty = computed(() => value.value !== initialValue);
     <AppTypeSelect
       v-if="type.toLowerCase() === 'type'"
       v-model="value as string"
+      :disabled="disabled || isDeleted"
+    />
+    <AppSelect
+      v-else-if="enumTypes.includes(type.toLowerCase())"
+      v-model="value as string"
+      :items="items"
       :disabled="disabled || isDeleted"
     />
     <AppCheckbox

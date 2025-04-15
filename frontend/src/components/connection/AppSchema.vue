@@ -98,6 +98,7 @@ async function fetchData(page = 1, itemsPerPage = 10) {
         return fetchData();
       },
       undefined,
+      result.enums,
       undefined,
       true,
     ),

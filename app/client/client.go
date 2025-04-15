@@ -23,10 +23,16 @@ type ColumnMetadata struct {
 
 type Row map[string]any
 
+type EnumMetadata struct {
+	Column string   `json:"column"`
+	Values []string `json:"values"`
+}
+
 type QueryResult struct {
 	Query    string           `json:"query"`
 	Rows     []Row            `json:"rows"`
 	Columns  []ColumnMetadata `json:"columns"`
+	Enums    []EnumMetadata   `json:"enums"`
 	Total    int              `json:"total"`
 	Duration string           `json:"duration"`
 }

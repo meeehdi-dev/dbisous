@@ -128,6 +128,26 @@ func (c *PostgresClient) fetchColumnsMetadata(schema string, table string, colum
 	return columnsMetadata, nil
 }
 
+func getEnumValues(db *sql.DB, schema string, table string, column string) ([]string, error) {
+	result := []string{}
+
+	rows, err := db.Query(fmt.Sprintf("SELECT enumlabel FROM pg_enum WHERE enumtypid = (SELECT atttypid FROM pg_attribute WHERE attrelid = '%s.%s'::regclass AND attname = '%s')", schema, table, column))
+	if err != nil {
+		return result, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var value string
+		err := rows.Scan(&value)
+		if err != nil {
+			return result, err
+		}
+		result = append(result, value)
+	}
+	return result, nil
+}
+
 func (c *PostgresClient) executeSelectQuery(query string, params QueryParams) (QueryResult, error) {
 	queryParts := strings.Split(query, " ")
 	table := queryParts[0]
@@ -159,6 +179,17 @@ func (c *PostgresClient) executeSelectQuery(query string, params QueryParams) (Q
 		return result, err
 	}
 	result.Columns = columnsMetadata
+
+	result.Enums = []EnumMetadata{}
+	for _, col := range columnsMetadata {
+		if col.Type == "USER-DEFINED" {
+			values, err := getEnumValues(c.Db, schema, tableName, col.Name)
+			if err != nil {
+				return result, err
+			}
+			result.Enums = append(result.Enums, EnumMetadata{Column: col.Name, Values: values})
+		}
+	}
 
 	// handle aliases
 	for i, col := range result.Columns {

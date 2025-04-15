@@ -35,6 +35,7 @@ export type CellProps = {
   column?: string;
   row?: unknown;
   type?: string;
+  items?: string[];
   defaultValue?: unknown;
   nullable?: boolean;
   disabled: boolean;
@@ -45,6 +46,7 @@ export const cell =
     primaryKey,
     column,
     type,
+    items,
     defaultValue,
     nullable,
     disabled,
@@ -60,6 +62,7 @@ export const cell =
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
       initialValue: ctx.getValue(),
       type,
+      items,
       defaultValue,
       nullable,
       disabled,
@@ -67,6 +70,7 @@ export const cell =
 
 export const booleanTypes = ["bool", "boolean"];
 export const textTypes = ["name", "text", "varchar", "character varying"];
+export const enumTypes = ["user-defined"];
 export const dateTypes = [
   "timestamp",
   "datetime",
@@ -90,6 +94,7 @@ export function formatColumns(
   onSort: (name: string, sort: SortDirection) => void | Promise<void>,
   onFilter: (name: string, filter: false | string) => void | Promise<void>,
   table?: string,
+  enums?: client.EnumMetadata[],
   primaryKey?: string,
   disabled = false,
 ) {
@@ -101,6 +106,7 @@ export function formatColumns(
         primaryKey,
         column: name,
         type,
+        items: enums?.find((e) => e.column === name)?.values,
         defaultValue,
         nullable,
         disabled,
