@@ -9,7 +9,13 @@ import type { FormSubmitEvent } from "@nuxt/ui";
 import { parseConnectionString } from "@/utils/connection";
 
 const emit = defineEmits<{ connectionAdded: [] }>();
-const connection = defineModel<Omit<app.Connection, "id"> & { id?: string }>();
+const connection = defineModel<
+  Omit<app.Connection, "id" | "created_at" | "updated_at"> & {
+    id?: string;
+    created_at?: string;
+    updated_at?: string;
+  }
+>();
 
 const wails = useWails();
 // eslint-disable-next-line no-undef

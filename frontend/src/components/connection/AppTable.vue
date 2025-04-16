@@ -13,6 +13,7 @@ import { SortDirection } from "@/components/connection/table/column/AppColumnHea
 import { useApp } from "@/composables/shared/useApp";
 import { toSqlValue } from "@/utils/transaction";
 import { Tab } from "@/utils/tabs";
+import { watchImmediate } from "@vueuse/core";
 
 const { connection, schema, table } = useApp();
 
@@ -103,7 +104,9 @@ async function fetchData(page = 1, itemsPerPage = 10) {
   };
   // TODO: push tx insert changes
 }
-await fetchData();
+watchImmediate([schema, table], async () => {
+  await fetchData();
+});
 
 function insertRow() {
   if (!rows.value) {

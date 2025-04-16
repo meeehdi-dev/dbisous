@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useApp } from "@/composables/shared/useApp";
 import { useConnections } from "@/composables/shared/useConnections";
 import { useSidebar } from "@/composables/shared/useSidebar";
 import { CommandPaletteGroup, CommandPaletteItem } from "@nuxt/ui";
@@ -8,12 +9,14 @@ import { computed, ref, watch } from "vue";
 
 const emit = defineEmits<{ close: [] }>();
 
+const { connection } = useApp();
 const {
   connect,
   disconnect,
   removeConnection,
   connections,
   activeConnections,
+  select,
 } = useConnections();
 const { slideoverOpen, editedConnection } = useSidebar();
 const keys = useMagicKeys();
@@ -32,13 +35,27 @@ const groups = computed(() => {
 
   if (disconnectable.length > 0) {
     groups.push({
+      id: "select",
+      label: "Select database",
+      items: disconnectable
+        .filter((c) => c.id !== connection.value)
+        .map((c) => ({
+          prefix: "Select",
+          label: c.name || c.connection_string,
+          onSelect: async () => {
+            await select(c.id);
+            emit("close");
+          },
+        })),
+    });
+    groups.push({
       id: "disconnect",
       label: "Disconnect from database",
-      items: disconnectable.map((connection) => ({
+      items: disconnectable.map((c) => ({
         prefix: "Disconnect from",
-        label: connection.name || connection.connection_string,
+        label: c.name || c.connection_string,
         onSelect: async () => {
-          await disconnect(connection.id);
+          await disconnect(c.id);
           emit("close");
         },
       })),
@@ -48,11 +65,11 @@ const groups = computed(() => {
     groups.push({
       id: "connect",
       label: "Connect to database",
-      items: connectable.map((connection) => ({
+      items: connectable.map((c) => ({
         prefix: "Connect to",
-        label: connection.name || connection.connection_string,
+        label: c.name || c.connection_string,
         onSelect: async () => {
-          await connect(connection.id);
+          await connect(c.id);
           emit("close");
         },
       })),
@@ -80,11 +97,11 @@ const groups = computed(() => {
     {
       id: "edit_connection",
       label: "Edit connection",
-      items: connections.value.map((connection) => ({
+      items: connections.value.map((c) => ({
         prefix: "Edit",
-        label: connection.name,
+        label: c.name,
         onSelect: () => {
-          editedConnection.value = connection;
+          editedConnection.value = c;
           slideoverOpen.value = true;
           emit("close");
         },
@@ -93,12 +110,12 @@ const groups = computed(() => {
     {
       id: "remove_connection",
       label: "Remove connection",
-      items: connections.value.map((connection) => ({
+      items: connections.value.map((c) => ({
         prefix: "Remove",
-        label: connection.name,
+        label: c.name,
         onSelect: () => {
           onConfirm.value = async () => {
-            await removeConnection(connection.id);
+            await removeConnection(c.id);
             emit("close");
           };
           open.value = true;

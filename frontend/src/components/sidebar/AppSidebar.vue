@@ -2,8 +2,11 @@
 import { app } from "_/go/models";
 import { useConnections } from "@/composables/shared/useConnections";
 import AppCommandPalette from "@/components/AppCommandPalette.vue";
+import AppEntityPalette from "@/components/AppEntityPalette.vue";
 import { useSidebar } from "@/composables/shared/useSidebar";
+import { useApp } from "@/composables/shared/useApp";
 
+const { connection } = useApp();
 const { connections } = useConnections();
 
 const { slideoverOpen, editedConnection } = useSidebar();
@@ -37,13 +40,24 @@ defineShortcuts({
   meta_k: () => {
     onCommandPaletteTrigger();
   },
+  meta_p: () => {
+    onEntityPaletteTrigger();
+  },
 });
 
 // eslint-disable-next-line no-undef
 const overlay = useOverlay();
-const modal = overlay.create(AppCommandPalette);
+
+const commandPalette = overlay.create(AppCommandPalette);
 function onCommandPaletteTrigger() {
-  void modal.open();
+  void commandPalette.open();
+}
+
+const entityPalette = overlay.create(AppEntityPalette);
+function onEntityPaletteTrigger() {
+  if (connection.value) {
+    void entityPalette.open();
+  }
 }
 </script>
 
@@ -54,9 +68,9 @@ function onCommandPaletteTrigger() {
     >
       <div class="flex w-full flex-initial flex-col gap-2 overflow-auto">
         <AppSidebarConnectionCard
-          v-for="connection in connections"
-          :key="connection.id"
-          :value="connection"
+          v-for="c in connections"
+          :key="c.id"
+          :value="c"
           @edit="onConnectionEdit"
           @duplicate="onConnectionDuplicate"
         />
