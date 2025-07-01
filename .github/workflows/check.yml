@@ -97,8 +97,8 @@ jobs:
       mysql:
         image: mysql
         env:
-          MARIADB_ROOT_PASSWORD: mysql
-          MARIADB_DATABASE: dbisous_test
+          MYSQL_ROOT_PASSWORD: mysql
+          MYSQL_DATABASE: dbisous_test
         ports:
           - 33306:3306
         options: >-
