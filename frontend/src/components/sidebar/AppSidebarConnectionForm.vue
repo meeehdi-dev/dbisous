@@ -46,7 +46,6 @@ const connectionPass = ref("");
 const connectionDatabase = ref("");
 const connectionOptions = ref<Array<{ name: string; value: string }>>([]);
 
-const postgresPrefix = "postgres://";
 function onConnectionStringChange() {
   const { host, port, user, pass, database, options } = parseConnectionString(
     state.connection_string,
@@ -61,7 +60,14 @@ function onConnectionStringChange() {
 }
 onConnectionStringChange();
 function onConnectionInfoChange() {
-  state.connection_string = `${state.type === app.ConnectionType.PostgreSQL ? postgresPrefix : ""}${connectionUser.value}:${connectionPass.value}@${connectionHost.value || "localhost"}${connectionPort.value ? `:${connectionPort.value}` : ""}/${connectionDatabase.value}${connectionOptions.value.length > 0 ? "?" : ""}${connectionOptions.value.map((option) => [option.name, option.value].join(option.value ? "=" : "")).join("&")}`;
+  switch (state.type) {
+    case app.ConnectionType.PostgreSQL:
+      state.connection_string = `postgres://${connectionUser.value}:${connectionPass.value}@${connectionHost.value || "localhost"}${connectionPort.value ? `:${connectionPort.value}` : ""}/${connectionDatabase.value}${connectionOptions.value.length > 0 ? "?" : ""}${connectionOptions.value.map((option) => [option.name, option.value].join(option.value ? "=" : "")).join("&")}`;
+      break;
+    case app.ConnectionType.MySQL:
+      state.connection_string = `mysql://${connectionUser.value}:${connectionPass.value}@tcp(${connectionHost.value || "localhost"}${connectionPort.value ? `:${connectionPort.value}` : ""})/${connectionDatabase.value}${connectionOptions.value.length > 0 ? "?" : ""}${connectionOptions.value.map((option) => [option.name, option.value].join(option.value ? "=" : "")).join("&")}`;
+      break;
+  }
 }
 
 const items = computed(() => {

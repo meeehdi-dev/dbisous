@@ -30,7 +30,6 @@ watch(active, () => {
   }
 });
 
-const postgresPrefix = "postgres://";
 async function navigateToDatabase(d: string) {
   const c = connections.value.find((c) => c.id === connection.value);
   if (!c) {
@@ -48,7 +47,17 @@ async function navigateToDatabase(d: string) {
     c.connection_string,
   );
 
-  const connectionString = `${c.type === app.ConnectionType.PostgreSQL ? postgresPrefix : ""}${user}:${pass}@${host}${port ? `:${port}` : ""}/${d}${options.length > 0 ? "?" : ""}${options.map((option) => [option.name, option.value].join(option.value ? "=" : "")).join("&")}`;
+  let connectionString = "";
+  switch (c.type) {
+    case app.ConnectionType.PostgreSQL:
+      connectionString = `postgres://${user}:${pass}@${host}${port ? `:${port}` : ""}/${d}${options.length > 0 ? "?" : ""}${options.map((option) => [option.name, option.value].join(option.value ? "=" : "")).join("&")}`;
+      break;
+    case app.ConnectionType.MySQL:
+      connectionString = `mysql://${user}:${pass}@tcp(${host}${port ? `:${port}` : ""})/${d}${options.length > 0 ? "?" : ""}${options.map((option) => [option.name, option.value].join(option.value ? "=" : "")).join("&")}`;
+      break;
+    default:
+      return;
+  }
 
   const result = await wails(() =>
     UseDatabase(connection.value, connectionString),

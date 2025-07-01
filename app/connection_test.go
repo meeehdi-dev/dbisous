@@ -44,11 +44,10 @@ func createTestConnection(t *testing.T, db *sql.DB, conn Connection) Connection 
 	return Connection{} // Should not be reached
 }
 
-// AI? how can we improve these tests?
-
 var testConnectionName = "DBisous Test"
 var testPostgresConnectionString = "postgres://postgres:postgres@localhost:5432/dbisous_test?sslmode=disable"
-var testMysqlConnectionString = "root:mysql@tcp(localhost:3306)/dbisous_test"
+var testMariaConnectionString = "root:mysql@tcp(localhost:3306)/dbisous_test"
+var testMysqlConnectionString = "root:mysql@tcp(localhost:33306)/dbisous_test"
 
 func TestCreateConnection(t *testing.T) {
 	r := require.New(t)
@@ -120,10 +119,15 @@ func TestTestConnection(t *testing.T) {
 		{"PostgreSQL Invalid Host", PostgreSQL, "postgres://postgres:postgres@invalidhost:5432/dbisous_test?sslmode=disable", false},
 		{"PostgreSQL Invalid Credentials", PostgreSQL, "postgres://invalid:user@localhost:5432/dbisous_test?sslmode=disable", false},
 
+		{"MariaDB Valid", MySQL, testMariaConnectionString, true},
+		{"MariaDB Invalid DB", MySQL, "root:mysql@tcp(localhost:3306)/inexisting", false},
+		{"MariaDB Invalid Host", MySQL, "root:mysql@tcp(invalidhost:3306)/dbisous_test", false},
+		{"MariaDB Invalid Credentials", MySQL, "invalid:user@tcp(localhost:3306)/dbisous_test", false},
+
 		{"MySQL Valid", MySQL, testMysqlConnectionString, true},
-		{"MySQL Invalid DB", MySQL, "root:mysql@tcp(localhost:3306)/inexisting", false},
-		{"MySQL Invalid Host", MySQL, "root:mysql@tcp(invalidhost:3306)/dbisous_test", false},
-		{"MySQL Invalid Credentials", MySQL, "invalid:user@tcp(localhost:3306)/dbisous_test", false},
+		{"MySQL Invalid DB", MySQL, "root:mysql@tcp(localhost:33306)/inexisting", false},
+		{"MySQL Invalid Host", MySQL, "root:mysql@tcp(invalidhost:33306)/dbisous_test", false},
+		{"MySQL Invalid Credentials", MySQL, "invalid:user@tcp(localhost:33306)/dbisous_test", false},
 
 		{"Unsupported Type", "unknown", "some_string", false},
 	}
