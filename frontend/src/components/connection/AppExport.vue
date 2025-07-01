@@ -27,7 +27,6 @@ const exportSchema = v.object({
     v.union([v.boolean(), v.literal("indeterminate")]),
   ),
 });
-const parser = v.safeParser(exportSchema);
 type ExportSchema = v.InferOutput<typeof exportSchema>;
 
 const state = reactive<ExportSchema>({
@@ -242,7 +241,7 @@ const disabled = computed(() => {
 </script>
 
 <template>
-  <UForm :schema="parser" :state="state" @submit="submit">
+  <UForm :schema="exportSchema" :state="state" @submit="submit">
     <div class="w-full p-2">
       <div class="flex flex-col gap-2">
         <div class="flex h-48 w-full gap-2">

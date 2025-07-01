@@ -30,7 +30,6 @@ const formSchema = v.object({
   name: v.string(),
   connection_string: v.string(),
 });
-const parser = v.safeParser(formSchema);
 type FormSchema = v.InferOutput<typeof formSchema>;
 
 const state = reactive<FormSchema>(
@@ -173,7 +172,7 @@ function onBack() {
 </script>
 
 <template>
-  <UForm :schema="parser" :state="state" @submit="submit">
+  <UForm :schema="formSchema" :state="state" @submit="submit">
     <UStepper v-model="active" :items="items" disabled>
       <template #type>
         <AppSidebarConnectionTypeSelector
