@@ -85,13 +85,22 @@ jobs:
           - 5432:5432
         options: >-
           --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
-      mysql:
+      maria:
         image: mariadb
         env:
           MARIADB_ROOT_PASSWORD: mysql
           MARIADB_DATABASE: dbisous_test
         ports:
           - 3306:3306
+        options: >-
+          --health-cmd "healthcheck.sh --connect --innodb_initialized" --health-interval 10s --health-timeout 5s --health-retries 3
+      mysql:
+        image: mysql
+        env:
+          MARIADB_ROOT_PASSWORD: mysql
+          MARIADB_DATABASE: dbisous_test
+        ports:
+          - 33306:33306
         options: >-
           --health-cmd "healthcheck.sh --connect --innodb_initialized" --health-interval 10s --health-timeout 5s --health-retries 3
     needs: [set-version, build]
