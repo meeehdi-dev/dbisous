@@ -1,27 +1,17 @@
-import { defineConfig, PluginOption } from "vite";
+import { fileURLToPath, URL } from "node:url";
+
+import { defineConfig } from "vite";
+import vueRouter from "unplugin-vue-router/vite";
 import vue from "@vitejs/plugin-vue";
 import ui from "@nuxt/ui/vite";
-import packageJson from "./package.json";
-import { resolve } from "path";
+import vueDevTools from "vite-plugin-vue-devtools";
 
+// https://vite.dev/config/
 export default defineConfig({
+  plugins: [vueRouter(), vue(), ui(), vueDevTools()],
   resolve: {
-    alias: [
-      { find: "@", replacement: resolve(__dirname, "src") },
-      { find: "_", replacement: resolve(__dirname, "wailsjs") },
-    ],
+    alias: {
+      "@": fileURLToPath(new URL("./src", import.meta.url)),
+    },
   },
-  define: {
-    "import.meta.env.PACKAGE_VERSION": JSON.stringify(packageJson.version),
-  },
-  plugins: [
-    vue(),
-    ui({
-      ui: {
-        colors: {
-          primary: "purple",
-        },
-      },
-    }) as PluginOption,
-  ],
 });

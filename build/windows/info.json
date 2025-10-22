@@ -1,0 +1,16 @@
+{
+  "fixed": {
+    "file_version": "0.1.0"
+  },
+  "info": {
+    "0000": {
+      "ProductVersion": "0.1.0",
+      "CompanyName": "Kokoro Soft",
+      "FileDescription": "Database Viewer",
+      "LegalCopyright": "Kokoro Soft",
+      "ProductName": "DBisous",
+      "Comments": "Database Viewer"
+    }
+  }
+}
+

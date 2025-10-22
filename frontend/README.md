@@ -1,23 +1,42 @@
-# Vue 3 + TypeScript + Vite
+# frontend
 
-This template should help get you started developing with Vue 3 and TypeScript in Vite. The template uses Vue
-3 `<script setup>` SFCs, check out
-the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+This template should help get you started developing with Vue 3 in Vite.
 
 ## Recommended IDE Setup
 
-- [VS Code](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar)
+[VS Code](https://code.visualstudio.com/) + [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
 
-## Type Support For `.vue` Imports in TS
+## Recommended Browser Setup
 
-Since TypeScript cannot handle type information for `.vue` imports, they are shimmed to be a generic Vue component type
-by default. In most cases this is fine if you don't really care about component prop types outside of templates.
-However, if you wish to get actual prop types in `.vue` imports (for example to get props validation when using
-manual `h(...)` calls), you can enable Volar's Take Over mode by following these steps:
+- Chromium-based browsers (Chrome, Edge, Brave, etc.):
+  - [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd) 
+  - [Turn on Custom Object Formatter in Chrome DevTools](http://bit.ly/object-formatters)
+- Firefox:
+  - [Vue.js devtools](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
+  - [Turn on Custom Object Formatter in Firefox DevTools](https://fxdx.dev/firefox-devtools-custom-object-formatters/)
 
-1. Run `Extensions: Show Built-in Extensions` from VS Code's command palette, look
-   for `TypeScript and JavaScript Language Features`, then right click and select `Disable (Workspace)`. By default,
-   Take Over mode will enable itself if the default TypeScript extension is disabled.
-2. Reload the VS Code window by running `Developer: Reload Window` from the command palette.
+## Type Support for `.vue` Imports in TS
 
-You can learn more about Take Over mode [here](https://github.com/johnsoncodehk/volar/discussions/471).
+TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
+
+## Customize configuration
+
+See [Vite Configuration Reference](https://vite.dev/config/).
+
+## Project Setup
+
+```sh
+bun install
+```
+
+### Compile and Hot-Reload for Development
+
+```sh
+bun dev
+```
+
+### Type-Check, Compile and Minify for Production
+
+```sh
+bun run build
+```

@@ -2,56 +2,66 @@ package main
 
 import (
 	"dbisous/app"
-	"dbisous/app/client"
 	"embed"
-	"os"
-	"strings"
+	_ "embed"
+	"log"
 
-	"github.com/wailsapp/wails/v2"
-	"github.com/wailsapp/wails/v2/pkg/options"
-	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
-	"github.com/wailsapp/wails/v2/pkg/runtime"
+	"github.com/wailsapp/wails/v3/pkg/application"
 )
 
-//go:embed frontend/dist
+// Wails uses Go's `embed` package to embed the frontend files into the binary.
+// Any files in the frontend/dist folder will be embedded into the binary and
+// made available to the frontend.
+// See https://pkg.go.dev/embed for more information.
+
+//go:embed all:frontend/dist
 var assets embed.FS
 
+// main function serves as the application's entry point. It initializes the application, creates a window,
+// and starts a goroutine that emits a time-based event every second. It subsequently runs the application and
+// logs any error that might occur.
 func main() {
-	dbisous := app.NewApp()
 
-	startHidden := false
-	env := os.Environ()
-	for _, e := range env {
-		split := strings.Split(e, "=")
-		key := split[0]
-		if key == "devserver" {
-			startHidden = true
-			break
-		}
-	}
-
-	err := wails.Run(&options.App{
-		Title:     "DBisous",
-		MinWidth:  1024,
-		MinHeight: 768,
-		AssetServer: &assetserver.Options{
-			Assets: assets,
+	// Create a new Wails application by providing the necessary options.
+	// Variables 'Name' and 'Description' are for application metadata.
+	// 'Assets' configures the asset server with the 'FS' variable pointing to the frontend files.
+	// 'Bind' is a list of Go struct instances. The frontend has access to the methods of these instances.
+	// 'Mac' options tailor the application when running an macOS.
+	app := application.New(application.Options{
+		Name:        "DBisous",
+		Description: "Database Viewer",
+		Services: []application.Service{
+			application.NewService(&app.DbService{}),
 		},
-		OnStartup:  dbisous.Startup,
-		OnShutdown: dbisous.Shutdown,
-		Bind: []any{
-			dbisous,
+		Assets: application.AssetOptions{
+			Handler: application.AssetFileServerFS(assets),
 		},
-		EnumBind: []any{
-			app.AllConnectionTypes,
-			client.OrderDirections,
-			client.ExportTypes,
-			client.ExportDrops,
+		Mac: application.MacOptions{
+			ApplicationShouldTerminateAfterLastWindowClosed: true,
 		},
-		StartHidden: startHidden,
 	})
 
+	// Create a new window with the necessary options.
+	// 'Title' is the title of the window.
+	// 'Mac' options tailor the window when running on macOS.
+	// 'BackgroundColour' is the background colour of the window.
+	// 'URL' is the URL that will be loaded into the webview.
+	app.Window.NewWithOptions(application.WebviewWindowOptions{
+		Title: "DBisous",
+		Mac: application.MacWindow{
+			InvisibleTitleBarHeight: 50,
+			Backdrop:                application.MacBackdropTranslucent,
+			TitleBar:                application.MacTitleBarHiddenInset,
+		},
+		BackgroundColour: application.NewRGB(27, 38, 54),
+		URL:              "/",
+	})
+
+	// Run the application. This blocks until the application has been exited.
+	err := app.Run()
+
+	// If an error occurred while running the application, log it and exit.
 	if err != nil {
-		runtime.MessageDialog(dbisous.Ctx, runtime.MessageDialogOptions{Title: "Error!", Message: err.Error()})
+		log.Fatal(err)
 	}
 }
