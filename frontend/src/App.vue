@@ -12,13 +12,22 @@ const items: NavigationMenuItem[] = [
 
 <template>
   <UApp>
-    <UHeader title="DBisous" />
+    <UHeader title="" :ui="{ center: 'flex', right: 'invisible' }"
+      >DBisous</UHeader
+    >
 
     <UMain>
       <UDashboardGroup class="top-(--ui-header-height)">
-        <UDashboardSidebar>
-          <UDashboardSearchButton />
-          <UNavigationMenu :items="items" orientation="vertical" />
+        <UDashboardSidebar collapsible>
+          <template #default="{ collapsed }">
+            <UDashboardSearchButton :collapsed="collapsed" />
+
+            <UNavigationMenu
+              :collapsed="collapsed"
+              :items="items"
+              orientation="vertical"
+            />
+          </template>
         </UDashboardSidebar>
 
         <UDashboardSearch />
