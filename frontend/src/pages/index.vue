@@ -1,17 +1,24 @@
 <script setup vapor lang="ts">
-import { ref } from "vue";
-import Button from "@/components/button.vue";
-import { DbService } from "../../bindings/dbisous/app";
+import type { NavigationMenuItem } from "@nuxt/ui";
 
-const tmp = ref("");
-
-async function test() {
-  tmp.value = await DbService.GetDb();
-}
+const items: NavigationMenuItem[] = [
+  {
+    label: "Home",
+    icon: "lucide:house",
+    active: true,
+  },
+];
 </script>
 
 <template>
-  <Button label="Go to about" to="/about" />
-  <Button label="test" @click="test()" />
-  <span>{{ tmp }}</span>
+  <UDashboardGroup>
+    <UDashboardSidebar collapsible>
+      <UNavigationMenu :items="items" orientation="vertical" />
+    </UDashboardSidebar>
+    <UDashboardPanel>
+      <template #header>
+        <UDashboardNavbar title="Home" icon="lucide:house" />
+      </template>
+    </UDashboardPanel>
+  </UDashboardGroup>
 </template>
