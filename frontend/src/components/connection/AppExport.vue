@@ -3,15 +3,15 @@ import { useApp } from "@/composables/shared/useApp";
 import { useConnections } from "@/composables/shared/useConnections";
 import { useWails } from "@/composables/useWails";
 import type { FormSubmitEvent } from "@nuxt/ui";
-import { ExportDatabase } from "_/go/app/App";
-import { client } from "_/go/models";
+import { ExportDatabase } from "_/dbisous/app/app.js";
+import * as client from "_/dbisous/app/client/models.js";
 import * as v from "valibot";
 import { computed, reactive, ref } from "vue";
 
 const { connection } = useApp();
 const { metadata } = useConnections();
 const wails = useWails();
-// eslint-disable-next-line no-undef
+
 const toast = useToast();
 
 const exportSchema = v.object({
@@ -36,7 +36,7 @@ const state = reactive<ExportSchema>({
   drop_schema: false,
   ignore_constraints: false,
   wrap_in_transaction: true,
-  drop_table: client.ExportDrop.Drop_and_create,
+  drop_table: client.ExportDrop.DropAndCreate,
   selected: {},
 });
 

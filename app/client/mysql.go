@@ -236,10 +236,10 @@ func (c *MysqlClient) Execute(query string) error {
 	return execute(c.Db, query)
 }
 
-func (c *MysqlClient) Export(options ExportOptions) (string, error) {
+func (c *MysqlClient) Export(opts ExportOptions) (string, error) {
 	contents := ""
 
-	if options.WrapInTransaction {
+	if opts.WrapInTransaction {
 		contents += "BEGIN;\n"
 	}
 
@@ -250,8 +250,8 @@ func (c *MysqlClient) Export(options ExportOptions) (string, error) {
 
 	// NOTE: STEP 1 => Create tables
 	// TODO: refactor and use helper function to avoid duplicate code
-	if options.DropTable != DoNothing {
-		for i, entity := range options.Selected {
+	if opts.DropTable != DoNothing {
+		for i, entity := range opts.Selected {
 			if strings.Count(entity, ".") == 0 {
 				// TODO: schema
 			}
@@ -268,7 +268,7 @@ func (c *MysqlClient) Export(options ExportOptions) (string, error) {
 					currentTable = table
 					tableColumnsMap[table] = make([]string, 0)
 				}
-				switch options.DropTable {
+				switch opts.DropTable {
 				case DropAndCreate:
 					contents += fmt.Sprintf("DROP TABLE %s;\n", table)
 					contents += fmt.Sprintf("CREATE TABLE %s (\n", table)
@@ -308,8 +308,8 @@ func (c *MysqlClient) Export(options ExportOptions) (string, error) {
 					primaryKey = " PRIMARY KEY"
 				}
 				contents += fmt.Sprintf("    %s %s%s%s%s", currentColumn.Name, currentColumn.Type, nullable, defaultValue, primaryKey)
-				if i+1 < len(options.Selected) {
-					next := options.Selected[i+1]
+				if i+1 < len(opts.Selected) {
+					next := opts.Selected[i+1]
 					// NOTE: only part differing from sqlite as we can use the schema here
 					if strings.HasPrefix(next, schema+"."+table+".") {
 						contents += ","
@@ -326,7 +326,7 @@ func (c *MysqlClient) Export(options ExportOptions) (string, error) {
 
 	// NOTE: STEP 2 => Insert data
 	// TODO: use helper function to avoid duplicate code
-	if !options.SchemaOnly {
+	if !opts.SchemaOnly {
 		contents += "\n"
 		for table, columns := range tableColumnsMap {
 			query := "SELECT "
@@ -403,7 +403,7 @@ func (c *MysqlClient) Export(options ExportOptions) (string, error) {
 		contents += "\n"
 	}
 
-	if options.WrapInTransaction {
+	if opts.WrapInTransaction {
 		contents += "COMMIT;\n"
 	}
 

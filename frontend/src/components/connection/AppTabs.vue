@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import AppRows from "@/components/connection/table/AppRows.vue";
-import AppColumns from "@/components/connection/table/column/AppColumns.vue";
+import type AppRows from "@/components/connection/table/AppRows.vue";
+import type AppColumns from "@/components/connection/table/column/AppColumns.vue";
 import { Tab } from "@/utils/tabs";
 
 const { defaultQuery } = defineProps<{ defaultQuery?: string }>();

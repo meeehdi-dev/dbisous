@@ -1,5 +1,5 @@
 import { editor } from "monaco-editor";
-import { Ref } from "vue";
+import type { Ref } from "vue";
 
 export const useMonaco = () => {
   function create(el: HTMLDivElement, value: Ref<string>, disabled: boolean) {

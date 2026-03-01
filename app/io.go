@@ -8,14 +8,14 @@ import (
 	"os"
 )
 
-func exportDatabase(file string, id string, options client.ExportOptions) (string, error) {
+func exportDatabase(file string, id string, opts client.ExportOptions) (string, error) {
 	// TODO: savefiledialog before exporting to make use of buffered writes and avoid memory issues
 	dbClient, exists := dbClients[id]
 	if !exists {
 		return "", fmt.Errorf("no database client for database ID: %s", id)
 	}
 
-	contents, err := dbClient.Export(options)
+	contents, err := dbClient.Export(opts)
 	if err != nil {
 		return "", err
 	}

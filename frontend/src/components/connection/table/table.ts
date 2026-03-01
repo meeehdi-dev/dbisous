@@ -1,10 +1,9 @@
 import { h } from "vue";
 import AppCell from "@/components/connection/table/cell/AppCell.vue";
-import AppColumnHeader, {
-  SortDirection,
-} from "@/components/connection/table/column/AppColumnHeader.vue";
+import type { SortDirection } from "@/components/connection/table/column/AppColumnHeader.vue";
+import AppColumnHeader from "@/components/connection/table/column/AppColumnHeader.vue";
 import type { TableColumn } from "@nuxt/ui";
-import { client } from "_/go/models";
+import type * as client from "_/dbisous/app/client/models.js";
 
 export enum RowAction {
   View = "view",
@@ -57,9 +56,9 @@ export const cell =
       table,
       primaryKey,
       column,
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+
       row: ctx.row.original,
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
+
       initialValue: ctx.getValue(),
       type,
       items,
@@ -133,7 +132,6 @@ export function formatColumns(
     header: "Actions",
   });
 
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-return
   return formatted;
 }
 

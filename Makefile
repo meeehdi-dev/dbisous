@@ -1,10 +1,10 @@
 .PHONY: build
 
 build:
-	wails build
+	wails3 build
 
 dev:
-	wails dev
+	wails3 dev
 
 test:
 	go test ./app

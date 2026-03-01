@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { app } from "_/go/models";
+import type * as app from "_/dbisous/app/models.js";
 import { useCopy } from "@/composables/useCopy";
 
 const { connection } = defineProps<{ connection: app.Connection }>();

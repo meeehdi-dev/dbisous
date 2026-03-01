@@ -1,13 +1,16 @@
 <script setup lang="ts">
 import { ref, watch } from "vue";
-import {
-  formatColumns,
-  FormattedQueryResult,
-} from "@/components/connection/table/table";
+import type { FormattedQueryResult } from "@/components/connection/table/table";
+import { formatColumns } from "@/components/connection/table/table";
 import { useWails } from "@/composables/useWails";
-import { DeletePastQuery, ExecuteQuery, GetPastQueries } from "_/go/app/App";
-import { app, client } from "_/go/models";
-import { SortDirection } from "@/components/connection/table/column/AppColumnHeader.vue";
+import {
+  DeletePastQuery,
+  ExecuteQuery,
+  GetPastQueries,
+} from "_/dbisous/app/app.js";
+import type * as app from "_/dbisous/app/models.js";
+import * as client from "_/dbisous/app/client/models.js";
+import type { SortDirection } from "@/components/connection/table/column/AppColumnHeader.vue";
 import { useApp } from "@/composables/shared/useApp";
 
 const defaultQuery = defineModel<string>("defaultQuery");
@@ -38,7 +41,7 @@ async function fetchData(reload = true) {
   }
   data.value = {
     key: dataKey.value++,
-    // eslint-disable-next-line @typescript-eslint/no-misused-spread
+
     ...result,
     columns: formatColumns(
       result.columns,
@@ -59,6 +62,7 @@ async function fetchData(reload = true) {
         }
         return fetchData();
       },
+      undefined,
       undefined,
       undefined,
       true,
@@ -98,7 +102,6 @@ async function setQuery(q: string, execute = false) {
   }
 }
 
-// eslint-disable-next-line no-undef
 defineShortcuts({
   meta_enter: () => {
     void fetchData();

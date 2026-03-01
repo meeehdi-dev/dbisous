@@ -2,16 +2,18 @@
 **/.DS_Store
 
 # wails
-build/**
-!build/appicon.png
-frontend/package.json.md5
-frontend/dist
-frontend/wailsjs
-
-# unplugin
-frontend/auto-imports.d.ts
-frontend/components.d.ts
+bin/
+build/darwin/icons.icns
+build/windows/icon.ico
+.task/
+frontend/bindings/
 
 # frontend
-frontend/node_modules
+frontend/dist/
+frontend/node_modules/
 frontend/.eslintcache
+frontend/.nuxt/
+frontend/.output/
+frontend/*.tsbuildinfo
+frontend/auto-imports.d.ts
+frontend/components.d.ts

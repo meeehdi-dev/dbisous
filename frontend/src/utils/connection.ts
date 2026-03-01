@@ -7,7 +7,7 @@ interface Connection {
   user: string;
   pass: string;
   database: string;
-  options: Array<{ name: string; value: string }>;
+  opts: Array<{ name: string; value: string }>;
 }
 
 export function parseConnectionString(connectionString: string): Connection {
@@ -29,15 +29,15 @@ export function parseConnectionString(connectionString: string): Connection {
     }
   }
   const [host, port] = hostInfo.split(":");
-  const [database, options] = (params || "").split("?");
+  const [database, opts] = (params || "").split("?");
 
   const connectionHost = host || "";
   const connectionPort = port || "";
   const connectionUser = user || "";
   const connectionPass = pass || "";
   const connectionDatabase = database || "";
-  const connectionOptions = options
-    ? options.split("&").map((option) => {
+  const connectionOptions = opts
+    ? opts.split("&").map((option) => {
         const [name, value] = option.split("=");
         return { name, value };
       })
@@ -49,6 +49,6 @@ export function parseConnectionString(connectionString: string): Connection {
     user: connectionUser,
     pass: connectionPass,
     database: connectionDatabase,
-    options: connectionOptions,
+    opts: connectionOptions,
   };
 }

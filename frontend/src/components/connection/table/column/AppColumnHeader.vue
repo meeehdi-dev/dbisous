@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { client } from "_/go/models";
+import * as client from "_/dbisous/app/client/models.js";
 import { computed, ref } from "vue";
 
 export type SortDirection = false | client.OrderDirection;

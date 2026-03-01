@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 import { useConnections } from "@/composables/shared/useConnections";
-import { app } from "_/go/models";
+import type * as app from "_/dbisous/app/models.js";
 import { useWails } from "@/composables/useWails";
-import { TestConnection } from "_/go/app/App";
+import { TestConnection } from "_/dbisous/app/app.js";
 import { useApp } from "@/composables/shared/useApp";
 
 const { value } = defineProps<{ value: app.Connection }>();
@@ -13,7 +13,7 @@ const { isConnected, connect, disconnect, select, removeConnection } =
   useConnections();
 const { connection } = useApp();
 const wails = useWails();
-// eslint-disable-next-line no-undef
+
 const toast = useToast();
 
 const connected = computed(() => isConnected(value.id));

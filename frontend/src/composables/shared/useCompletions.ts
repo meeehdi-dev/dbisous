@@ -108,7 +108,6 @@ export const useCompletions = createSharedComposable(() => {
       },
     });
 
-    // eslint-disable-next-line @typescript-eslint/unbound-method
     dispose.value = disposable.dispose;
   }
 

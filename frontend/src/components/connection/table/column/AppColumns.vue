@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import type { TableColumn } from "@nuxt/ui";
 import { ref, watch } from "vue";
+import type { RowEmits } from "@/components/connection/table/table";
 import {
-  RowEmits,
   RowAction,
   cell,
   getHeader,
 } from "@/components/connection/table/table";
-import { client } from "_/go/models";
+import type * as client from "_/dbisous/app/client/models.js";
 
 const emit = defineEmits<RowEmits<client.ColumnMetadata>>();
 

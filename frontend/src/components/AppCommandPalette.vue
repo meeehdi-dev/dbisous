@@ -2,9 +2,9 @@
 import { useApp } from "@/composables/shared/useApp";
 import { useConnections } from "@/composables/shared/useConnections";
 import { useSidebar } from "@/composables/shared/useSidebar";
-import { CommandPaletteGroup, CommandPaletteItem } from "@nuxt/ui";
+import type { CommandPaletteGroup, CommandPaletteItem } from "@nuxt/ui";
 import { useMagicKeys } from "@vueuse/core";
-import { app } from "_/go/models";
+import * as app from "_/dbisous/app/models.js";
 import { computed, ref, watch } from "vue";
 
 const emit = defineEmits<{ close: [] }>();
@@ -124,7 +124,6 @@ const groups = computed(() => {
     },
   );
 
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-return
   return groups;
 });
 

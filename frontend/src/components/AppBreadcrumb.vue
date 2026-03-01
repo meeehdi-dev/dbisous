@@ -11,7 +11,7 @@ interface AppBreadcrumbItem extends BreadcrumbItem {
   onClick?: () => void;
 }
 
-const items = ref<Array<AppBreadcrumbItem>>([]);
+const items = ref<any[]>([]);
 
 watchEffect(() => {
   const i: AppBreadcrumbItem[] = [];

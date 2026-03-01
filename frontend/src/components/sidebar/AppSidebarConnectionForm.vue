@@ -2,9 +2,9 @@
 import * as v from "valibot";
 import { computed, reactive, ref, watch } from "vue";
 import { useWails } from "@/composables/useWails";
-import { SelectFile, TestConnection } from "_/go/app/App";
+import { SelectFile, TestConnection } from "_/dbisous/app/app.js";
 import { useConnections } from "@/composables/shared/useConnections";
-import { app } from "_/go/models";
+import * as app from "_/dbisous/app/models.js";
 import type { FormSubmitEvent } from "@nuxt/ui";
 import { parseConnectionString } from "@/utils/connection";
 
@@ -18,7 +18,7 @@ const connection = defineModel<
 >();
 
 const wails = useWails();
-// eslint-disable-next-line no-undef
+
 const toast = useToast();
 const { fetchConnections, addConnection, updateConnection } = useConnections();
 
@@ -47,7 +47,7 @@ const connectionDatabase = ref("");
 const connectionOptions = ref<Array<{ name: string; value: string }>>([]);
 
 function onConnectionStringChange() {
-  const { host, port, user, pass, database, options } = parseConnectionString(
+  const { host, port, user, pass, database, opts } = parseConnectionString(
     state.connection_string,
   );
 
@@ -56,7 +56,7 @@ function onConnectionStringChange() {
   connectionUser.value = user;
   connectionPass.value = pass;
   connectionDatabase.value = database;
-  connectionOptions.value = options;
+  connectionOptions.value = opts;
 }
 onConnectionStringChange();
 function onConnectionInfoChange() {

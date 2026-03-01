@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
-import {
+import type {
   RowEmits,
-  RowAction,
   FormattedQueryResult,
 } from "@/components/connection/table/table";
+import { RowAction } from "@/components/connection/table/table";
 import { useTransaction } from "@/composables/shared/useTransaction";
 import { useWails } from "@/composables/useWails";
-import { Execute } from "_/go/app/App";
+import { Execute } from "_/dbisous/app/app.js";
 import { useApp } from "@/composables/shared/useApp";
 import { useMagicKeys, useStorage } from "@vueuse/core";
 import { useSidebar } from "@/composables/shared/useSidebar";
@@ -110,7 +110,6 @@ watch(keys["escape"], (esc) => {
   }
 });
 
-// eslint-disable-next-line no-undef
 defineShortcuts({
   meta_e: () => {
     onQueryEdit();
@@ -154,9 +153,9 @@ defineShortcuts({
         :key="data?.key"
         v-model:column-pinning="columnPinning"
         :sorting="sorting"
-        :sorting-options="{ manualSorting: actions.length > 0 }"
+        :sorting-opts="{ manualSorting: actions.length > 0 }"
         :column-filters="filtering"
-        :column-filters-options="{ manualFiltering: actions.length > 0 }"
+        :column-filters-opts="{ manualFiltering: actions.length > 0 }"
         :data="data?.rows"
         :columns="data?.columns"
         :loading="loading"

@@ -1,15 +1,12 @@
 <script setup lang="ts">
-import { GetTableRows } from "_/go/app/App";
+import { GetTableRows } from "_/dbisous/app/app.js";
 import { computed, ref, watch } from "vue";
-import {
-  formatColumns,
-  FormattedQueryResult,
-  RowAction,
-} from "@/components/connection/table/table";
-import { client } from "_/go/models";
+import type { FormattedQueryResult } from "@/components/connection/table/table";
+import { formatColumns, RowAction } from "@/components/connection/table/table";
+import * as client from "_/dbisous/app/client/models.js";
 import { useWails } from "@/composables/useWails";
 import { useTransaction } from "@/composables/shared/useTransaction";
-import { SortDirection } from "@/components/connection/table/column/AppColumnHeader.vue";
+import type { SortDirection } from "@/components/connection/table/column/AppColumnHeader.vue";
 import { useApp } from "@/composables/shared/useApp";
 import { toSqlValue } from "@/utils/transaction";
 import { Tab } from "@/utils/tabs";
@@ -70,7 +67,7 @@ async function fetchData(page = 1, itemsPerPage = 10) {
   primaryKey.value = result.columns.find((c) => c.primary_key)?.name;
   rows.value = {
     key: rowsKey.value++,
-    // eslint-disable-next-line @typescript-eslint/no-misused-spread
+
     ...result,
     columns: formatColumns(
       result.columns,

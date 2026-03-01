@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { app } from "_/go/models";
+import * as app from "_/dbisous/app/models.js";
 
 const emit = defineEmits<{ select: [app.ConnectionType] }>();
 

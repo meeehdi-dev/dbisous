@@ -10,7 +10,7 @@ test("parses connection string (postgres)", () => {
     user: "postgres",
     pass: "postgres",
     database: "",
-    options: [],
+    opts: [],
   });
 });
 
@@ -23,7 +23,7 @@ test("parses connection string (postgres, port)", () => {
     user: "postgres",
     pass: "postgres",
     database: "",
-    options: [],
+    opts: [],
   });
 });
 
@@ -38,11 +38,11 @@ test("parses connection string (postgres, port, database)", () => {
     user: "postgres",
     pass: "postgres",
     database: "postgres",
-    options: [],
+    opts: [],
   });
 });
 
-test("parses connection string (postgres, port, database, options)", () => {
+test("parses connection string (postgres, port, database, opts)", () => {
   expect(
     parseConnectionString(
       "postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable",
@@ -53,7 +53,7 @@ test("parses connection string (postgres, port, database, options)", () => {
     user: "postgres",
     pass: "postgres",
     database: "postgres",
-    options: [{ name: "sslmode", value: "disable" }],
+    opts: [{ name: "sslmode", value: "disable" }],
   });
 });
 
@@ -64,7 +64,7 @@ test("parses connection string (mysql)", () => {
     user: "root",
     pass: "mysql",
     database: "",
-    options: [],
+    opts: [],
   });
 });
 
@@ -77,7 +77,7 @@ test("parses connection string (mysql, host, port)", () => {
     user: "root",
     pass: "mysql",
     database: "",
-    options: [],
+    opts: [],
   });
 });
 
@@ -90,11 +90,11 @@ test("parses connection string (mysql, host, port, database)", () => {
     user: "root",
     pass: "mysql",
     database: "mysql",
-    options: [],
+    opts: [],
   });
 });
 
-test("parses connection string (mysql, host, port, database, options)", () => {
+test("parses connection string (mysql, host, port, database, opts)", () => {
   expect(
     parseConnectionString(
       "mysql://root:mysql@tcp(localhost:3306)/mysql?sslmode=disable",
@@ -105,6 +105,6 @@ test("parses connection string (mysql, host, port, database, options)", () => {
     user: "root",
     pass: "mysql",
     database: "mysql",
-    options: [{ name: "sslmode", value: "disable" }],
+    opts: [{ name: "sslmode", value: "disable" }],
   });
 });

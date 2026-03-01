@@ -1,11 +1,13 @@
+import type {
+  DeleteChange,
+  InsertChange,
+  UpdateChange,
+} from "@/utils/transaction";
 import {
   ChangeType,
-  DeleteChange,
   formatDeleteChangeToSql,
   formatInsertChangeToSql,
   formatUpdateChangeToSql,
-  InsertChange,
-  UpdateChange,
 } from "@/utils/transaction";
 import { createSharedComposable } from "@vueuse/core";
 import { ref } from "vue";

@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { useApp } from "@/composables/shared/useApp";
 import { useConnections } from "@/composables/shared/useConnections";
-import { Route } from "@/router";
-import { CommandPaletteGroup, CommandPaletteItem } from "@nuxt/ui";
+import type { CommandPaletteGroup, CommandPaletteItem } from "@nuxt/ui";
 import { useMagicKeys } from "@vueuse/core";
 import { computed, ref, watch } from "vue";
 import { useRouter } from "vue-router";
@@ -27,7 +26,7 @@ const groups = computed(() => {
       prefix: "Go to",
       label: s,
       onSelect: async () => {
-        await router.push({ name: Route.Schema });
+        await router.push({ path: "/schema" });
         schema.value = s;
         table.value = "";
         emit("close");
@@ -44,7 +43,7 @@ const groups = computed(() => {
           prefix: "Go to",
           label: t,
           onSelect: async () => {
-            await router.push({ name: Route.Table });
+            await router.push({ path: "/table" });
             schema.value = s;
             table.value = t;
             emit("close");
@@ -54,7 +53,6 @@ const groups = computed(() => {
     });
   });
 
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-return
   return groups;
 });
 

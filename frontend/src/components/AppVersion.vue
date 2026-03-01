@@ -1,12 +1,12 @@
 <script setup lang="ts">
+import { onMounted, ref } from "vue";
+import MarkdownIt from "markdown-it";
+
 declare global {
   interface Window {
     runtime: { BrowserOpenURL: (url: string) => void };
   }
 }
-
-import { onMounted, ref } from "vue";
-import MarkdownIt from "markdown-it";
 
 const packageVersion = import.meta.env.PACKAGE_VERSION as string;
 
@@ -23,15 +23,15 @@ const loading = ref(true);
 const error = ref<string | null>(null);
 
 const md = new MarkdownIt({ linkify: true });
-md.renderer.rules.link_open = function (tokens, idx, options, _env, self) {
+md.renderer.rules.link_open = function (tokens, idx, opts, _env, self) {
   const aIndex = tokens[idx].attrIndex("href");
   if (aIndex < 0) {
-    return self.renderToken(tokens, idx, options);
+    return self.renderToken(tokens, idx, opts);
   }
 
   const href = tokens[idx].attrs?.[aIndex][1];
   if (!href) {
-    return self.renderToken(tokens, idx, options);
+    return self.renderToken(tokens, idx, opts);
   }
 
   tokens[idx].attrPush([
@@ -39,7 +39,7 @@ md.renderer.rules.link_open = function (tokens, idx, options, _env, self) {
     `window.runtime.BrowserOpenURL('${href}'); return false;`,
   ]);
 
-  return self.renderToken(tokens, idx, options);
+  return self.renderToken(tokens, idx, opts);
 };
 
 onMounted(async () => {

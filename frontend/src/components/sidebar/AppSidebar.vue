@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { app } from "_/go/models";
+import type * as app from "_/dbisous/app/models.js";
 import { useConnections } from "@/composables/shared/useConnections";
 import AppCommandPalette from "@/components/AppCommandPalette.vue";
 import AppEntityPalette from "@/components/AppEntityPalette.vue";
@@ -35,7 +35,6 @@ function onConnectionDuplicate(id: string) {
   slideoverOpen.value = true;
 }
 
-// eslint-disable-next-line no-undef
 defineShortcuts({
   meta_k: () => {
     onCommandPaletteTrigger();
@@ -45,7 +44,6 @@ defineShortcuts({
   },
 });
 
-// eslint-disable-next-line no-undef
 const overlay = useOverlay();
 
 const commandPalette = overlay.create(AppCommandPalette);

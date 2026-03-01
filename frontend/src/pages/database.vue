@@ -1,16 +1,12 @@
 <script setup lang="ts">
 import { useRouter } from "vue-router";
-import { GetDatabaseSchemas } from "_/go/app/App";
-import {
-  formatColumns,
-  FormattedQueryResult,
-  RowAction,
-} from "@/components/connection/table/table";
+import { GetDatabaseSchemas } from "_/dbisous/app/app.js";
+import type { FormattedQueryResult } from "@/components/connection/table/table";
+import { formatColumns, RowAction } from "@/components/connection/table/table";
 import { useWails } from "@/composables/useWails";
 import { ref, watch } from "vue";
-import { client } from "_/go/models";
-import { SortDirection } from "@/components/connection/table/column/AppColumnHeader.vue";
-import { Route } from "@/router";
+import * as client from "_/dbisous/app/client/models.js";
+import type { SortDirection } from "@/components/connection/table/column/AppColumnHeader.vue";
 import { useApp } from "@/composables/shared/useApp";
 import { toSqlValue } from "@/utils/transaction";
 import { Tab } from "@/utils/tabs";
@@ -28,7 +24,7 @@ watch(active, () => {
 });
 
 async function navigateToSchema(s: string) {
-  await router.push({ name: Route.Schema });
+  await router.push({ path: "/schema" });
   schema.value = s;
   table.value = "";
 }
@@ -69,7 +65,7 @@ async function fetchData(page = 1, itemsPerPage = 10) {
   columns.value = result.columns;
   rows.value = {
     key: rowsKey.value++,
-    // eslint-disable-next-line @typescript-eslint/no-misused-spread
+
     ...result,
     columns: formatColumns(
       result.columns,

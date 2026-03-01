@@ -2,7 +2,7 @@ import { onMounted, ref } from "vue";
 import { createSharedComposable } from "@vueuse/core";
 import { useWails } from "@/composables/useWails";
 import { useRouter } from "vue-router";
-import { app } from "_/go/models";
+import * as app from "_/dbisous/app/models.js";
 import {
   Connect,
   CreateConnection,
@@ -10,8 +10,7 @@ import {
   Disconnect,
   GetConnections,
   UpdateConnection,
-} from "_/go/app/App";
-import { Route } from "@/router";
+} from "_/dbisous/app/app.js";
 import { useApp } from "./useApp";
 import { useCompletions } from "./useCompletions";
 import { parseConnectionString } from "@/utils/connection";
@@ -58,7 +57,7 @@ export const useConnections = createSharedComposable(() => {
     }
     await fetchConnections();
     if (id === connection.value) {
-      await router.push({ name: Route.Welcome });
+      await router.push({ path: "/" });
     }
   }
 
@@ -82,13 +81,13 @@ export const useConnections = createSharedComposable(() => {
       table.value = "";
       schema.value = "";
       if (currentConnection.type === app.ConnectionType.SQLite) {
-        await router.push({ name: Route.Database });
+        await router.push({ path: "/database" });
         database.value = "main";
       } else if (db) {
-        await router.push({ name: Route.Database });
+        await router.push({ path: "/database" });
         database.value = db;
       } else {
-        await router.push({ name: Route.Connection });
+        await router.push({ path: "/connection" });
         database.value = "";
       }
     }
@@ -113,7 +112,7 @@ export const useConnections = createSharedComposable(() => {
       (connectionId) => connectionId !== id,
     );
     if (connection.value === id) {
-      await router.push({ name: Route.Welcome });
+      await router.push({ path: "/" });
       connection.value = "";
       database.value = "";
       schema.value = "";

@@ -4,7 +4,7 @@ import (
 	"dbisous/app/client"
 	"fmt"
 
-	"github.com/wailsapp/wails/v2/pkg/runtime"
+	"github.com/wailsapp/wails/v3/pkg/application"
 )
 
 func (a *App) GetConnections() ([]Connection, error) {
@@ -43,20 +43,20 @@ func (a *App) DeletePastQuery(id string) error {
 	return deletePastQuery(metadataDB, id)
 }
 
-func (a *App) ExportDatabase(id string, options client.ExportOptions) (string, error) {
-	file, err := runtime.SaveFileDialog(a.Ctx, runtime.SaveDialogOptions{})
+func (a *App) ExportDatabase(id string, opts client.ExportOptions) (string, error) {
+	file, err := application.Get().Dialog.SaveFile().PromptForSingleSelection()
 	if err != nil {
 		return "", err
 	}
 	if file == "" {
 		return "", fmt.Errorf("No file selected")
 	}
-	return exportDatabase(file, id, options)
+	return exportDatabase(file, id, opts)
 }
 
 func (a *App) ImportDatabase(id string) (string, error) {
 	// TODO: buffered read and do it step by step to avoid memory overload
-	file, err := runtime.SaveFileDialog(a.Ctx, runtime.SaveDialogOptions{})
+	file, err := application.Get().Dialog.OpenFile().PromptForSingleSelection()
 	if err != nil {
 		return "", err
 	}
@@ -68,7 +68,7 @@ func (a *App) ImportDatabase(id string) (string, error) {
 }
 
 func (a *App) SelectFile() (string, error) {
-	file, err := runtime.OpenFileDialog(a.Ctx, runtime.OpenDialogOptions{})
+	file, err := application.Get().Dialog.OpenFile().PromptForSingleSelection()
 	if err != nil {
 		return "", err
 	}

@@ -1,12 +1,11 @@
 <script setup lang="ts">
 import { onMounted } from "vue";
 import { useRouter } from "vue-router";
-import { Route } from "./router";
 
 const router = useRouter();
 
 onMounted(async () => {
-  await router.push({ name: Route.Welcome });
+  await router.push({ path: "/" });
 });
 </script>
 
@@ -18,11 +17,7 @@ onMounted(async () => {
         <div class="flex flex-auto flex-col overflow-hidden">
           <AppBreadcrumb />
           <Suspense>
-            <RouterView v-slot="{ Component, route }">
-              <Transition name="fade" mode="out-in">
-                <component :is="Component" :key="route.path" />
-              </Transition>
-            </RouterView>
+            <NuxtPage />
           </Suspense>
         </div>
       </div>

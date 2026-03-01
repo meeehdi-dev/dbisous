@@ -1,16 +1,13 @@
 <script setup lang="ts">
 import { useRouter } from "vue-router";
-import { GetConnectionDatabases, UseDatabase } from "_/go/app/App";
-import {
-  formatColumns,
-  FormattedQueryResult,
-  RowAction,
-} from "@/components/connection/table/table";
+import { GetConnectionDatabases, UseDatabase } from "_/dbisous/app/app.js";
+import type { FormattedQueryResult } from "@/components/connection/table/table";
+import { formatColumns, RowAction } from "@/components/connection/table/table";
 import { useWails } from "@/composables/useWails";
 import { ref, watch } from "vue";
-import { app, client } from "_/go/models";
-import { SortDirection } from "@/components/connection/table/column/AppColumnHeader.vue";
-import { Route } from "@/router";
+import * as app from "_/dbisous/app/models.js";
+import * as client from "_/dbisous/app/client/models.js";
+import type { SortDirection } from "@/components/connection/table/column/AppColumnHeader.vue";
 import { useApp } from "@/composables/shared/useApp";
 import { toSqlValue } from "@/utils/transaction";
 import { Tab } from "@/utils/tabs";
@@ -38,22 +35,22 @@ async function navigateToDatabase(d: string) {
   }
 
   if (c.type === app.ConnectionType.SQLite) {
-    await router.push({ name: Route.Database });
+    await router.push({ path: "/database" });
     database.value = d;
     return;
   }
 
-  const { host, port, user, pass, options } = parseConnectionString(
+  const { host, port, user, pass, opts } = parseConnectionString(
     c.connection_string,
   );
 
   let connectionString = "";
   switch (c.type) {
     case app.ConnectionType.PostgreSQL:
-      connectionString = `postgres://${user}:${pass}@${host}${port ? `:${port}` : ""}/${d}${options.length > 0 ? "?" : ""}${options.map((option) => [option.name, option.value].join(option.value ? "=" : "")).join("&")}`;
+      connectionString = `postgres://${user}:${pass}@${host}${port ? `:${port}` : ""}/${d}${opts.length > 0 ? "?" : ""}${opts.map((option) => [option.name, option.value].join(option.value ? "=" : "")).join("&")}`;
       break;
     case app.ConnectionType.MySQL:
-      connectionString = `mysql://${user}:${pass}@tcp(${host}${port ? `:${port}` : ""})/${d}${options.length > 0 ? "?" : ""}${options.map((option) => [option.name, option.value].join(option.value ? "=" : "")).join("&")}`;
+      connectionString = `mysql://${user}:${pass}@tcp(${host}${port ? `:${port}` : ""})/${d}${opts.length > 0 ? "?" : ""}${opts.map((option) => [option.name, option.value].join(option.value ? "=" : "")).join("&")}`;
       break;
     default:
       return;
@@ -65,7 +62,7 @@ async function navigateToDatabase(d: string) {
   if (result instanceof Error) {
     return;
   }
-  await router.push({ name: Route.Database });
+  await router.push({ path: "/database" });
   database.value = d;
 }
 
@@ -105,7 +102,7 @@ async function fetchData(page = 1, itemsPerPage = 10) {
   columns.value = result.columns;
   rows.value = {
     key: rowsKey.value++,
-    // eslint-disable-next-line @typescript-eslint/no-misused-spread
+
     ...result,
     columns: formatColumns(
       result.columns,
